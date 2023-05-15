@@ -1,0 +1,35 @@
+[project]
+name = "gpt-fsttm-server"
+version = "0.1.0"
+description = "A Finite-State Turn-Taking Model for Spoken Dialog Systems"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+keywords = ["reactivex"]
+authors = [
+  {email = "lib.aca55a@gmail.com"},
+  {name = "Jean-Luc Picard"}
+]
+classifiers = [
+  'Development Status :: 3 - Alpha',
+  'Intended Audience :: Developers',
+  'Programming Language :: Python :: 3',
+]
+
+dependencies = [
+  'reactivex~=4.0',
+  'llama-cpp-python==0.1.5',
+  'whispercpp==0.0.17',
+  'langchain'
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[project.urls]
+repository = "https://github.com/ibnHatab/FSTTM"
+
+[project.scripts]
+audio-encode-server="gpt_fsttm_server.server:main"

@@ -3,6 +3,10 @@
 ## Turn floor
 https://aclanthology.org/N09-1071.pdf
 
+The introduction to Reactive Programming you've been missing
+https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
+
+
 ## Rule based
 https://www.lri.fr/~mandel//publications/BaudartHirzelMandelShinnarSimeon-REBLS-2018.pdf
 https://www.lri.fr/~mandel//publications/BaudartHirzelMandelShinnarSimeon-REBLS-2018.pdf
@@ -35,9 +39,23 @@ Gpt4All Web UI Flask web application
 Python library for defining AI personalities for AI-based models
  https://github.com/ParisNeo/PyAIPersonality
 
+## Fine tunning
+RedPajama-INCITE-3B, an LLM for everyone
+ https://www.together.xyz/blog/redpajama-3b-updates
+
  ## Glue scripts
 Pybind11 bindings for whisper.cpp
  https://github.com/aarnphm/whispercpp
 
 Python bindings for llama.cpp
  https://github.com/abdeladim-s/pyllamacpp
+
+Python Bindings for llama.cpp
+ https://github.com/abetlen/llama-cpp-python
+
+LangChain
+ https://pypi.org/project/langchain/
+
+## Voice activity detection (VAD)
+ https://github.com/mozilla/DeepSpeech-examples
+

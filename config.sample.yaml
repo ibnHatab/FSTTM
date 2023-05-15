@@ -1,0 +1,11 @@
+server:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_max_size: 1048576
+log:
+  level:
+    - logger: fsttm_server
+      level: DEBUG
+tts:
+    model: "tts_models/en/ljspeech/tacotron2-DDC"

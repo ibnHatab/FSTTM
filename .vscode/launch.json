@@ -13,7 +13,7 @@
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/src"
+                "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}"
             }
         }
     ]
