@@ -59,6 +59,8 @@ LangChain
 embedding database.
  https://github.com/chroma-core/chroma
 
+LlamaIndex
+
 ## Voice activity detection (VAD)
  https://github.com/mozilla/DeepSpeech-examples
 
