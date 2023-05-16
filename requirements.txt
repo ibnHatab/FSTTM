@@ -1,3 +1,9 @@
 reactivex>=4.0
 pydantic>=1.10
+cyclotron>=2.0
+cyclotron_stdlib>=2.0
+whispercpp @ git+https://github.com/aarnphm/whispercpp.git@main
+llama-cpp-python @ git+https://github.com/abetlen/llama-cpp-python.git@main
+
+
 

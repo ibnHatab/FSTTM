@@ -3,6 +3,13 @@ import yaml
 from typing import List, Optional
 from pydantic import BaseModel
 
+class VAD(BaseModel):
+    vad_aggressiveness: int
+    device: Optional[int]
+    rate: int
+
+class STT(BaseModel):
+    model: str
 
 class TTS(BaseModel):
     model: str
@@ -30,6 +37,8 @@ class Log(BaseModel):
     level: List[LogLevel]
 
 class Config(BaseModel):
+    vad: VAD
+    stt: STT
     tts: TTS
     server: Server
     log: Log
@@ -40,24 +49,17 @@ def parse_config(config_data):
     and returns a (hot) stream of arguments.
     '''
     data = yaml.load(config_data, Loader=yaml.FullLoader)
-
+    print(data)
     return Config(**data)
 
 
 
 if __name__ == '__main__':
-    config_data = '''
-server:
-  http:
-    host: "0.0.0.0"
-    port: 8080
-    request_max_size: 1048576
-log:
-  level:
-    - logger: fsttm_server
-      level: DEBUG
-tts:
-    model: "tts_models/en/ljspeech/tacotron2-DDC"
-'''
+
+    import os
+    BASE = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(BASE, '../config.sample.yaml')) as f:
+        config_data = f.read()
+
     config = parse_config(config_data)
     print(config)
