@@ -18,7 +18,7 @@ import cyclotron_std.sys.argv as argv
 import cyclotron_std.argparse as argparse
 
 from gpt_fsttm_server.config import parse_config
-import gpt_fsttm_server.ears as ears
+import gpt_fsttm_server.perception as perception
 import gpt_fsttm_server.llama as llama
 import gpt_fsttm_server.rhvoice as rhvoice
 import gpt_fsttm_server.whisper as whisper
@@ -26,13 +26,13 @@ import gpt_fsttm_server.whisper as whisper
 import gpt_fsttm_server.trace as trace
 
 FSTTMSink = namedtuple('Sink', [
-    'vad', 'logging', 'file', 'stdout'
+    'perception', 'logging', 'file', 'stdout'
     ])
 FSTTMSource = namedtuple('Source', [
-    'vad', 'file', 'argv'
+    'perception', 'file', 'argv'
     ])
 FSTTMDrivers = namedtuple('Drivers', [
-    'vad', 'stdout', 'logging', 'file', 'argv'
+    'perception', 'stdout', 'logging', 'file', 'argv'
     ])
 
 
@@ -49,7 +49,7 @@ def parse_arguments(argv):
     # tts_error, route_tts_error = make_error_router()
 
 def fsttm_server(aio_scheduler, sources):
-    vad_log = sources.vad.log
+    perception_log = sources.perception.log
 
     argv = sources.argv.argv
     args = parse_arguments(argv)
@@ -67,25 +67,30 @@ def fsttm_server(aio_scheduler, sources):
         ops.flat_map(lambda i: rx.from_(i.log.level, scheduler=ImmediateScheduler())),
         ops.map(lambda i: logging.SetLevel(logger=i.logger, level=i.level)),
     )
-    logs = rx.merge(logs_config, vad_log)
+    logs = rx.merge(logs_config, perception_log)
 
 
-    stt_init = config.pipe(
+    perception_init = config.pipe(
         ops.flat_map(lambda i: rx.from_([
-            ears.Initialize(i.vad.vad_aggressiveness,
+            perception.Initialize(i.vad.vad_aggressiveness,
                             i.vad.device,
                             i.vad.rate),
-            ears.Start(),
+            perception.Start(),
         ])),
     )
 
+    utterance_end = sources.perception.response.pipe(
+        ops.filter(lambda i: i.data == None)
+    )
 
-    value = sources.vad.response.pipe(
-        ops.map(lambda x: "recv: {}\n".format("x.data" if x.data is not None else "None")),
+    value = sources.perception.response.pipe(
+        ops.map(lambda i: perception.Utterence(data='a', context=None) if i.data != None else i),
+        ops.buffer(utterance_end),
+        ops.map(lambda x: "recv: {}\n".format(x)),
     )
 
     return FSTTMSink(
-        vad=ears.Sink(request=stt_init),
+        perception=perception.Sink(request=perception_init),
         logging=logging.Sink(request=logs),
         file=file.Sink(request=read_request),
         stdout=stdout.Sink(data=value),
@@ -103,7 +108,7 @@ def main():
             input=FSTTMSource
         ),
         FSTTMDrivers(
-            vad=ears.make_driver(loop),
+            perception=perception.make_driver(loop),
             stdout=stdout.make_driver(),
             logging=logging.make_driver(),
             file=file.make_driver(),
