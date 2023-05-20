@@ -2,6 +2,7 @@
 import yaml
 from typing import List, Optional
 from pydantic import BaseModel
+import reactivex.operators as ops
 
 class VAD(BaseModel):
     vad_aggressiveness: int
@@ -46,20 +47,17 @@ class Config(BaseModel):
 
 def parse_config(config_data):
     ''' takes a stream with the content of the configuration file as input
-    and returns a (hot) stream of arguments.
+    and returns a (hot) stream of arguments .
     '''
-    data = yaml.load(config_data, Loader=yaml.FullLoader)
-    print(data)
-    return Config(**data)
+    config = config_data.pipe(
+        ops.filter(lambda i: i.id == "config"),
+        ops.flat_map(lambda i: i.data),
+        ops.map(lambda i: yaml.load(
+            i,
+            Loader=yaml.FullLoader
+        )),
+        ops.map(lambda i: Config(**i)),
+        ops.share(),
+    )
 
-
-
-if __name__ == '__main__':
-
-    import os
-    BASE = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(BASE, '../config.sample.yaml')) as f:
-        config_data = f.read()
-
-    config = parse_config(config_data)
-    print(config)
+    return config

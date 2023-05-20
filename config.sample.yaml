@@ -5,7 +5,11 @@ server:
     request_max_size: 1048576
 log:
   level:
-    - logger: fsttm_server
+    - logger: gpt_fsttm_server
+      level: INFO
+    - logger: gpt_fsttm_server.ears
+      level: INFO
+    - logger: gpt_fsttm_server.whisper
       level: DEBUG
 vad:
     vad_aggressiveness: 3

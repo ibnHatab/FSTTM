@@ -10,6 +10,8 @@ from cyclotron_std.logging import Log
 
 import whispercpp as w
 
+# High-performance inference of OpenAI's Whisper
+# automatic speech recognition (ASR) model
 
 Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
@@ -40,7 +42,7 @@ def make_driver(loop=None):
                 log_observer.on_next(Log(
                     logger=__name__,
                     level=level,
-                    message=message,
+                    message="{}: {}".format(__name__, message),
                 ))
         def setup_model(model_name, scorer, beam_width):
             log("creating model {} with scorer {}...".format(model_name, scorer))
