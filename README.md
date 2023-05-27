@@ -11,6 +11,8 @@ https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
 https://www.lri.fr/~mandel//publications/BaudartHirzelMandelShinnarSimeon-REBLS-2018.pdf
 https://www.lri.fr/~mandel//publications/BaudartHirzelMandelShinnarSimeon-REBLS-2018.pdf
 
+https://socraticmodels.github.io/
+
 ## Streams
 https://github.com/yarray/frpy
 https://github.com/ggerganov/whisper.cpp.git
@@ -60,6 +62,7 @@ embedding database.
  https://github.com/chroma-core/chroma
 
 LlamaIndex
+http://alumni.media.mit.edu/~hugo/publications/papers/VLHCC2004-programmatic-semantics.pdf
 
 ## Voice activity detection (VAD)
  https://github.com/mozilla/DeepSpeech-examples
