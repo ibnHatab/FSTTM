@@ -1,5 +1,12 @@
 # The Finite-State Turn-Taking Machine
 
+## Install
+
+```shell
+CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 WHISPER_CUBLAS=1 pip install -r requirements.txt
+```
+
+
 ## Turn floor
 https://aclanthology.org/N09-1071.pdf
 

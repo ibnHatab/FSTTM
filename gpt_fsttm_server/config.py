@@ -2,7 +2,15 @@
 import yaml
 from typing import List, Optional
 from pydantic import BaseModel
+import reactivex.operators as ops
 
+class VAD(BaseModel):
+    vad_aggressiveness: int
+    device: Optional[int]
+    rate: int
+
+class STT(BaseModel):
+    model: str
 
 class TTS(BaseModel):
     model: str
@@ -30,6 +38,8 @@ class Log(BaseModel):
     level: List[LogLevel]
 
 class Config(BaseModel):
+    vad: VAD
+    stt: STT
     tts: TTS
     server: Server
     log: Log
@@ -37,27 +47,17 @@ class Config(BaseModel):
 
 def parse_config(config_data):
     ''' takes a stream with the content of the configuration file as input
-    and returns a (hot) stream of arguments.
+    and returns a (hot) stream of arguments .
     '''
-    data = yaml.load(config_data, Loader=yaml.FullLoader)
+    config = config_data.pipe(
+        ops.filter(lambda i: i.id == "config"),
+        ops.flat_map(lambda i: i.data),
+        ops.map(lambda i: yaml.load(
+            i,
+            Loader=yaml.FullLoader
+        )),
+        ops.map(lambda i: Config(**i)),
+        ops.share(),
+    )
 
-    return Config(**data)
-
-
-
-if __name__ == '__main__':
-    config_data = '''
-server:
-  http:
-    host: "0.0.0.0"
-    port: 8080
-    request_max_size: 1048576
-log:
-  level:
-    - logger: fsttm_server
-      level: DEBUG
-tts:
-    model: "tts_models/en/ljspeech/tacotron2-DDC"
-'''
-    config = parse_config(config_data)
-    print(config)
+    return config

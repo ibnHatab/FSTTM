@@ -20,7 +20,9 @@ dependencies = [
   'reactivex~=4.0',
   'llama-cpp-python==0.1.5',
   'whispercpp==0.0.17',
-  'langchain'
+  'cyclotron>=2.0.0',
+  'cyclotron_std>=2.0.0',
+  #'langchain'
 ]
 
 [project.optional-dependencies]
