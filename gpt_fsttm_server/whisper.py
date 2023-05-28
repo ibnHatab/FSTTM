@@ -17,7 +17,7 @@ Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
-Initialize = namedtuple('Initialize', ['model', 'scorer', 'beam_width'])
+Initialize = namedtuple('Initialize', ['model',])
 Initialize.__new__.__defaults__ = (None,)
 
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
@@ -30,7 +30,6 @@ TextError = namedtuple('TextError', ['error', 'context'])
 def make_driver(loop=None):
     def driver(sink):
         model = None
-        params = None
         log_observer = None
 
         def on_log_subscribe(observer, scheduler):
@@ -44,12 +43,13 @@ def make_driver(loop=None):
                     level=level,
                     message="{}: {}".format(__name__, message),
                 ))
-        def setup_model(model_name, scorer, beam_width):
-            log("creating model {} with scorer {}...".format(model_name, scorer))
+
+        def setup_model(model_name):
+            log("creating model {} ...".format(model_name))
 
             model = w.Whisper.from_pretrained(model_name)
             params = model.params.with_print_realtime(True).build()
-            log("model {} with params {}...".format(model_name, params))
+            # log("model {} with params {}...".format(model_name, params))
 
             return model
 
@@ -62,6 +62,7 @@ def make_driver(loop=None):
                         try:
                             audio = np.frombuffer(item.data, np.int16).flatten().astype(np.float32) / 32768.0
                             text = model.transcribe(audio)
+                            print('>>', len(item.data), audio.shape, len(text))
                             log("STT result: {}".format(text))
                             observer.on_next(rx.just(TextResult(
                                 text=text,
@@ -75,8 +76,7 @@ def make_driver(loop=None):
                             )))
                 elif type(item) is Initialize:
                     log("initialize: {}".format(item))
-                    model = setup_model(
-                        item.model, item.scorer, item.beam_width)
+                    model = setup_model(item.model)
                 else:
                     log("unknown item: {}".format(item), level=logging.CRITICAL)
                     observer.on_error(

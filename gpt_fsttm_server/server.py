@@ -26,13 +26,13 @@ import gpt_fsttm_server.whisper as whisper
 import gpt_fsttm_server.trace as trace
 
 FSTTMSink = namedtuple('Sink', [
-    'perception', 'logging', 'file', 'stdout'
+    'perception', 'stt', 'logging', 'file', 'stdout'
     ])
 FSTTMSource = namedtuple('Source', [
-    'perception', 'file', 'argv'
+    'perception', 'stt', 'file', 'argv'
     ])
 FSTTMDrivers = namedtuple('Drivers', [
-    'perception', 'stdout', 'logging', 'file', 'argv'
+    'perception', 'stt', 'stdout', 'logging', 'file', 'argv'
     ])
 
 
@@ -49,7 +49,6 @@ def parse_arguments(argv):
     # tts_error, route_tts_error = make_error_router()
 
 def fsttm_server(aio_scheduler, sources):
-    perception_log = sources.perception.log
 
     argv = sources.argv.argv
     args = parse_arguments(argv)
@@ -67,9 +66,12 @@ def fsttm_server(aio_scheduler, sources):
         ops.flat_map(lambda i: rx.from_(i.log.level, scheduler=ImmediateScheduler())),
         ops.map(lambda i: logging.SetLevel(logger=i.logger, level=i.level)),
     )
-    logs = rx.merge(logs_config, perception_log)
-
-
+    logs = rx.merge(logs_config, 
+                    sources.perception.log,
+                    sources.stt.log,
+                    )
+    
+    ##
     perception_init = config.pipe(
         ops.flat_map(lambda i: rx.from_([
             perception.Initialize(i.vad.vad_aggressiveness,
@@ -77,23 +79,54 @@ def fsttm_server(aio_scheduler, sources):
                             i.vad.rate),
             perception.Start(),
         ])),
+        trace.trace('p init+'),
     )
 
     utterance_end = sources.perception.response.pipe(
         ops.filter(lambda i: i.data == None)
     )
 
-    value = sources.perception.response.pipe(
-        ops.map(lambda i: perception.Utterence(data='a', context=None) if i.data != None else i),
+    utterance = sources.perception.response.pipe(
+        ops.map(lambda i: i.data if i.data else bytes()),
         ops.buffer(utterance_end),
-        ops.map(lambda x: "recv: {}\n".format(x)),
+        ops.map(lambda xs: bytearray().join(xs)),
     )
 
+    ###
+    # stt_init = config.pipe(
+    #     ops.flat_map(lambda i: rx.from_([
+    #         whisper.Initialize(i.stt.model),
+    #     ])),
+    # )
+
+    # stt_request = utterance.pipe(
+    #     ops.map(lambda i: whisper.SpeechToText(data=i, context=None)),
+    # )
+    
+    # stt_subjects = rx.merge(stt_request, stt_init)
+    # stt_response = sources.stt.text
+    stt_subjects = rx.empty()
+    ###
+
+    # text_response = stt_response.pipe(
+    #     ops.map(lambda i: i.text.encode('utf-8')),
+    # )
+
+    # log_utterance_length = utterance.pipe(
+    #     ops.map(lambda i: "recv: {}\n".format(len(i))),
+    # )
+    
+#    std_out = rx.merge(log_utterance_length, text_response)
+    log_utterance_length = rx.just('bla-bla')
+    std_out = rx.merge(log_utterance_length, )
+
+#    init = rx.merge(perception_init, stt_init)
     return FSTTMSink(
         perception=perception.Sink(request=perception_init),
+        stt = whisper.Sink(speech=stt_subjects),
         logging=logging.Sink(request=logs),
         file=file.Sink(request=read_request),
-        stdout=stdout.Sink(data=value),
+        stdout=stdout.Sink(data=std_out),
     )
 
 def main():
@@ -109,6 +142,7 @@ def main():
         ),
         FSTTMDrivers(
             perception=perception.make_driver(loop),
+            stt = whisper.make_driver(loop),
             stdout=stdout.make_driver(),
             logging=logging.make_driver(),
             file=file.make_driver(),

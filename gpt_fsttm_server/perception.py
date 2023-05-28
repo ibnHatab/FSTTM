@@ -35,6 +35,7 @@ def make_driver(loop=None):
             log_observer = observer
 
         def log(message, level=logging.DEBUG):
+            print('>>2', message)
             if log_observer is not None:
                 log_observer.on_next(Log(
                     logger=__name__,

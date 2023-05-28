@@ -1,6 +1,7 @@
 scipy
 numpy
 webrtcvad
+pytest
 PyYAML==6.0
 reactivex>=4.0
 pydantic>=1.10

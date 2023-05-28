@@ -69,5 +69,33 @@ embedding database.
 LlamaIndex
 
 ## Voice activity detection (VAD)
- https://github.com/mozilla/DeepSpeech-examples
+- VAD
+  https://github.com/mozilla/DeepSpeech-examples
 
+- adjust_for_ambient_noise
+  https://github.com/Uberi/speech_recognition/blob/master/speech_recognition/__init__.py
+
+- remove speaker input using ducking from linux monitor
+
+  : pactl list short | egrep "alsa_(input|output)" | fgrep -v ".monitor"
+  : pactl load-module module-loopback
+	sudo sh -c ' echo "load-module module-loopback" >>  /etc/pulse/default.pa '
+
+- cross cancelation in time domain
+/etc/pulse/default.pa
+```
+.ifexists module-echo-cancel.so
+load-module module-echo-cancel aec_method=webrtc source_name=echocancel sink_name=echocancel1
+set-default-source echocancel
+set-default-sink echocancel1
+.endif
+
+```
+
+```
+#!/usr/bin/env bash
+pactl unload-module module-echo-cancel
+pactl load-module module-echo-cancel aec_method=webrtc source_name=echocancel sink_name=echocancel1
+pacmd set-default-source echocancel
+pacmd set-default-sink echocancel1
+```
