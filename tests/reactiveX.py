@@ -92,6 +92,7 @@ def test_window_when():
             ops.window_when(lambda: ys),
             ops.map_indexed(lambda w, i: w.pipe(ops.map(lambda x: str(i) + " " + str(x)))),
             ops.merge_all(),
+            # concat_with
         )
 
     results = scheduler.start(create=create)

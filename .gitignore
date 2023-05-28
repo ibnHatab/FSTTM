@@ -129,3 +129,10 @@ dmypy.json
 .pyre/
 
 /src
+
+# emacs
+*~
+\#*\#
+.\#*
+
+tests/RxPY
