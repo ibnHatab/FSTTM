@@ -79,6 +79,7 @@ def fsttm_server(aio_scheduler, sources):
                             i.vad.rate),
             perception.Start(),
         ])),
+        #ops.share(),
         trace.trace('p init+'),
     )
 
@@ -117,7 +118,7 @@ def fsttm_server(aio_scheduler, sources):
     # )
     
 #    std_out = rx.merge(log_utterance_length, text_response)
-    log_utterance_length = rx.just('bla-bla')
+    log_utterance_length = rx.just('bla-bla\n')
     std_out = rx.merge(log_utterance_length, )
 
 #    init = rx.merge(perception_init, stt_init)

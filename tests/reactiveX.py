@@ -77,14 +77,7 @@ def test_window_when():
         on_next(550, 10),
         on_completed(590),
     )
-    # ys = scheduler.create_hot_observable(
-    #     on_next(255, True),
-    #     on_next(330, True),
-    #     on_next(350, True),
-    #     on_next(400, True),
-    #     on_next(500, True),
-    #     on_completed(900),
-    # )
+ 
     ys = xs.pipe(ops.filter(lambda x: x % 5 == 0))
 
     def create():
@@ -112,20 +105,3 @@ def test_window_when():
 
 
 
-
-def mapper(w, i):
-    return w.pipe(ops.map(lambda x: str(i) + " " + str(x)))
-
-xs = rx.from_(range(20))    
-xs_5 = xs.pipe(
-    ops.filter(lambda x: x%5 == 0)
-)
-ys = rx.merge(xs, xs_5)
-ys.subscribe(pry())
-
-res = xs.pipe(
-    #ops.window_with_count(3),
-    ops.window_when(lambda: xs_5),
-    ops.map_indexed(mapper),
-    ops.merge_all()
-).subscribe(pry())
