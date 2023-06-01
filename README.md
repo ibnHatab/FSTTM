@@ -97,3 +97,28 @@ pactl load-module module-echo-cancel aec_method=webrtc source_name=echocancel si
 pacmd set-default-source echocancel
 pacmd set-default-sink echocancel1
 ```
+
+### Voice stream
+mic_vad.py
+
+    FORMAT = pyaudio.paInt16
+    # Network/VAD rate-space
+    RATE_PROCESS = 16000
+    CHANNELS = 1
+    BLOCKS_PER_SECOND = 50
+
+```
+        vad_audio = VADAudio(loop,
+                            aggressiveness=3,
+                            device=0,
+                            input_rate=16000)
+
+ 'device': 0,
+ 'input_rate': 16000,         # rate 
+ 'sample_rate': 16000,
+ 'block_size': 320,           # RATE_PROCESS / BLOCKS_PER_SECOND
+ 'block_size_input': 320,     # frames_per_buffer; RATE_PROCESS / BLOCKS_PER_SECOND
+
+ ```
+ len(frame) == 640
+ VAD rate ~ 20 f/s

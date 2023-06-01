@@ -136,3 +136,4 @@ dmypy.json
 .\#*
 
 tests/RxPY
+scripts/whispercpp

@@ -7,6 +7,7 @@ import pyaudio
 import webrtcvad
 from scipy import signal
 
+from gpt_fsttm_server.utils import ignoreStderr
 
 class Audio(object):
     """Streams raw audio from microphone. Data is received in a separate thread,
@@ -26,7 +27,8 @@ class Audio(object):
         self.sample_rate = self.RATE_PROCESS
         self.block_size = int(self.RATE_PROCESS / float(self.BLOCKS_PER_SECOND))
         self.block_size_input = int(self.input_rate / float(self.BLOCKS_PER_SECOND))
-        self.pa = pyaudio.PyAudio()
+        with ignoreStderr():
+            self.pa = pyaudio.PyAudio()
 
         def proxy_callback(in_data, frame_count, time_info, status):
             #pylint: disable=unused-argument
@@ -141,8 +143,10 @@ class VADAudio(Audio):
 
 
 if __name__ == '__main__':
+    import os
     import sys
-
+    import time
+    
     async def amain(loop):
         vad_audio = VADAudio(loop,
                             aggressiveness=3,
@@ -151,11 +155,21 @@ if __name__ == '__main__':
         print("Listening (ctrl-C to exit)...")
         vad_audio.start()
 
+        n = 0
+        t = time.time_ns()
         async for frame in  vad_audio.vad_collector():
             if frame is not None:
-                print("streaming frame")
+                if not t: t = time.time_ns()
+                n += 1
+                os.write(sys.stdout.fileno(), b'.')
+                # print("streaming frame: {}".format(len(frame)))
             else:
-                print("end of utterence")
+                tt = time.time_ns() - t
+                tt = tt/1e9
+                print()
+                print("end of utterence: {}f / {}s = {}f/s".format(n, tt, int(n/tt)))
+                n = 0
+                t = 0 # time.time_ns()
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
