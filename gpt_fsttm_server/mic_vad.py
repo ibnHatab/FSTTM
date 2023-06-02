@@ -1,4 +1,5 @@
-
+import os
+import sys
 import asyncio
 from collections import deque
 
@@ -122,7 +123,7 @@ class VADAudio(Audio):
                 yield None
 
             is_speech = self.vad.is_speech(frame, self.sample_rate)
-
+            # os.write(sys.stdout.fileno(), b'1' if is_speech else b'0')
             if not triggered:
                 ring_buffer.append((frame, is_speech))
                 num_voiced = len([f for f, speech in ring_buffer if speech])
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     import os
     import sys
     import time
-    
+
     async def amain(loop):
         vad_audio = VADAudio(loop,
                             aggressiveness=3,

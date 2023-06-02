@@ -28,8 +28,8 @@ def echo_server(sources):
     ).pipe( trace('vad_init'), )
 
     stt_init = rx.from_([
-        whisper.Initialize('base.en'),
-        ],
+        whisper.Initialize(model='base.en', with_probs=False),
+    ],
         scheduler=ImmediateScheduler()
     ).pipe( trace('stt_init'), )
 
@@ -39,7 +39,10 @@ def echo_server(sources):
             ops.ref_count(),
     )
 
-    utterance = vad.pipe(ops.filter(lambda r: r == None), )
+    utterance = vad.pipe(
+        ops.filter(lambda r: r == None),
+        # trace('utterance --------------', trace_next_payload=False),
+    )
     frames = vad.pipe(
         ops.window(utterance),
         ops.flat_map(lambda w: w.pipe(
@@ -47,23 +50,23 @@ def echo_server(sources):
             ops.reduce(lambda acc, cur: acc + cur, bytearray()))
         ),
         ops.map(lambda r: whisper.SpeechToText(data=r, context=None)),
-        trace('frames', trace_next_payload=False),
+        # trace('frames', trace_next_payload=False),
     )
 
     # Convert the utterance into a text
     stt_request = rx.merge(stt_init, frames).pipe(
-        trace('stt_request', trace_next_payload=False),
+        # trace('stt_request', trace_next_payload=False),
     )
 
     stt_response = sources.stt.text.pipe(
-        trace('stt_response', trace_next_payload=False),
+        # trace('stt_response', trace_next_payload=False),
     )
 
     # Print text to stdout
     value = rx.merge(utterance, stt_response).pipe(
-        trace('value', trace_next_payload=False),
+        # trace('value', trace_next_payload=True),
         ops.filter(lambda r: type(r) is whisper.TextResult),
-        ops.map(lambda r: r.text),
+        ops.map(lambda r: f'{r.text}\n'),
     )
 
     return EchoSink(
@@ -74,7 +77,7 @@ def echo_server(sources):
 
 def main():
     loop = asyncio.get_event_loop()
-    loop.set_debug(True)
+#    loop.set_debug(True)
     run(entry_point=Component(call=echo_server, input=EchoSource),
         drivers=EchoDriver(
             stdout = stdout.make_driver(),

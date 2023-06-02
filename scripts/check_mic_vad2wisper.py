@@ -9,8 +9,11 @@ import whispercpp as w
 
 
 async def amain(loop):
-    model = w.Whisper.from_pretrained('small.en')
-    params = model.params.with_print_realtime(True).build()
+    model = w.Whisper.from_pretrained('base.en')
+    params = (model.params
+              .with_print_realtime(True)
+              .with_translate(False)
+              .build())
     print('>>', params)
     # player = Player()
 
@@ -34,6 +37,8 @@ async def amain(loop):
             print(">> end of utterence: ", len(data))
             buffer = b''.join(data)
             audio = np.frombuffer(buffer, np.int16).flatten().astype(np.float32) / 32768.0
+            if len(data) < 50:
+                audio = np.pad(audio, (0, 16000), 'constant')
             text = model.transcribe(audio)
             print('>>', text)
             # player.say(text)

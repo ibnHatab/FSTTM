@@ -39,7 +39,7 @@ def make_driver(loop=None):
                 nonlocal vad_audio
                 async for frame in vad_audio.vad_collector():
                     loop.call_soon(observer.on_next, frame)
-                    # print(f">> streaming frame: {type(frame)}")
+                    #print(f">> streaming frame: {type(frame)}")
 
             def on_perception_request(item):
                 nonlocal vad_audio

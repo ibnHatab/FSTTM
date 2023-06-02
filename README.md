@@ -79,16 +79,17 @@ https://github.com/jerryjliu/llama_index
   : pactl load-module module-loopback
 	sudo sh -c ' echo "load-module module-loopback" >>  /etc/pulse/default.pa '
 
-- cross cancelation in time domain
-/etc/pulse/default.pa
+- cross cancelation in time domain /etc/pulse/default.pa
+
 ```
 .ifexists module-echo-cancel.so
 load-module module-echo-cancel aec_method=webrtc source_name=echocancel sink_name=echocancel1
 set-default-source echocancel
 set-default-sink echocancel1
 .endif
-
 ```
+
+Enable echo cancelation
 
 ```
 #!/usr/bin/env bash
@@ -97,6 +98,17 @@ pactl load-module module-echo-cancel aec_method=webrtc source_name=echocancel si
 pacmd set-default-source echocancel
 pacmd set-default-sink echocancel1
 ```
+
+- testing from monitor
+
+In pavcontroll in Recording set sink to Monitor
+
+```
+strace -o spork tty
+/dev/pts/27
+fortune  |tee /dev/pts/27 | RHVoice-client  -s  SLT -r 0 -v -0.1 | aplay
+```
+
 
 ### Voice stream
 mic_vad.py
@@ -114,7 +126,7 @@ mic_vad.py
                             input_rate=16000)
 
  'device': 0,
- 'input_rate': 16000,         # rate 
+ 'input_rate': 16000,         # rate
  'sample_rate': 16000,
  'block_size': 320,           # RATE_PROCESS / BLOCKS_PER_SECOND
  'block_size_input': 320,     # frames_per_buffer; RATE_PROCESS / BLOCKS_PER_SECOND
