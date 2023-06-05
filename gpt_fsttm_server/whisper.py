@@ -28,9 +28,8 @@ def make_driver(loop=None):
     def driver(sink):
         model = None
         params = None
-        color = None
 
-        def setup_model(model_name, with_probs):
+        def setup_model(model_name):
             nonlocal model, params, color
             print(f"Initialize Whisper model: {model_name}")
             model = w.Whisper.from_pretrained(model_name)
@@ -40,12 +39,11 @@ def make_driver(loop=None):
                       .with_num_threads(7)
                       .with_suppress_blank(True)
                       .build())
-            color = with_probs
             return model
 
         def on_subscribe(observer, scheduler):
             def on_whisper_request(item):
-                nonlocal model, params, color
+                nonlocal model, params
 
                 if type(item) is SpeechToText:
                     if model is not None:
@@ -62,30 +60,6 @@ def make_driver(loop=None):
                                 context=item.context,
                                 probs=1.0,
                             ))
-                            # return
-                            # ret = model.context.full(params, audio)
-                            # for segment in range(model.context.full_n_segments()):
-                            #     text = model.context.full_get_segment_text(segment)
-                            #     if not color:
-                            #         text = model.context.full_get_segment_text(segment)
-                            #         observer.on_next(TextResult(
-                            #             text=text,
-                            #             context=item.context,
-                            #             probs=1.0,
-                            #         ))
-                            #     else:
-                            #         for token in range(model.context.full_n_tokens(segment)):
-                            #             # skip special tokens
-                            #             id = model.context.full_get_token_id(segment, token)
-                            #             if id >= model.context.eot_token:
-                            #                 continue
-                            #             text = model.context.full_get_token_text(segment, token)
-                            #             prob = model.context.full_get_token_prob(segment, token)
-                            #             observer.on_next(TextResult(
-                            #                 text=text,
-                            #                 context=item.context,
-                            #                 probs=prob,
-                            #             ))
                         except Exception as e:
                             print(f"Whisper error: {e}")
                             observer.on_next(rx.throw(TextError(
@@ -94,7 +68,7 @@ def make_driver(loop=None):
                             )))
                 elif type(item) is Initialize:
                     print(f"Receive initialize: {item}")
-                    model = setup_model(item.model, item.with_probs)
+                    model = setup_model(item.model)
                 else:
                     print(f"unknown item: {item}")
                     observer.on_error(

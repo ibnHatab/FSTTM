@@ -137,3 +137,6 @@ dmypy.json
 
 tests/RxPY
 scripts/whispercpp
+scripts/llama
+scripts/llama-cpp-python
+

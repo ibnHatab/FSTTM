@@ -1,9 +1,13 @@
-import os 
+import os
 import sys
 import contextlib
 
 @contextlib.contextmanager
-def ignoreStderr():
+def ignoreStderr(ingnore=True):
+    if not ingnore:
+        yield
+        return
+
     devnull = os.open(os.devnull, os.O_WRONLY)
     old_stderr = os.dup(2)
     sys.stderr.flush()

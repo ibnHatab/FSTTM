@@ -46,6 +46,15 @@ https://github.com/nomic-ai/gpt4all-ui
 RedPajama-INCITE-3B, an LLM for everyone
 https://www.together.xyz/blog/redpajama-3b-updates
 
+Metharme 7B
+https://huggingface.co/PygmalionAI/metharme-7b
+
+converter
+https://docs.alpindale.dev/pygmalion-7b/#file-hashes
+
+The recommended range for temperature (for chatbots) is between 0.5 to 0.9 and the ideal range for repetition penalty is between 1.1 to 1.2.
+
+
 ## Glue scripts
 Pybind11 bindings for whisper.cpp
 https://github.com/aarnphm/whispercpp
