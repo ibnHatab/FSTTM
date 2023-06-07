@@ -8,7 +8,7 @@ import reactivex.operators as ops
 from llama_cpp import Llama
 from gpt_fsttm_server.utils import ignoreStderr
 
-Sink = namedtuple('Sink', ['control'])
+Sink = namedtuple('Sink', ['request'])
 Source = namedtuple('Source', ['system',])
 
 # sink events
@@ -38,7 +38,7 @@ def make_driver(loop=None):
 
         def setup_model(model_path,):
             nonlocal model
-            with ignoreStderr(True):
+            with ignoreStderr(False):
                 model = Llama(model_path,
                               embedding=True,
                               n_threads=6,
@@ -58,14 +58,15 @@ def make_driver(loop=None):
                     if model is not None:
                         try:
                             stop = False
-                            tokens = model.tokenize(item.text)
+                            print('1>>', item)
+                            tokens = model.tokenize(item.text.encode('utf-8'))
+                            print('2>>', tokens)
                             for token in model.generate(tokens, top_k=40, top_p=0.95,
                                                         temp=1.0, repeat_penalty=1.1,
                                                         stopping_criteria=stop_callback):
                                 observer.on_next(Response(
-                                    text=model.detokenize([token]),
+                                    text=model.detokenize([token]).decode('utf-8'),
                                     context=item.context,
-                                    probs=1.0,
                                 ))
 
                         except Exception as e:
@@ -92,6 +93,7 @@ def make_driver(loop=None):
                 elif type(item) is Initialize:
                     print(f"Receive initialize: {item}")
                     model = setup_model(item.model_path,)
+                    print('0>>', model, model._candidates_data)
                 else:
                     print(f"unknown item: {item}")
                     observer.on_error(
@@ -99,7 +101,7 @@ def make_driver(loop=None):
             sink.request.subscribe(lambda item: on_llama_request(item))
 
         return Source(
-            text=rx.create(on_subscribe),
+            system=rx.create(on_subscribe),
         )
 
     return Component(call=driver, input=Sink)

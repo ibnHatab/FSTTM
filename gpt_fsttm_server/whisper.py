@@ -20,9 +20,8 @@ Initialize.__new__.__defaults__ = (None, False)
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
-TextResult = namedtuple('TextResult', ['text', 'context', 'probs'])
+TextResult = namedtuple('TextResult', ['text', 'context'])
 TextError = namedtuple('TextError', ['error', 'context'])
-
 
 def make_driver(loop=None):
     def driver(sink):
@@ -30,7 +29,7 @@ def make_driver(loop=None):
         params = None
 
         def setup_model(model_name):
-            nonlocal model, params, color
+            nonlocal model, params
             print(f"Initialize Whisper model: {model_name}")
             model = w.Whisper.from_pretrained(model_name)
             print(f"Whisper model: {model.params}")
@@ -58,7 +57,6 @@ def make_driver(loop=None):
                             observer.on_next(TextResult(
                                 text=text,
                                 context=item.context,
-                                probs=1.0,
                             ))
                         except Exception as e:
                             print(f"Whisper error: {e}")

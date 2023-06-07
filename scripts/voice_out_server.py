@@ -13,13 +13,15 @@ from cyclotron.asyncio.runner import run
 
 import gpt_fsttm_server.perception as perception
 import gpt_fsttm_server.whisper as whisper
+import gpt_fsttm_server.llama as llama
 
-EchoSource = namedtuple('EchoSource', ['perception', 'stt'])
-EchoSink = namedtuple('EchoSink',     ['stdout', 'perception', 'stt'])
-EchoDriver = namedtuple('EchoDriver', ['stdout', 'perception', 'stt'])
+EchoSource = namedtuple('EchoSource', ['perception', 'stt', 'llama'])
+EchoSink = namedtuple('EchoSink',     ['stdout', 'perception', 'stt', 'llama'])
+EchoDriver = namedtuple('EchoDriver', ['stdout', 'perception', 'stt', 'llama'])
 
 
 def echo_server(sources):
+    # driver initialization
     vad_init = rx.from_([
         perception.Initialize(3, None, 16000),
         perception.Start(),
@@ -33,6 +35,12 @@ def echo_server(sources):
         scheduler=ImmediateScheduler()
     ).pipe( trace('stt_init'), )
 
+    llama_init = rx.from_([
+        llama.Initialize(model_path="./models/7B/ggml-vicuna-7b-1.1-q5_1.bin")
+    ],
+        scheduler=ImmediateScheduler()
+    ).pipe( trace('lama_init'), )
+
     # Split the voice stream into utterances and frames
     vad = sources.perception.voice.pipe(
             ops.publish(),
@@ -41,6 +49,7 @@ def echo_server(sources):
 
     utterance = vad.pipe(
         ops.filter(lambda r: r == None),
+        ops.map(lambda r: whisper.TextResult(text=None, context=None))
         # trace('utterance --------------', trace_next_payload=False),
     )
     frames = vad.pipe(
@@ -62,17 +71,30 @@ def echo_server(sources):
         # trace('stt_response', trace_next_payload=False),
     )
 
+    llama_user = stt_response.pipe(
+        ops.map(lambda r: llama.Generate(r.text))
+    )
+    llama_request = rx.merge(llama_init, llama_user).pipe(
+
+        trace('llama_request', trace_next_payload=False),
+    )
+
+    llama_response = sources.llama.system.pipe(
+        #trace('llama_response', trace_next_payload=False),
+    )
+
     # Print text to stdout
-    value = rx.merge(utterance, stt_response).pipe(
+    value = rx.merge(utterance, stt_response, llama_response).pipe(
         # trace('value', trace_next_payload=True),
-        ops.filter(lambda r: type(r) is whisper.TextResult),
-        ops.map(lambda r: f'{r.text}\n'),
+        ops.filter(lambda r: type(r) in [whisper.TextResult, llama.Response]),
+        ops.map(lambda r: f'{r.text}'),
     )
 
     return EchoSink(
         stdout=stdout.Sink(data=value),
         perception=perception.Sink(control=vad_init),
         stt=whisper.Sink(request=stt_request),
+        llama=llama.Sink(request=llama_request)
     )
 
 def main():
@@ -83,6 +105,7 @@ def main():
             stdout = stdout.make_driver(),
             perception = perception.make_driver(loop),
             stt = whisper.make_driver(loop),
+            llama = llama.make_driver(loop),
         ),
         loop=loop,
     )
