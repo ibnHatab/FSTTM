@@ -4,6 +4,7 @@
 #
 # State transition function:
 # SYSTEM, BOTHs, BOTHu, USER, FREEu, FREEs
+#
 # Cost of system actions in each state:
 # (K: keep the floor, R: release the floor, W : wait without the floor,
 #  G: grab the floor, τ : time spent in current state, -: action unavailable)
@@ -48,7 +49,7 @@ class Model(fysom.FysomGlobalMixin, object):
             (su('R', 'K'), 'BOTHs',  'USER'),
             (su('K', 'R'), 'BOTHu',  'SYSTEM'),
         ],
-        initial={'state': 'SYSTEM', 'event': 'init', 'defer': True},
+        initial={'state': 'USER', 'event': 'init', 'defer': True},
         state_field='state',
     )
     def __init__(self, system_cb=None, user_cb=None):
@@ -81,6 +82,7 @@ class Model(fysom.FysomGlobalMixin, object):
         # remap system state
         self.system = {
             'R': 'W',
+            'G': 'K',
         }[action]
 
     def user_action(self, action):
@@ -96,14 +98,5 @@ class Model(fysom.FysomGlobalMixin, object):
             'R': 'W',
             'G': 'K',
         }[action]
-
-
-dfa = Model()
-dfa.init()
-# Turn transitions with gap
-dfa.system_action('R')
-dfa.user_action('G')
-
-dfa.state
 
 
