@@ -29,7 +29,6 @@ class HttpServer(BaseModel):
 class Server(BaseModel):
     http: HttpServer
 
-
 class LogLevel(BaseModel):
     logger: str
     level: str
@@ -37,10 +36,25 @@ class LogLevel(BaseModel):
 class Log(BaseModel):
     level: List[LogLevel]
 
+class GptParams(BaseModel):
+    n_ctx: int
+    temp: float
+    top_k: int
+    top_p: float
+    repeat_last_n: int
+    n_batch: int
+    repeat_penalty: float
+    model: str
+    n_threads: int
+    n_predict: int
+    safeword: str
+    conversation: str
+
 class Config(BaseModel):
     vad: VAD
     stt: STT
     tts: TTS
+    gpt: GptParams
     server: Server
     log: Log
 

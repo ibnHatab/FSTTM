@@ -48,6 +48,8 @@ def make_driver(loop=None):
 
         def stop_callback(trace, scores):
             nonlocal stop
+            #print('3>>', len(trace), stop)
+            stop = len(trace) > 50
             return stop
 
         def on_subscribe(observer, scheduler):
@@ -60,7 +62,7 @@ def make_driver(loop=None):
                             stop = False
                             print('1>>', item)
                             tokens = model.tokenize(item.text.encode('utf-8'))
-                            print('2>>', tokens)
+                            #print('2>>', len(tokens))
                             for token in model.generate(tokens, top_k=40, top_p=0.95,
                                                         temp=1.0, repeat_penalty=1.1,
                                                         stopping_criteria=stop_callback):
@@ -68,7 +70,7 @@ def make_driver(loop=None):
                                     text=model.detokenize([token]).decode('utf-8'),
                                     context=item.context,
                                 ))
-
+                            stop = False
                         except Exception as e:
                             print(f"Llama error: {e}")
                             observer.on_next(rx.throw(LlamaError(

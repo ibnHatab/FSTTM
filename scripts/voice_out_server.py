@@ -67,12 +67,19 @@ def echo_server(sources):
         # trace('stt_request', trace_next_payload=False),
     )
 
+    user_prompt = '[[USER_NAME]]:'
+    system_prompt = '[[AI_NAME]]:'
+    prefix_prompt = None
+    with open('./prompts/chat-with-vicuna-v1.txt', 'r') as f:
+        prefix_prompt = f.read()
+
     stt_response = sources.stt.text.pipe(
         # trace('stt_response', trace_next_payload=False),
+        ops.start_with(whisper.TextResult(text=prefix_prompt, context=None)),
     )
 
     llama_user = stt_response.pipe(
-        ops.map(lambda r: llama.Generate(r.text))
+        ops.map(lambda r: llama.Generate(user_prompt + r.text))
     )
     llama_request = rx.merge(llama_init, llama_user).pipe(
 
