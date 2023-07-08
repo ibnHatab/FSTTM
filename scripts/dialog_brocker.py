@@ -91,23 +91,8 @@ class LLaMAInteract:
             raise RuntimeError(f"error: prompt is too long ({len(self.embd_inp)} tokens, max {self.params.n_ctx - 4})")
 
         # number of tokens to keep when resetting context
-        if (self.params.n_keep < 0 or self.params.n_keep > len(self.embd_inp) or self.params.instruct):
-            self.params.n_keep = len(self.embd_inp)
+        self.params.n_keep = len(self.embd_inp)
 
-        self.inp_prefix = self._tokenize(self.params.instruct_inp_prefix)
-        self.inp_suffix = self._tokenize(self.params.instruct_inp_suffix, False)
-
-        # in instruct mode, we inject a prefix and a suffix to each input by the user
-        self.antiecho = None
-        if (self.params.instruct):
-            self.params.interactive_start = True
-            _ptn = self._tokenize(self.params.instruct_inp_prefix.strip(), False)
-            self.first_antiprompt.append(_ptn)
-            self.antiecho = util.IterSearch(_ptn)
-
-        # enable interactive mode if reverse prompt or interactive start is specified
-        if (len(self.params.antiprompt) != 0 or self.params.interactive_start):
-            self.params.interactive = True
 
         # determine newline token
         self.llama_token_newline = self._tokenize("\n", False)
@@ -128,15 +113,13 @@ number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
                 print("'", file=sys.stderr)
             print(file=sys.stderr)
 
-        if (self.params.interactive):
-            print("interactive mode on.", file=sys.stderr)
 
-            if (len(self.params.antiprompt) > 0):
-                for antiprompt in self.params.antiprompt:
-                    print(f"Reverse prompt: '{antiprompt}'", file=sys.stderr)
+        if (len(self.params.antiprompt) > 0):
+            for antiprompt in self.params.antiprompt:
+                print(f"Reverse prompt: '{antiprompt}'", file=sys.stderr)
 
-            if len(self.params.input_prefix) > 0:
-                print(f"Input prefix: '{self.params.input_prefix}'", file=sys.stderr)
+        if len(self.params.input_prefix) > 0:
+            print(f"Input prefix: '{self.params.input_prefix}'", file=sys.stderr)
 
         print(f"""sampling: repeat_last_n = {self.params.repeat_last_n},\
 repeat_penalty = {self.params.repeat_penalty},\
@@ -181,7 +164,7 @@ n_keep = {self.params.n_keep}
 
     # generate tokens
     def generate(self):
-        while self.remaining_tokens > 0 or self.params.interactive or self.params.n_predict == -1:
+        while self.remaining_tokens > 0 or self.params.n_predict == -1:
             # predict
             if len(self.embd) > 0:
                 # infinite text generation via context swapping
@@ -271,7 +254,7 @@ n_keep = {self.params.n_keep}
                 self.last_n_tokens.append(id)
 
                 # replace end of text token with newline token when in interactive mode
-                if (id == llama_cpp.llama_token_eos() and self.params.interactive and not self.params.instruct):
+                if (id == llama_cpp.llama_token_eos()):
                     id = self.llama_token_newline[0]
                     self.embd.append(id)
                     if (self.use_antiprompt()):
@@ -304,17 +287,13 @@ n_keep = {self.params.n_keep}
             # display tokens
             if self.output_echo:
                 for id in self.embd:
-                    if self.antiecho != None:
-                        for r in self.antiecho(id):
-                            yield r
-                    else:
-                        yield id
+                    yield id
 
             # reset color to default if we there is no pending user input
             if (self.params.input_echo and len(self.embd_inp) == self.input_consumed):
                 self.set_color(util.CONSOLE_COLOR_DEFAULT)
 
-            if (self.params.interactive and len(self.embd_inp) <= self.input_consumed):
+            if (len(self.embd_inp) <= self.input_consumed):
                 # if antiprompt is present, stop
                 if (self.use_antiprompt()):
                     if True in [
@@ -323,27 +302,17 @@ n_keep = {self.params.n_keep}
                     ]:
                         break
 
-                # if we are using instruction mode, and we have processed the initial prompt
-                if (self.params.interactive_start):
-                    break
-
             # end of text token
             if len(self.embd) > 0 and self.embd[-1] == llama_cpp.llama_token_eos():
-                if (not self.params.instruct):
-                    for i in self.llama_token_eot:
-                        yield i
-                    break
-
-            # respect n_predict even if antiprompt is present
-            if (self.params.interactive and self.remaining_tokens <= 0 and self.params.n_predict != -1):
-                # If we arent in instruction mode, fix the current generation by appending the antiprompt.
-                # Makes it so if chat ends prematurely you dont append the AI's text etc.
-                if not self.params.instruct:
-                    self.embd_inp += self.first_antiprompt[0]
-                self.n_remain = self.params.n_predict
+                for i in self.llama_token_eot:
+                    yield i
                 break
 
-        self.params.interactive_start = False
+            # respect n_predict even if antiprompt is present
+            if (self.remaining_tokens <= 0 and self.params.n_predict != -1):
+                self.embd_inp += self.first_antiprompt[0]
+                self.n_remain = self.params.n_predict
+                break
 
     def __enter__(self):
         return self
@@ -362,11 +331,7 @@ n_keep = {self.params.n_keep}
 
     # write input
     def input(self, prompt: str):
-        if (self.params.instruct and self.last_n_tokens[-len(self.inp_prefix):] != self.inp_prefix):
-            self.embd_inp += self.inp_prefix
         self.embd_inp += self._tokenize(prompt)
-        if (self.params.instruct):
-            self.embd_inp += self.inp_suffix
 
     # write output
     def output(self):
@@ -409,15 +374,11 @@ n_keep = {self.params.n_keep}
             print(i,end="",flush=True)
         self.params.input_echo = False
 
-        while self.params.interactive:
+        while True:
             self.set_color(util.CONSOLE_COLOR_USER_INPUT)
-            if (self.params.instruct):
-                print('\n> ', end="")
-                self.input(self.read_input())
-            else:
-                print(self.params.input_prefix, end="")
-                self.input(f"{self.params.input_prefix}{self.read_input()}{self.params.input_suffix}")
-                print(self.params.input_suffix,end="")
+            print(self.params.input_prefix, end="")
+            self.input(f"{self.params.input_prefix}{self.read_input()}{self.params.input_suffix}")
+            print(self.params.input_suffix,end="")
             self.set_color(util.CONSOLE_COLOR_DEFAULT)
 
             try:
@@ -425,9 +386,8 @@ n_keep = {self.params.n_keep}
                     print(i,end="",flush=True)
             except KeyboardInterrupt:
                 self.set_color(util.CONSOLE_COLOR_DEFAULT)
-                if not self.params.instruct:
-                    print(self.params.fix_prefix,end="")
-                    self.input(self.params.fix_prefix)
+                print(self.params.fix_prefix,end="")
+                self.input(self.params.fix_prefix)
 
 if __name__ == "__main__":
     from datetime import datetime
@@ -454,7 +414,7 @@ The assistant gives helpful, detailed, and polite answers to the user's question
         n_threads=N_THREAD,
         n_predict=N_PREDICTS,
         use_color=True,
-        interactive=True,
+#        interactive=True,
         antiprompt=[f"{USER_NAME}:"],
         input_prefix=" ",
         input_suffix=f"{AI_NAME}:",
