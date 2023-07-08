@@ -38,6 +38,7 @@ class Log(BaseModel):
 
 class GptParams(BaseModel):
     n_ctx: int
+    seed: float
     temp: float
     top_k: int
     top_p: float

@@ -21,6 +21,7 @@ tts:
     model: "tts_models/en/ljspeech/tacotron2-DDC"
 gpt:
     n_ctx: 2048
+    seed: 42
     temp: 0.7
     top_k: 40
     top_p: 0.5
