@@ -1,14 +1,5 @@
 """
 This is an example implementation of main.cpp from llama.cpp
-Quirks:
- * Its not exactly alike since this port is designed around programmatic I/O
- * Input is always echoed if on, so it should be turned off when using "input()"
- * The first antiprompt should be the userprompt like "\nUser:",
-   because its added when n_predict is reached (aka generation ended prematurely)
- * n_predict can be set to -1 for unlimited length responses (or just a really high value)
- * Instruction mode adds its own antiprompt.
-   You should also still be feeding the model with a "primer" prompt that
-   shows it the expected format.
 """
 import ctypes
 import sys
@@ -19,16 +10,16 @@ import llama_cpp
 from common import GptParams
 import util
 
-# A LLaMA interactive session
 class LLaMAInteract:
+    """A LLaMA interactive session
+    """
+
     def __init__(self, params: GptParams) -> None:
         # input args
         self.params = params
 
         if (self.params.seed <= 0):
             self.params.seed = int(time())
-
-        print(f"seed = {self.params.seed}", file=sys.stderr)
 
         # runtime args
         self.input_consumed = 0
@@ -37,7 +28,6 @@ class LLaMAInteract:
         self.first_antiprompt = []
         self.remaining_tokens = self.params.n_predict
         self.output_echo = self.params.input_echo
-        self.multibyte_fix = []
 
         # model load
         self.lparams = llama_cpp.llama_context_default_params()
@@ -55,28 +45,6 @@ class LLaMAInteract:
         if (self.params.ignore_eos):
             self.params.logit_bias[llama_cpp.llama_token_eos()] = -float("inf")
 
-        if (len(self.params.lora_adapter) > 0):
-            if (llama_cpp.llama_apply_lora_from_file(
-                self.ctx,
-                self.params.lora_adapter.encode("utf8"),
-                self.params.lora_base.encode("utf8") if len(self.params.lora_base) > 0 else None,
-                self.params.n_threads
-            ) != 0):
-                print("error: failed to apply lora adapter")
-                return
-
-        print(file=sys.stderr)
-        print(f"system_info: n_threads = {self.params.n_threads} / {cpu_count()} \
-| {llama_cpp.llama_print_system_info().decode('utf8')}", file=sys.stderr)
-
-        # determine the required inference memory per token:
-        if (self.params.mem_test):
-            tmp = [0, 1, 2, 3]
-            llama_cpp.llama_eval(self.ctx, (llama_cpp.c_int * len(tmp))(*tmp), len(tmp), 0, self.n_threads)
-            llama_cpp.llama_print_timings(self.ctx)
-            self.exit()
-            return
-
         # create internal context
         self.n_ctx = llama_cpp.llama_n_ctx(self.ctx)
 
@@ -93,26 +61,28 @@ class LLaMAInteract:
         # number of tokens to keep when resetting context
         self.params.n_keep = len(self.embd_inp)
 
-
         # determine newline token
         self.llama_token_newline = self._tokenize("\n", False)
         self.llama_token_eot = self._tokenize(" [end of text]\n", False)
 
-        if (self.params.verbose_prompt):
-            print(f"""
-prompt: '{self.params.prompt}'
-number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
+        # determine antiprompt tokens
+        for i in self.params.antiprompt:
+            self.first_antiprompt.append(self._tokenize(i, False))
 
-            for i in range(len(self.embd_inp)):
-                print(f"{self.embd_inp[i]} -> '{llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i])}'", file=sys.stderr)
+        self.last_n_tokens = [0]*self.n_ctx #TODO: deque doesnt support slices
 
-            if (self.params.n_keep > 0):
-                print("static prompt based on n_keep: '")
-                for i in range(self.params.n_keep):
-                    print(llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i]), file=sys.stderr)
-                print("'", file=sys.stderr)
-            print(file=sys.stderr)
+        #self._show_params()
+        self.set_color(util.CONSOLE_COLOR_PROMPT)
 
+    def _show_params(self):
+        """
+        Print the parameters to stderr
+        """
+        print(f"seed = {self.params.seed}", file=sys.stderr)
+
+        print(file=sys.stderr)
+        print(f"system_info: n_threads = {self.params.n_threads} / {cpu_count()} \
+| {llama_cpp.llama_print_system_info().decode('utf8')}", file=sys.stderr)
 
         if (len(self.params.antiprompt) > 0):
             for antiprompt in self.params.antiprompt:
@@ -130,24 +100,26 @@ tfs_z = {self.params.tfs_z},\
 top_p = {self.params.top_p},\
 typical_p = {self.params.typical_p},\
 temp = {self.params.temp},\
-mirostat = {self.params.mirostat},\
-mirostat_lr = {self.params.mirostat_eta},\
-mirostat_ent = {self.params.mirostat_tau},\
-
 generate: n_ctx = {self.n_ctx},\
 n_batch = {self.params.n_batch},\
 n_predict = {self.params.n_predict},\
 n_keep = {self.params.n_keep}
-
 """, file=sys.stderr)
+        if (self.params.verbose_prompt):
+            print(f"""
+prompt: '{self.params.prompt}'
+number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
 
-        # determine antiprompt tokens
-        for i in self.params.antiprompt:
-            self.first_antiprompt.append(self._tokenize(i, False))
+            for i in range(len(self.embd_inp)):
+                print(f"{self.embd_inp[i]} -> '{llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i])}'", file=sys.stderr)
 
-        self.last_n_tokens = [0]*self.n_ctx #TODO: deque doesnt support slices
+            if (self.params.n_keep > 0):
+                print("static prompt based on n_keep: '")
+                for i in range(self.params.n_keep):
+                    print(llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i]), file=sys.stderr)
+                print("'", file=sys.stderr)
+            print(file=sys.stderr)
 
-        self.set_color(util.CONSOLE_COLOR_PROMPT)
 
     # tokenize a prompt
     def _tokenize(self, prompt, bos=True):
@@ -172,7 +144,6 @@ n_keep = {self.params.n_keep}
                     self.ctx, (llama_cpp.llama_token * len(self.embd))(*self.embd), len(self.embd), self.n_past, self.params.n_threads
                 ) != 0):
                     raise Exception("Failed to llama_eval!")
-
 
             self.n_past += len(self.embd)
             self.embd = []
@@ -212,20 +183,6 @@ n_keep = {self.params.n_keep}
                 if not self.params.penalize_nl:
                     logits[llama_cpp.llama_token_nl()] = nl_logit
 
-                # if self.params.temp <= 0:
-                #     # Greedy sampling
-                #     id = llama_cpp.llama_sample_token_greedy(self.ctx, candidates_p)
-                # else:
-                #     if self.params.mirostat == 1:
-                #         mirostat_mu = 2.0 * self.params.mirostat_tau
-                #         mirostat_m = 100
-                #         llama_cpp.llama_sample_temperature(self.ctx, candidates_p, llama_cpp.c_float(self.params.temp))
-                #         id = llama_cpp.llama_sample_token_mirostat(self.ctx, candidates_p, llama_cpp.c_float(self.params.mirostat_tau), llama_cpp.c_float(self.params.mirostat_eta), llama_cpp.c_int(mirostat_m), llama_cpp.c_float(mirostat_mu))
-                #     elif self.params.mirostat == 2:
-                #         mirostat_mu = 2.0 * self.params.mirostat_tau
-                #         llama_cpp.llama_sample_temperature(self.ctx, candidates_p, llama_cpp.c_float(self.params.temp))
-                #         id = llama_cpp.llama_sample_token_mirostat_v2(self.ctx, candidates_p, llama_cpp.c_float(self.params.mirostat_tau), llama_cpp.c_float(self.params.mirostat_eta), llama_cpp.c_float(mirostat_mu))
-                #     else:
                 # Temperature sampling
                 llama_cpp.llama_sample_top_k(self.ctx, candidates_p, top_k, min_keep=llama_cpp.c_size_t(1))
                 llama_cpp.llama_sample_tail_free(self.ctx, candidates_p, llama_cpp.c_float(self.params.tfs_z), min_keep=llama_cpp.c_size_t(1))
@@ -322,27 +279,6 @@ n_keep = {self.params.n_keep}
         self.remaining_tokens = self.params.n_predict
         for id in self.generate():
             cur_char = llama_cpp.llama_token_to_str(self.ctx, id)
-
-            # Add remainder of missing bytes
-            if None in self.multibyte_fix:
-                self.multibyte_fix[self.multibyte_fix.index(None)] = cur_char
-
-            # Return completed utf char
-            if len(self.multibyte_fix) > 0 and not None in self.multibyte_fix:
-                yield (b"".join(self.multibyte_fix)).decode("utf8")
-                self.multibyte_fix = []
-                continue
-
-            # Contains multi-byte UTF8
-            for num, pattern in [(2, 192), (3, 224), (4, 240)]:
-                # Bitwise AND check
-                if pattern & int.from_bytes(cur_char, 'little') == pattern:
-                    self.multibyte_fix = [cur_char] + ([None] * (num-1))
-
-            # Stop incomplete bytes from passing
-            if len(self.multibyte_fix) > 0:
-                continue
-
             yield cur_char.decode("utf8")
 
     # read user input
@@ -370,8 +306,6 @@ n_keep = {self.params.n_keep}
                     print(i,end="",flush=True)
             except KeyboardInterrupt:
                 self.set_color(util.CONSOLE_COLOR_DEFAULT)
-                print(self.params.fix_prefix,end="")
-                self.input(self.params.fix_prefix)
 
 if __name__ == "__main__":
     from datetime import datetime
@@ -398,7 +332,6 @@ The assistant gives helpful, detailed, and polite answers to the user's question
         n_threads=N_THREAD,
         n_predict=N_PREDICTS,
         use_color=True,
-#        interactive=True,
         antiprompt=[f"{USER_NAME}:"],
         input_prefix=" ",
         input_suffix=f"{AI_NAME}:",
