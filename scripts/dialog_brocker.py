@@ -32,11 +32,11 @@ class LLaMAInteract:
         # model load
         self.lparams = llama_cpp.llama_context_default_params()
         self.lparams.n_ctx = self.params.n_ctx
-        self.lparams.n_parts = self.params.n_parts
         self.lparams.seed = self.params.seed
-        self.lparams.memory_f16 = self.params.memory_f16
-        self.lparams.use_mlock = self.params.use_mlock
-        self.lparams.use_mmap = self.params.use_mmap
+        self.lparams.n_parts = -1
+        self.lparams.memory_f16 = True
+        self.lparams.use_mlock = False
+        self.lparams.use_mmap = True
 
         self.ctx = llama_cpp.llama_init_from_file(self.params.model.encode("utf8"), self.lparams)
         if (not self.ctx):
@@ -74,53 +74,6 @@ class LLaMAInteract:
         #self._show_params()
         self.set_color(util.CONSOLE_COLOR_PROMPT)
 
-    def _show_params(self):
-        """
-        Print the parameters to stderr
-        """
-        print(f"seed = {self.params.seed}", file=sys.stderr)
-
-        print(file=sys.stderr)
-        print(f"system_info: n_threads = {self.params.n_threads} / {cpu_count()} \
-| {llama_cpp.llama_print_system_info().decode('utf8')}", file=sys.stderr)
-
-        if (len(self.params.antiprompt) > 0):
-            for antiprompt in self.params.antiprompt:
-                print(f"Reverse prompt: '{antiprompt}'", file=sys.stderr)
-
-        if len(self.params.input_prefix) > 0:
-            print(f"Input prefix: '{self.params.input_prefix}'", file=sys.stderr)
-
-        print(f"""sampling: repeat_last_n = {self.params.repeat_last_n},\
-repeat_penalty = {self.params.repeat_penalty},\
-presence_penalty = {self.params.presence_penalty},\
-frequency_penalty = {self.params.frequency_penalty},\
-top_k = {self.params.top_k},\
-tfs_z = {self.params.tfs_z},\
-top_p = {self.params.top_p},\
-typical_p = {self.params.typical_p},\
-temp = {self.params.temp},\
-generate: n_ctx = {self.n_ctx},\
-n_batch = {self.params.n_batch},\
-n_predict = {self.params.n_predict},\
-n_keep = {self.params.n_keep}
-""", file=sys.stderr)
-        if (self.params.verbose_prompt):
-            print(f"""
-prompt: '{self.params.prompt}'
-number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
-
-            for i in range(len(self.embd_inp)):
-                print(f"{self.embd_inp[i]} -> '{llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i])}'", file=sys.stderr)
-
-            if (self.params.n_keep > 0):
-                print("static prompt based on n_keep: '")
-                for i in range(self.params.n_keep):
-                    print(llama_cpp.llama_token_to_str(self.ctx, self.embd_inp[i]), file=sys.stderr)
-                print("'", file=sys.stderr)
-            print(file=sys.stderr)
-
-
     # tokenize a prompt
     def _tokenize(self, prompt, bos=True):
         _arr = (llama_cpp.llama_token * ((len(prompt) + 1) * 4))()
@@ -133,6 +86,48 @@ number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
 
     def use_antiprompt(self):
         return len(self.first_antiprompt) > 0
+    def sample_next_token(self):
+        # out of user input, sample next token
+        top_k = llama_cpp.llama_n_vocab(self.ctx) if self.params.top_k <= 0 else self.params.top_k
+        repeat_last_n = self.n_ctx if self.params.repeat_last_n < 0 else self.params.repeat_last_n
+
+        logits = llama_cpp.llama_get_logits(self.ctx)
+        n_vocab = llama_cpp.llama_n_vocab(self.ctx)
+
+        # Apply params.logit_bias map
+        for key, value in self.params.logit_bias.items():
+            logits[key] += value
+
+        _arr = (llama_cpp.llama_token_data * n_vocab)(*[
+            llama_cpp.llama_token_data(token_id, logits[token_id], 0.0)
+            for token_id in range(n_vocab)
+        ])
+        candidates_p = llama_cpp.ctypes.pointer(llama_cpp.llama_token_data_array(_arr, len(_arr), False))
+
+        # Apply penalties
+        nl_logit = logits[llama_cpp.llama_token_nl()]
+        last_n_repeat = min(len(self.last_n_tokens), repeat_last_n, self.n_ctx)
+
+        _arr = (llama_cpp.llama_token * last_n_repeat)(*self.last_n_tokens[len(self.last_n_tokens) - last_n_repeat:])
+        llama_cpp.llama_sample_repetition_penalty(self.ctx, candidates_p,
+            _arr,
+            last_n_repeat, llama_cpp.c_float(self.params.repeat_penalty))
+        llama_cpp.llama_sample_frequency_and_presence_penalties(self.ctx, candidates_p,
+            _arr,
+            last_n_repeat, llama_cpp.c_float(self.params.frequency_penalty), llama_cpp.c_float(self.params.presence_penalty))
+
+        if not self.params.penalize_nl:
+            logits[llama_cpp.llama_token_nl()] = nl_logit
+
+        # Temperature sampling
+        llama_cpp.llama_sample_top_k(self.ctx, candidates_p, top_k, min_keep=llama_cpp.c_size_t(1))
+        llama_cpp.llama_sample_tail_free(self.ctx, candidates_p, llama_cpp.c_float(self.params.tfs_z), min_keep=llama_cpp.c_size_t(1))
+        llama_cpp.llama_sample_typical(self.ctx, candidates_p, llama_cpp.c_float(self.params.typical_p), min_keep=llama_cpp.c_size_t(1))
+        llama_cpp.llama_sample_top_p(self.ctx, candidates_p, llama_cpp.c_float(self.params.top_p), min_keep=llama_cpp.c_size_t(1))
+        llama_cpp.llama_sample_temperature(self.ctx, candidates_p, llama_cpp.c_float(self.params.temp))
+        id = llama_cpp.llama_sample_token(self.ctx, candidates_p)
+
+        return id
 
     # generate tokens
     def generate(self):
@@ -148,48 +143,7 @@ number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
             self.n_past += len(self.embd)
             self.embd = []
             if len(self.embd_inp) <= self.input_consumed: #&& !is_interacting
-                # out of user input, sample next token
-                top_k = llama_cpp.llama_n_vocab(self.ctx) if self.params.top_k <= 0 else self.params.top_k
-                repeat_last_n = self.n_ctx if self.params.repeat_last_n < 0 else self.params.repeat_last_n
-
-
-                id = 0
-
-                logits = llama_cpp.llama_get_logits(self.ctx)
-                n_vocab = llama_cpp.llama_n_vocab(self.ctx)
-
-                # Apply params.logit_bias map
-                for key, value in self.params.logit_bias.items():
-                    logits[key] += value
-
-                _arr = (llama_cpp.llama_token_data * n_vocab)(*[
-                    llama_cpp.llama_token_data(token_id, logits[token_id], 0.0)
-                    for token_id in range(n_vocab)
-                ])
-                candidates_p = llama_cpp.ctypes.pointer(llama_cpp.llama_token_data_array(_arr, len(_arr), False))
-
-                # Apply penalties
-                nl_logit = logits[llama_cpp.llama_token_nl()]
-                last_n_repeat = min(len(self.last_n_tokens), repeat_last_n, self.n_ctx)
-
-                _arr = (llama_cpp.llama_token * last_n_repeat)(*self.last_n_tokens[len(self.last_n_tokens) - last_n_repeat:])
-                llama_cpp.llama_sample_repetition_penalty(self.ctx, candidates_p,
-                    _arr,
-                    last_n_repeat, llama_cpp.c_float(self.params.repeat_penalty))
-                llama_cpp.llama_sample_frequency_and_presence_penalties(self.ctx, candidates_p,
-                    _arr,
-                    last_n_repeat, llama_cpp.c_float(self.params.frequency_penalty), llama_cpp.c_float(self.params.presence_penalty))
-
-                if not self.params.penalize_nl:
-                    logits[llama_cpp.llama_token_nl()] = nl_logit
-
-                # Temperature sampling
-                llama_cpp.llama_sample_top_k(self.ctx, candidates_p, top_k, min_keep=llama_cpp.c_size_t(1))
-                llama_cpp.llama_sample_tail_free(self.ctx, candidates_p, llama_cpp.c_float(self.params.tfs_z), min_keep=llama_cpp.c_size_t(1))
-                llama_cpp.llama_sample_typical(self.ctx, candidates_p, llama_cpp.c_float(self.params.typical_p), min_keep=llama_cpp.c_size_t(1))
-                llama_cpp.llama_sample_top_p(self.ctx, candidates_p, llama_cpp.c_float(self.params.top_p), min_keep=llama_cpp.c_size_t(1))
-                llama_cpp.llama_sample_temperature(self.ctx, candidates_p, llama_cpp.c_float(self.params.temp))
-                id = llama_cpp.llama_sample_token(self.ctx, candidates_p)
+                id = self.sample_next_token()
 
                 self.last_n_tokens.pop(0)
                 self.last_n_tokens.append(id)
@@ -212,7 +166,7 @@ number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
 
                 # decrement remaining sampling budget
                 self.remaining_tokens -= 1
-            else:
+            else: # TODO: function up to here
                 # output to console if input echo is on
                 self.output_echo = self.params.input_echo
 
@@ -259,9 +213,6 @@ number of tokens in prompt = {len(self.embd_inp)}""", file=sys.stderr)
         return self
 
     def __exit__(self, type, value, tb):
-        self.exit()
-
-    def exit(self):
         llama_cpp.llama_free(self.ctx)
         self.set_color(util.CONSOLE_COLOR_DEFAULT)
 
