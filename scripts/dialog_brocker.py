@@ -42,9 +42,6 @@ class LLaMAInteract:
         if (not self.ctx):
             raise RuntimeError(f"error: failed to load model '{self.params.model}'")
 
-        if (self.params.ignore_eos):
-            self.params.logit_bias[llama_cpp.llama_token_eos()] = -float("inf")
-
         # create internal context
         self.n_ctx = llama_cpp.llama_n_ctx(self.ctx)
 
@@ -58,12 +55,8 @@ class LLaMAInteract:
         if (len(self.embd_inp) > self.n_ctx - 4):
             raise RuntimeError(f"error: prompt is too long ({len(self.embd_inp)} tokens, max {self.params.n_ctx - 4})")
 
-        # number of tokens to keep when resetting context
-        self.params.n_keep = len(self.embd_inp)
-
         # determine newline token
         self.llama_token_newline = self._tokenize("\n", False)
-        self.llama_token_eot = self._tokenize(" [end of text]\n", False)
 
         # determine antiprompt tokens
         for i in self.params.antiprompt:
@@ -84,8 +77,6 @@ class LLaMAInteract:
         if (self.params.use_color):
             print(c, end="")
 
-    def use_antiprompt(self):
-        return len(self.first_antiprompt) > 0
     def sample_next_token(self):
         # out of user input, sample next token
         top_k = llama_cpp.llama_n_vocab(self.ctx) if self.params.top_k <= 0 else self.params.top_k
@@ -93,10 +84,6 @@ class LLaMAInteract:
 
         logits = llama_cpp.llama_get_logits(self.ctx)
         n_vocab = llama_cpp.llama_n_vocab(self.ctx)
-
-        # Apply params.logit_bias map
-        for key, value in self.params.logit_bias.items():
-            logits[key] += value
 
         _arr = (llama_cpp.llama_token_data * n_vocab)(*[
             llama_cpp.llama_token_data(token_id, logits[token_id], 0.0)
@@ -152,11 +139,9 @@ class LLaMAInteract:
                 if (id == llama_cpp.llama_token_eos()):
                     id = self.llama_token_newline[0]
                     self.embd.append(id)
-                    if (self.use_antiprompt()):
-                        # tokenize and inject first reverse prompt
-                        self.embd_inp += self.first_antiprompt[0]
-                        for id in self.first_antiprompt[0]:
-                            self.embd.append(id)
+                    # tokenize and inject first reverse prompt
+                    self.embd_inp += self.first_antiprompt[0]
+                    self.embd += self.first_antiprompt[0]
                 else:
                     # add it to the context
                     self.embd.append(id)
@@ -190,18 +175,11 @@ class LLaMAInteract:
 
             if (len(self.embd_inp) <= self.input_consumed):
                 # if antiprompt is present, stop
-                if (self.use_antiprompt()):
-                    if True in [
-                        i == self.last_n_tokens[-len(i):]
-                        for i in self.first_antiprompt
-                    ]:
-                        break
-
-            # end of text token
-            if len(self.embd) > 0 and self.embd[-1] == llama_cpp.llama_token_eos():
-                for i in self.llama_token_eot:
-                    yield i
-                break
+                if True in [
+                    i == self.last_n_tokens[-len(i):]
+                    for i in self.first_antiprompt
+                ]:
+                    break
 
             # respect n_predict even if antiprompt is present
             if (self.remaining_tokens <= 0 and self.params.n_predict != -1):
