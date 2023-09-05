@@ -238,7 +238,7 @@ class LLaMAInteract:
 
 if __name__ == "__main__":
     from datetime import datetime
-    MODEL = "./models/7B/ggml-vicuna-7b-1.1-q5_1.bin"
+    MODEL = "./models/7B/ggml-model-q4_0.gguf"
     N_PREDICTS = 2048
     N_THREAD = 8
 

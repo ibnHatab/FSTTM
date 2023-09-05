@@ -74,6 +74,18 @@ register_conv_template(
             sep2="</s>",
         )
 )
+register_conv_template(
+    Conversation(
+            name="llama_2_13b-chat",
+            system="You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+            roles=("USER", "ASSISTANT"),
+            messages=(),
+            offset=0,
+            sep=" ",
+            sep2="</s>",
+        )
+)
+
 
 if __name__ == "__main__":
     conv = get_conv_template("vicuna_v1.1")
@@ -82,4 +94,3 @@ if __name__ == "__main__":
     conv.append_message(conv.roles[0], "How are you?")
     conv.append_message(conv.roles[1], None)
     print(conv.get_prompt())
-

@@ -1,4 +1,6 @@
+
 # The Finite-State Turn-Taking Machine
+
 
 ## Install
 
@@ -7,8 +9,12 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 
 ```
 
 
+## Memory management
+https://arxiv.org/pdf/2308.15022.pdf
+
+
 ## Turn floor FSM
-  https://aclanthology.org/N09-1071.pdf
+https://aclanthology.org/N09-1071.pdf
 
 
 ## Rule based
@@ -25,8 +31,10 @@ https://github.com/yarray/frpy
 https://github.com/ggerganov/whisper.cpp.git
 https://github.com/mriehl/fysom
 
+
 ## HW section
 https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/
+
 
 ## GPT Models
 
@@ -41,6 +49,7 @@ https://github.com/nomic-ai/gpt4all
 
 Gpt4All Web UI Flask web application
 https://github.com/nomic-ai/gpt4all-ui
+
 
 ## Fine tunning
 RedPajama-INCITE-3B, an LLM for everyone
@@ -143,3 +152,4 @@ mic_vad.py
  ```
  len(frame) == 640
  VAD rate ~ 20 f/s
+
