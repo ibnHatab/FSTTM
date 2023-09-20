@@ -15,15 +15,13 @@ import cyclotron_std.logging as logging
 import cyclotron_std.sys.stdout as stdout
 import cyclotron_std.io.file as file
 import cyclotron_std.sys.argv as argv
-import cyclotron_std.argparse as argparse
 
-from gpt_fsttm_server.config import parse_config
-import gpt_fsttm_server.perception as perception
-import gpt_fsttm_server.llama as llama
-import gpt_fsttm_server.rhvoice as rhvoice
-import gpt_fsttm_server.whisper as whisper
-
-import gpt_fsttm_server.trace as trace
+from   fsttm.config import parse_arguments, parse_config
+import fsttm.perception as perception
+import fsttm.llama as llama
+import fsttm.rhvoice as rhvoice
+import fsttm.whisper as whisper
+import fsttm.trace as trace
 
 FSTTMSink = namedtuple('Sink', [
     'perception', 'stt', 'logging', 'file', 'stdout'
@@ -35,14 +33,6 @@ FSTTMDrivers = namedtuple('Drivers', [
     'perception', 'stt', 'stdout', 'logging', 'file', 'argv'
     ])
 
-
-def parse_arguments(argv):
-    parser = argparse.ArgumentParser("Finite-State Turn-Taking Machine")
-    parser.add_argument('--config', required=True, help="Path of the server configuration file")
-    return argv.pipe(
-        ops.skip(1),
-        argparse.parse(parser),
-    )
 
 
     # asr_error, route_asr_error = make_error_router()
@@ -66,11 +56,11 @@ def fsttm_server(aio_scheduler, sources):
         ops.flat_map(lambda i: rx.from_(i.log.level, scheduler=ImmediateScheduler())),
         ops.map(lambda i: logging.SetLevel(logger=i.logger, level=i.level)),
     )
-    logs = rx.merge(logs_config, 
+    logs = rx.merge(logs_config,
                     sources.perception.log,
                     sources.stt.log,
                     )
-    
+
     ##
     perception_init = config.pipe(
         ops.flat_map(lambda i: rx.from_([
@@ -103,7 +93,7 @@ def fsttm_server(aio_scheduler, sources):
     # stt_request = utterance.pipe(
     #     ops.map(lambda i: whisper.SpeechToText(data=i, context=None)),
     # )
-    
+
     # stt_subjects = rx.merge(stt_request, stt_init)
     # stt_response = sources.stt.text
     stt_subjects = rx.empty()
@@ -116,7 +106,7 @@ def fsttm_server(aio_scheduler, sources):
     # log_utterance_length = utterance.pipe(
     #     ops.map(lambda i: "recv: {}\n".format(len(i))),
     # )
-    
+
 #    std_out = rx.merge(log_utterance_length, text_response)
     log_utterance_length = rx.just('bla-bla\n')
     std_out = rx.merge(log_utterance_length, )

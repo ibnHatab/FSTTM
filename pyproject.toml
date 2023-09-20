@@ -34,4 +34,4 @@ test = [
 repository = "https://github.com/ibnHatab/FSTTM"
 
 [project.scripts]
-audio-encode-server="gpt_fsttm_server.server:main"
+audio-encode-server="fsttm.server:main"

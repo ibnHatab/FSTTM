@@ -3,6 +3,7 @@ import yaml
 from typing import List, Optional
 from pydantic import BaseModel
 import reactivex.operators as ops
+import cyclotron_std.argparse as argparse
 
 class VAD(BaseModel):
     vad_aggressiveness: int
@@ -76,3 +77,24 @@ def parse_config(config_data):
     )
 
     return config
+
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser("Finite-State Turn-Taking Machine")
+    parser.add_argument('--config', required=True, help="Path of the server configuration file")
+    return argv.pipe(
+        ops.skip(1),
+        argparse.parse(parser),
+    )
+
+
+if __name__ == '__main__':
+    import reactivex as rx
+    import reactivex.operators as ops
+
+    args = rx.from_(['1', '--config', 'config.sample.yaml'])
+    args.pipe(
+            parse_arguments,
+            ops.to_list()).subscribe(lambda i: print(f"config: {i}"))
+
+
+
