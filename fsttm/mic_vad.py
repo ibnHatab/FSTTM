@@ -8,7 +8,8 @@ import pyaudio
 import webrtcvad
 from scipy import signal
 
-from gpt_fsttm_server.utils import ignoreStderr
+
+from utils import ignoreStderr
 
 class Audio(object):
     """Streams raw audio from microphone. Data is received in a separate thread,
@@ -148,6 +149,7 @@ if __name__ == '__main__':
     import sys
     import time
 
+    print(sys.path)
     async def amain(loop):
         vad_audio = VADAudio(loop,
                             aggressiveness=3,
