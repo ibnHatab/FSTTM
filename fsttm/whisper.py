@@ -5,10 +5,6 @@ import reactivex as rx
 from cyclotron import Component
 from cyclotron_std.logging import Log
 
-import whispercpp as w
-
-# High-performance inference of OpenAI's Whisper
-# automatic speech recognition (ASR) model
 
 Sink = namedtuple('Sink', ['request'])
 Source = namedtuple('Source', ['text'])

@@ -1,5 +1,7 @@
 
 # The Finite-State Turn-Taking Machine
+  Finite-State Turn-Taking Machine (FSTTM), a model to control the turn-taking behavior of conversational agent
+  https://aclanthology.org/N09-1071.pdf
 
 
 ## Install
@@ -8,33 +10,31 @@
 CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 WHISPER_CUBLAS=1 pip install -r requirements.txt
 ```
 
+- Memory management
+  https://arxiv.org/pdf/2308.15022.pdf
 
-## Memory management
-https://arxiv.org/pdf/2308.15022.pdf
-
-
-## Turn floor FSM
-https://aclanthology.org/N09-1071.pdf
+- Rule based
+  https://www.businessrulesgroup.org/brmanifesto.htm
 
 
-## Rule based
-https://www.lri.fr/~mandel//publications/BaudartHirzelMandelShinnarSimeon-REBLS-2018.pdf
-https://socraticmodels.github.io/
-http://alumni.media.mit.edu/~hugo/publications/papers/VLHCC2004-programmatic-semantics.pdf
-https://www.businessrulesgroup.org/brmanifesto.htm
+## Speech-to-Intent
+Combining Rasa NLU with a language model like can create a comprehensive conversational AI system. Here’s a general approach to combining these two:
 
+  1.  Rasa NLU for Intent Recognition and Entity Extraction:
+        Train your Rasa NLU model using annotated data to recognize intents and extract entities from user inputs.
+        Define intents (what the user wants) and entities (specific details related to the request) within Rasa.
 
-## Streams
-The introduction to Reactive Programming you've been missing
-https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
-https://github.com/yarray/frpy
-https://github.com/ggerganov/whisper.cpp.git
-https://github.com/mriehl/fysom
+  2.  Integration with a Language Model:
+        Use the recognized intents and extracted entities from Rasa to determine the context or purpose of the conversation.
+        Utilize this context to generate appropriate prompts or responses using the language model.
+        Pass the context or key information obtained from Rasa to the language model as a prompt to generate human-like responses.
+
+  https://rasa.com/docs/rasa/tuning-your-model/
 
 
 ## HW section
 https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/
-
+https://github.com/Picovoice/picovoice/blob/master/demo/respeaker/pvrespeakerdemo/picovoice_demo.py
 
 ## GPT Models
 
@@ -51,37 +51,12 @@ Gpt4All Web UI Flask web application
 https://github.com/nomic-ai/gpt4all-ui
 
 
-## Fine tunning
-RedPajama-INCITE-3B, an LLM for everyone
-https://www.together.xyz/blog/redpajama-3b-updates
-
-Metharme 7B
-https://huggingface.co/PygmalionAI/metharme-7b
-
-converter
-https://docs.alpindale.dev/pygmalion-7b/#file-hashes
-
-The recommended range for temperature (for chatbots) is between 0.5 to 0.9 and the ideal range for repetition penalty is between 1.1 to 1.2.
-
-
 ## Glue scripts
 Pybind11 bindings for whisper.cpp
 https://github.com/aarnphm/whispercpp
 
-Python bindings for llama.cpp
-https://github.com/abdeladim-s/pyllamacpp
-
 Python Bindings for llama.cpp
 https://github.com/abetlen/llama-cpp-python
-
-LangChain
-https://pypi.org/project/langchain/
-
-Embedding database.
-https://github.com/chroma-core/chroma
-
-LLamaIndex
-https://github.com/jerryjliu/llama_index
 
 
 ## Voice activity detection (VAD)
@@ -90,8 +65,6 @@ https://github.com/jerryjliu/llama_index
 
 - adjust_for_ambient_noise
   https://github.com/Uberi/speech_recognition/blob/master/speech_recognition/__init__.py
-
-- remove speaker input using ducking from linux monitor
 
   : pactl list short | egrep "alsa_(input|output)" | fgrep -v ".monitor"
   : pactl load-module module-loopback
@@ -122,9 +95,8 @@ pacmd set-default-sink echocancel1
 In pavcontroll in Recording set sink to Monitor
 
 ```
-strace -o spork tty
-/dev/pts/27
-fortune  |tee /dev/pts/27 | RHVoice-client  -s  SLT -r 0 -v -0.1 | aplay
+fortune  |tee `strace -o spork tty | tr --delete '\n\r'` | RHVoice-client  -s  SLT -r 0.6 -v -0.1 | aplay
+
 ```
 
 
