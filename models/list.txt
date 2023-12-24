@@ -1,0 +1,3 @@
+
+- Phi-2 is a Transformer with 2.7 billion parameters. 
+ https://huggingface.co/TheBloke/phi-2-GGUF/blob/main/phi-2.Q5_K_M.gguf

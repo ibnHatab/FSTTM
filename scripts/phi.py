@@ -18,7 +18,7 @@ from llama_cpp import Llama
 
 # Chat Completion API
 
-llm = Llama(model_path="./models/phi-2.Q5_K_S.gguf", chat_format="llama-2")  # Set chat_format according to the model you are using
+llm = Llama(model_path="./models/phi-2.Q5_K_M.gguf", chat_format="llama-2")  # Set chat_format according to the model you are using
 out = llm.create_chat_completion(
     messages = [
         {"role": "system", "content": "You are a story writing assistant."},
