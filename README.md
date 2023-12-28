@@ -7,8 +7,10 @@
 ## Install
 
 ```shell
+sudo apt install portaudio19-dev
 CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 WHISPER_CUBLAS=1 pip install -r requirements.txt
 ```
+NB: whisoercpp failing CI bu can be installed from repo using bazel
 
 - Memory management
   https://arxiv.org/pdf/2308.15022.pdf
@@ -66,11 +68,12 @@ https://github.com/abetlen/llama-cpp-python
 - adjust_for_ambient_noise
   https://github.com/Uberi/speech_recognition/blob/master/speech_recognition/__init__.py
 
+- Monitor module for controll and testing
   : pactl list short | egrep "alsa_(input|output)" | fgrep -v ".monitor"
   : pactl load-module module-loopback
 	sudo sh -c ' echo "load-module module-loopback" >>  /etc/pulse/default.pa '
 
-- cross cancelation in time domain /etc/pulse/default.pa
+- Echo cross cancelation in time domain /etc/pulse/default.pa
 
 ```
 .ifexists module-echo-cancel.so
@@ -80,7 +83,7 @@ set-default-sink echocancel1
 .endif
 ```
 
-Enable echo cancelation
+Enable echo cancelation for this session
 
 ```
 #!/usr/bin/env bash
