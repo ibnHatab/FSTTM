@@ -136,3 +136,5 @@ dmypy.json
 .\#*
 
 up
+*.gguf
+rasa

@@ -1,7 +1,9 @@
 
+import asyncio
 import os
 import sys
 from threading import Thread
+import threading
 import time
 import llama_cpp
 
@@ -20,12 +22,15 @@ class Model:
     System: str
     Options: Dict[str, any]
 
+@dataclass
+class ResponseVars:
+    Response: str
+    Last: bool = False
 
 @dataclass
 class PromptVars:
     System: str
     Prompt: str
-    Response: str
     First: bool = False
 
     @classmethod
@@ -33,7 +38,6 @@ class PromptVars:
         return cls(
             System=system,
             Prompt=prompt,
-            Response="",
             First=first,
         )
 
@@ -63,15 +67,14 @@ model = Model(
     },
 )
 
-class LlamaSvc(Thread):
+class LlamaSvcThread:
 
-    def __init__(self, model: Model, stream_callback=None):
+    def __init__(self, model: Model, output_queue: queue.Queue):
         super().__init__()
         self.model = model
         self.input_queue = queue.Queue(maxsize=10)
+        self.output_queue = output_queue
 
-        self.is_running = True
-        self.is_paused = False
         self.data_buffer = []
 
         self.llm = llama_cpp.Llama(model_path=model.ModelPath,
@@ -80,34 +83,41 @@ class LlamaSvc(Thread):
                                 n_gpu_layers=model.Options["n_gpu_layers"],
                                 verbose=False,)
 
-    def send_data(self, data: PromptVars):
+        self.lock = threading.Lock()
+        self.stopped = threading.Event()
+        self.paused = threading.Event()
+        self.thread = threading.Thread(target=self.generate_values)
+        self.thread.start()
+
+    def send(self, data: PromptVars):
         """Send data to the input queue."""
         self.input_queue.put_nowait(data)
 
     def stop(self):
-        self.is_running = False
+        self.stopped.set()
+        self.thread.join()
 
-    def pause_wait(self):
-        self.is_paused = True
-        # self.llm.reset()
+    def pause(self):
+        self.paused.set()
+        # FIXme: self.llm.reset()
 
     def resume(self):
-        self.is_paused = False
+        self.paused.unset()
 
-    def run(self):
+    def generate_values(self):
         """Run the thread. Read data from the input queue and dispatch it."""
 
         def stopping_criteria(a, b):
-            return self.is_paused
+            return self.paused.is_set()
 
-        while self.is_running:
+        while not self.stopped.is_set():
             try:
                 data = self.input_queue.get(timeout=.1,)
                 self.data_buffer.append(data)
             except queue.Empty:
                 continue
 
-            if self.is_paused:
+            if self.paused.is_set():
                 continue
 
             if len(self.data_buffer):
@@ -125,31 +135,63 @@ class LlamaSvc(Thread):
                                                     stopping_criteria=stopping_criteria):
                     t = res["choices"][0]["text"]
                     buf.append(t)
+                print(res)
+                last = res["choices"][0]["finish_reason"] == "stop"
                 sentence = ''.join(buf)
-
                 print('>>', sentence)
+                #FIXME: split into sentences
+                out = ResponseVars(Response=sentence, Last=last)
+                self.output_queue.put_nowait(out)
 
 
-chat = LlamaSvc(model=model)
-chat.start()
+class LlamaSvcProxy:
+    def __init__(self, model) -> None:
+        self.queue = asyncio.Queue()
 
-vars = PromptVars.create(prompt="How are you?", first=True)
-chat.send_data(vars)
-time.sleep(1)
+        self.thread_queue = queue.Queue()
+        self.periodic_generator = LlamaSvcThread(model, self.thread_queue)
 
-chat.pause_wait()
-chat.send_data(PromptVars.create(prompt="X=2"))
-chat.send_data(PromptVars.create(prompt="Y=2"))
-chat.send_data(PromptVars.create(prompt="X+Y="))
-#chat.send_data(PromptVars.create(prompt="2 + 2 = "))
-time.sleep(1)
+    async def async_generator(self):
+        while True:
+            value = await self.queue.get()
+            yield value
 
-chat.resume()
-chat.send_data(PromptVars.create(prompt="What is the answer?"))
-time.sleep(1)
+    async def run_periodic_generator(self):
+        while True:
+            with self.periodic_generator.lock:
+                try:
+                    value = self.thread_queue.get_nowait()
+                except queue.Empty:
+                    await asyncio.sleep(0.1)
+                    continue
+            await self.queue.put(value)
+            await asyncio.sleep(0.1)
 
-chat.stop()
-chat.join()
+    async def stop(self):
+        self.periodic_generator.stop()
 
-del chat.llm
-time.sleep(1)
+    async def send(self, data: PromptVars):
+        self.periodic_generator.send(data)
+
+async def main():
+    async_proxy = LlamaSvcProxy(model)
+
+    # Start the periodic generator in a separate task
+    asyncio.create_task(async_proxy.run_periodic_generator())
+
+    # Get async generator from the proxy
+    async_gen = async_proxy.async_generator()
+
+    await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
+    # Consume values from the async generator
+    for _ in range(10):
+        value = await async_gen.__anext__()
+        print(f"Received value: {value}")
+
+    # Stop the generator
+    await async_proxy.stop()
+
+# Run the event loop
+asyncio.run(main())
+
+

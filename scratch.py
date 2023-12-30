@@ -186,3 +186,104 @@ chat.join()
 
 del chat.llm
 time.sleep(1)
+
+
+
+def parser(read_next):
+    while True:
+        sync = yield read_next
+        if sync != 42:
+            print(f"Error {sync}")
+            return
+
+        size = yield read_next
+
+        while size > 0:
+            data = yield read_next
+            print(f"Data: {data}")
+            size -= 1
+
+def socket():
+    yield 42
+    yield 4
+    yield 33
+    yield 44
+    yield 55
+    yield 66
+    yield 43
+    yield 4
+
+
+s = socket()
+p = parser(s)
+
+try:
+    c = next(p)
+    while True:
+        data = next(c)
+        c = p.send(data)
+except StopIteration:
+    print("Done")
+
+
+
+
+import asyncio
+import contextvars
+import functools
+
+async def to_thread(func, /, *args, **kwargs):
+    loop = asyncio.get_running_loop()
+    ctx = contextvars.copy_context()
+    func_call = functools.partial(ctx.run, func, *args, **kwargs)
+    return await loop.run_in_executor(None, func_call)
+
+class CounterAsyncTask:
+    def __init__(self):
+        self.value = 0
+        self.lock = asyncio.Lock()
+
+    async def increment(self):
+        async def thread_increment():
+            for _ in range(5):
+                await asyncio.sleep(1)  # Simulating work asynchronously
+                async with self.lock:
+                    self.value += 1
+                    print(f'Value: {self.value}')
+
+        await asyncio.get_running_loop().run_in_executor(None, thread_increment)
+
+# Create an instance of the asynchronous class
+async_counter = CounterAsyncTask()
+
+# Run the asynchronous task
+asyncio.run(async_counter.increment())
+
+
+
+
+import asyncio
+import threading
+import time
+
+class CounterAsyncTask:
+    def __init__(self):
+        self.value = 0
+        self.lock = threading.Lock()
+        self.loop = asyncio.get_event_loop()
+
+    async def increment(self):
+        def thread_increment():
+            for _ in range(5):
+                time.sleep(1)  # Simulating work
+                with self.lock:
+                    self.value += 1
+                    print(f'Value: {self.value}')
+
+        await self.loop.run_in_executor(None, thread_increment)
+
+# Create an instance of the asynchronous class
+async_counter = CounterAsyncTask()
+
+# Run the asynchronous task
+asyncio.run(async_counter.increment())
