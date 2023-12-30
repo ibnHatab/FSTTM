@@ -155,6 +155,8 @@ class LlamaSvcProxy:
         while True:
             value = await self.queue.get()
             yield value
+            if value.Last:
+                break
 
     async def run_periodic_generator(self):
         while True:
@@ -184,8 +186,12 @@ async def main():
 
     await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
     # Consume values from the async generator
-    for _ in range(10):
-        value = await async_gen.__anext__()
+    async for value in async_gen:
+        print(f"Received value: {value}")
+
+    await async_proxy.send(PromptVars.create(prompt="What is the weather today?", first=True))
+    # Consume values from the async generator
+    async for value in async_gen:
         print(f"Received value: {value}")
 
     # Stop the generator
