@@ -125,23 +125,16 @@ class LlamaSvcThread:
                 fst.Prompt = ' '.join([i.Prompt for i in self.data_buffer])
                 prompt = fst.format(self.model)
                 self.data_buffer.clear()
-                print('gen >>', prompt)
-                buf = []
                 for res in self.llm.create_completion(prompt=prompt,
                                                     stream=True,
                                                     stop=model.Options["stop"],
                                                     max_tokens=256,
                                                     echo=True,
                                                     stopping_criteria=stopping_criteria):
-                    t = res["choices"][0]["text"]
-                    buf.append(t)
-                print(res)
-                last = res["choices"][0]["finish_reason"] == "stop"
-                sentence = ''.join(buf)
-                print('>>', sentence)
-                #FIXME: split into sentences
-                out = ResponseVars(Response=sentence, Last=last)
-                self.output_queue.put_nowait(out)
+                    text = res["choices"][0]["text"]
+                    last = res["choices"][0]["finish_reason"] == "stop"
+                    out = ResponseVars(Response=text, Last=last)
+                    self.output_queue.put_nowait(out)
 
 
 class LlamaSvcProxy:
@@ -181,16 +174,13 @@ async def main():
     # Start the periodic generator in a separate task
     asyncio.create_task(async_proxy.run_periodic_generator())
 
-    # Get async generator from the proxy
-    async_gen = async_proxy.async_generator()
-
     await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
-    # Consume values from the async generator
+    async_gen = async_proxy.async_generator()
     async for value in async_gen:
         print(f"Received value: {value}")
 
     await async_proxy.send(PromptVars.create(prompt="What is the weather today?", first=True))
-    # Consume values from the async generator
+    async_gen = async_proxy.async_generator()
     async for value in async_gen:
         print(f"Received value: {value}")
 
