@@ -9,7 +9,7 @@ import webrtcvad
 from scipy import signal
 
 
-from utils import ignoreStderr
+from utils import ignore_stderr
 
 class Audio(object):
     """Streams raw audio from microphone. Data is received in a separate thread,
@@ -29,7 +29,7 @@ class Audio(object):
         self.sample_rate = self.RATE_PROCESS
         self.block_size = int(self.RATE_PROCESS / float(self.BLOCKS_PER_SECOND))
         self.block_size_input = int(self.input_rate / float(self.BLOCKS_PER_SECOND))
-        with ignoreStderr():
+        with ignore_stderr():
             self.pa = pyaudio.PyAudio()
 
         def proxy_callback(in_data, frame_count, time_info, status):

@@ -1,15 +1,12 @@
 
 import asyncio
-import os
-import sys
-from threading import Thread
 import threading
-import time
-import llama_cpp
+import queue
 
 from dataclasses import dataclass
-import queue
 from typing import List, Dict
+
+import llama_cpp
 
 
 @dataclass
@@ -21,11 +18,6 @@ class Model:
     Designation: str
     System: str
     Options: Dict[str, any]
-
-@dataclass
-class ResponseVars:
-    Response: str
-    Last: bool = False
 
 @dataclass
 class PromptVars:
@@ -48,26 +40,34 @@ class PromptVars:
             system = f"{m.Designation} {self.System}\n"
         else:
             system = ""
-        return system + model.Template.format(Prompt=self.Prompt)
+        return system + m.Template.format(Prompt=self.Prompt)
 
+@dataclass
+class ResponseVars:
+    Response: str
+    Last: bool = False
 
-model = Model(
-    Name="phi-2.Q5_K_S",
-    ShortName="phi-2",
-    ModelPath="./models/phi-2.Q5_K_S.gguf",
-    Template="User: {Prompt}\nAssistant:",
-    Designation="System:",
-    System="A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful answers to the user's questions.",
-    Options={
-        "chat_format": "llama-2",
-        "n_ctx": 2048,
-        "n_threads": 8,
-        "n_gpu_layers": 35,
-        "stop": ["<|endoftext|>", "User:", "Assistant:", "System:"]
-    },
-)
+import threading
+import queue
 
-class LlamaSvcThread:
+class LlamaSvcThread(threading.Thread):
+    """
+    A thread class for handling communication with the Llama model.
+
+    Args:
+        model (Model): The Llama model.
+        output_queue (queue.Queue): The queue for storing output responses.
+
+    Attributes:
+        model (Model): The Llama model.
+        input_queue (queue.Queue): The queue for storing input data.
+        output_queue (queue.Queue): The queue for storing output responses.
+        data_buffer (list): A buffer to collect user inputs.
+        llm (llama_cpp.Llama): The Llama model instance.
+        _lock (threading.Lock): A lock for thread synchronization.
+        _stopped (threading.Event): An event to indicate if the thread is stopped.
+        _paused (threading.Event): An event to indicate if the thread is paused.
+    """
 
     def __init__(self, model: Model, output_queue: queue.Queue):
         super().__init__()
@@ -75,7 +75,8 @@ class LlamaSvcThread:
         self.input_queue = queue.Queue(maxsize=10)
         self.output_queue = output_queue
 
-        self.data_buffer = []
+        self.data_buffer = [] # collect User: inputs
+        # FIXME: don't collect, just send to llama
 
         self.llm = llama_cpp.Llama(model_path=model.ModelPath,
                                 n_ctx=model.Options["n_ctx"],
@@ -83,41 +84,56 @@ class LlamaSvcThread:
                                 n_gpu_layers=model.Options["n_gpu_layers"],
                                 verbose=False,)
 
-        self.lock = threading.Lock()
-        self.stopped = threading.Event()
-        self.paused = threading.Event()
-        self.thread = threading.Thread(target=self.generate_values)
-        self.thread.start()
+        self._lock = threading.Lock()
+        self._stopped = threading.Event()
+        self._paused = threading.Event()
+        self.start()
 
     def send(self, data: PromptVars):
-        """Send data to the input queue."""
+        """
+        Sends input data to the input queue.
+
+        Args:
+            data (PromptVars): The input data to be sent.
+        """
         self.input_queue.put_nowait(data)
 
     def stop(self):
-        self.stopped.set()
-        self.thread.join()
+        """
+        Stops the thread.
+        """
+        self._stopped.set()
+        self.join()
 
     def pause(self):
-        self.paused.set()
+        """
+        Pauses the model generator.
+        """
+        self._paused.set()
         # FIXme: self.llm.reset()
 
     def resume(self):
-        self.paused.unset()
+        """
+        Resumes the model generator.
+        """
+        self._paused.clear()
 
-    def generate_values(self):
-        """Run the thread. Read data from the input queue and dispatch it."""
+    def run(self):
+        """
+        The main execution logic of the thread.
+        """
 
         def stopping_criteria(a, b):
-            return self.paused.is_set()
+            return self._paused.is_set()
 
-        while not self.stopped.is_set():
+        while not self._stopped.is_set():
             try:
                 data = self.input_queue.get(timeout=.1,)
                 self.data_buffer.append(data)
             except queue.Empty:
                 continue
 
-            if self.paused.is_set():
+            if self._paused.is_set():
                 continue
 
             if len(self.data_buffer):
@@ -127,7 +143,7 @@ class LlamaSvcThread:
                 self.data_buffer.clear()
                 for res in self.llm.create_completion(prompt=prompt,
                                                     stream=True,
-                                                    stop=model.Options["stop"],
+                                                    stop=self.model.Options["stop"],
                                                     max_tokens=256,
                                                     echo=True,
                                                     stopping_criteria=stopping_criteria):
@@ -137,14 +153,35 @@ class LlamaSvcThread:
                     self.output_queue.put_nowait(out)
 
 
-class LlamaSvcProxy:
-    def __init__(self, model) -> None:
-        self.queue = asyncio.Queue()
 
+class LlamaSvcProxy:
+    """
+    A class representing a proxy for a Llama service.
+
+    Attributes:
+        queue (asyncio.Queue): An asyncio queue to store values.
+        thread_queue (queue.Queue): A thread-safe queue to store values.
+        periodic_generator (LlamaSvcThread): An instance of LlamaSvcThread for generating values periodically.
+    """
+
+    def __init__(self, model) -> None:
+        """
+        Initializes a new instance of the LlamaSvcProxy class.
+
+        Args:
+            model: The model to be used for generating values.
+        """
+        self.queue = asyncio.Queue()
         self.thread_queue = queue.Queue()
         self.periodic_generator = LlamaSvcThread(model, self.thread_queue)
 
     async def async_generator(self):
+        """
+        An asynchronous generator that yields values from the queue.
+
+        Yields:
+            value: The value retrieved from the queue.
+        """
         while True:
             value = await self.queue.get()
             yield value
@@ -152,8 +189,11 @@ class LlamaSvcProxy:
                 break
 
     async def run_periodic_generator(self):
+        """
+        Runs the periodic generator to generate values and put them into the queue.
+        """
         while True:
-            with self.periodic_generator.lock:
+            with self.periodic_generator._lock:
                 try:
                     value = self.thread_queue.get_nowait()
                 except queue.Empty:
@@ -163,31 +203,60 @@ class LlamaSvcProxy:
             await asyncio.sleep(0.1)
 
     async def stop(self):
+        """
+        Stops the periodic generator.
+        """
         self.periodic_generator.stop()
 
     async def send(self, data: PromptVars):
+        """
+        Sends data to the periodic generator.
+
+        Args:
+            data (PromptVars): The data to be sent.
+        """
         self.periodic_generator.send(data)
 
-async def main():
-    async_proxy = LlamaSvcProxy(model)
 
-    # Start the periodic generator in a separate task
-    asyncio.create_task(async_proxy.run_periodic_generator())
+if __name__ == "__main__":
 
-    await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
-    async_gen = async_proxy.async_generator()
-    async for value in async_gen:
-        print(f"Received value: {value}")
+    model = Model(
+        Name="phi-2.Q5_K_S",
+        ShortName="phi-2",
+        ModelPath="./models/phi-2.Q5_K_S.gguf",
+        Template="User: {Prompt}\nAssistant:",
+        Designation="System:",
+        System="A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful answers to the user's questions.",
+        Options={
+            "chat_format": "llama-2",
+            "n_ctx": 2048,
+            "n_threads": 8,
+            "n_gpu_layers": 35,
+            "stop": ["<|endoftext|>", "User:", "Assistant:", "System:"]
+        },
+    )
 
-    await async_proxy.send(PromptVars.create(prompt="What is the weather today?", first=True))
-    async_gen = async_proxy.async_generator()
-    async for value in async_gen:
-        print(f"Received value: {value}")
+    async def main():
+        async_proxy = LlamaSvcProxy(model)
 
-    # Stop the generator
-    await async_proxy.stop()
+        # Start the periodic generator in a separate task
+        asyncio.create_task(async_proxy.run_periodic_generator())
 
-# Run the event loop
-asyncio.run(main())
+        await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
+        async_gen = async_proxy.async_generator()
+        async for value in async_gen:
+            print(f"Received value: {value}")
+
+        await async_proxy.send(PromptVars.create(prompt="What is the weather today?", first=False))
+        async_gen = async_proxy.async_generator()
+        async for value in async_gen:
+            print(f"Received value: {value}")
+
+        # Stop the generator
+        #await asyncio.sleep(1)
+        await async_proxy.stop()
+
+    # Run the event loop
+    asyncio.run(main())
 
 

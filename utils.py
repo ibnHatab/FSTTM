@@ -3,7 +3,7 @@ import sys
 import contextlib
 
 @contextlib.contextmanager
-def ignoreStderr(ingnore=True):
+def ignore_stderr(ingnore=True):
     if not ingnore:
         yield
         return
