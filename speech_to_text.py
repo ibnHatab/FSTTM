@@ -1,29 +1,47 @@
 
+import os
+import time
 import asyncio
 import numpy as np
+from dataclasses import dataclass
 
 import whispercpp as w
+from mic_vad import VADAudio
+from utils import ignore_stderr
 
-# High-performance inference of OpenAI's Whisper
-# automatic speech recognition (ASR) model
+class Whisper:
+    """
+    A class that performs speech-to-text conversion using the Whisper model.
 
-class SpeechToText:
-    def __init__(self, loop, model_name, n_threads=7):
-        self.loop = loop
-        self.model = w.Whisper.from_pretrained(model_name)
-        params = (self.model.params
-                      .with_print_realtime(False)
-                      .with_num_threads(n_threads)
-                      .with_suppress_blank(True)
-                      .build())
+    Args:
+        model_name (str): The name of the pretrained Whisper model.
+        n_threads (int, optional): The number of threads to use for processing. Defaults to 7.
+    """
+
+    def __init__(self, model_name, n_threads=7):
+        with ignore_stderr():
+            self.model = w.Whisper.from_pretrained(model_name)
+        params = (
+            self.model.params
+            .with_print_realtime(False)
+            .with_num_threads(n_threads)
+            .with_suppress_blank(True)
+            .build()
+        )
 
     async def process_data(self, data):
+        """
+        Processes the input speech data and returns the transcribed text.
+
+        Args:
+            data (bytes): The input speech data as a byte array.
+
+        Returns:
+            str: The transcribed text.
+        """
         text = None
         try:
-            # print(f"\nReceive speech: {len(item.data)/640}")
             audio = np.frombuffer(data, np.int16).flatten().astype(np.float32) / 32768.0
-            # Compensate for the fact that the model cant process short audio
-            # https://github.com/ggerganov/whisper.cpp/issues/39
             if len(data)/640 < 50:
                 audio = np.pad(audio, (0, 16000), 'constant')
             text = self.model.transcribe(audio)
@@ -32,52 +50,90 @@ class SpeechToText:
 
         return text
 
-if __name__ == '__main__':
-    import os
-    import sys
-    import time
 
-    from mic_vad import VADAudio
+@dataclass
+class SpeechVars:
+    Uterance: str
+    Count: int
+    Stamp: int
 
+class SpeechToTextProxy:
+    """
+    A high-performance inference of OpenAI's Whisper with automatic speech recognition (ASR) model.
 
-    print(sys.path)
-    async def amain(loop):
-        stt_svc = SpeechToText(loop=loop, model_name='base')
+    Attributes:
+        audio (VADAudio): The VADAudio object for audio processing.
+        stt (Whisper): The Whisper object for speech-to-text processing.
 
-        vad_audio = VADAudio(loop,
-                            aggressiveness=3,
-                            device=0,
-                            input_rate=16000)
-        print("Listening (ctrl-C to exit)...")
-        vad_audio.start()
+    Methods:
+        start(): Starts the audio processing.
+        stop(): Stops the audio processing.
+        async_generator(): Asynchronously generates speech variables.
 
-        n = 0
-        t = time.time_ns()
+    """
+
+    def __init__(self, vad: VADAudio, stt: Whisper) -> None:
+        self.audio = vad
+        self.stt = stt
+
+    def start(self):
+        """
+        Starts the audio processing.
+        """
+        self.audio.start()
+
+    def stop(self):
+        """
+        Stops the audio processing.
+        """
+        self.audio.stop()
+
+    async def async_generator(self):
+        """
+        Asynchronously generates speech variables.
+
+        Yields:
+            SpeechVars: A named tuple containing the processed text, count, and processing time.
+
+        """
+        ts = time.time_ns()
+        count = 0
         uterance = bytearray()
-        async for frame in  vad_audio.vad_collector():
+        async for frame in self.audio.vad_collector():
             if frame is not None:
-                if not t: t = time.time_ns()
-                n += 1
+                if not ts:
+                    ts = time.time_ns()
                 os.write(sys.stdout.fileno(), b'.')
-                # print("streaming frame: {}".format(len(frame)))
                 uterance.extend(frame)
             else:
-                tt = time.time_ns() - t
-                tt = tt/1e9
-                print()
-                print("end of utterence: {}f / {}s = {}f/s".format(n, tt, int(n/tt)))
-                n = 0
-                t = 0 # time.time_ns()
-                text = await stt_svc.process_data(uterance)
+                tt = time.time_ns() - ts
+                tt = tt / 1e9
+                text = await self.stt.process_data(uterance)
                 uterance.clear()
-                print(f"Text: {text}")
+                yield SpeechVars(text, count, tt)
+                ts = 0  # time.time_ns()
+                count += 1
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    asyncio.ensure_future(amain(loop=loop))
-    loop.set_debug(False)
+
+if __name__ == '__main__':
+    import sys
+
+    async def amain():
+
+        vad_audio = VADAudio(aggressiveness=3,
+                            device=0,
+                            input_rate=16000)
+
+        whisper = Whisper(model_name='base')
+
+        stt_svc = SpeechToTextProxy(vad_audio, whisper)
+        stt_svc.start()
+
+        async for text in stt_svc.async_generator():
+                print(f"\n{text}")
+
     try:
-        loop.run_forever()
+        asyncio.run(amain())
     except KeyboardInterrupt:
         sys.exit('\nInterrupted by user')
 

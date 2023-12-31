@@ -22,19 +22,20 @@ class Audio(object):
     BLOCKS_PER_SECOND = 50
 
     def __init__(self, loop, device=None, input_rate=RATE_PROCESS):
-
+        self.loop = loop
         self.buffer_queue = asyncio.Queue()
         self.device = device
         self.input_rate = input_rate
         self.sample_rate = self.RATE_PROCESS
         self.block_size = int(self.RATE_PROCESS / float(self.BLOCKS_PER_SECOND))
         self.block_size_input = int(self.input_rate / float(self.BLOCKS_PER_SECOND))
+
         with ignore_stderr():
             self.pa = pyaudio.PyAudio()
 
         def proxy_callback(in_data, frame_count, time_info, status):
             #pylint: disable=unused-argument
-            loop.call_soon_threadsafe(self.buffer_queue.put_nowait, (bytearray(in_data), status))
+            self.loop.call_soon_threadsafe(self.buffer_queue.put_nowait, (bytearray(in_data), status))
             return (None, pyaudio.paContinue)
 
         kwargs = {
@@ -95,7 +96,9 @@ class Audio(object):
 class VADAudio(Audio):
     """Filter & segment audio with voice activity detection."""
 
-    def __init__(self, loop, aggressiveness=3, device=None, input_rate=None):
+    def __init__(self, loop=None, aggressiveness=3, device=None, input_rate=None):
+        if loop is None:
+            loop = asyncio.get_running_loop()
         super().__init__(loop, device=device, input_rate=input_rate)
         self.vad = webrtcvad.Vad(aggressiveness)
 
@@ -150,9 +153,8 @@ if __name__ == '__main__':
     import time
 
     print(sys.path)
-    async def amain(loop):
-        vad_audio = VADAudio(loop,
-                            aggressiveness=3,
+    async def amain():
+        vad_audio = VADAudio(aggressiveness=3,
                             device=0,
                             input_rate=16000)
         print("Listening (ctrl-C to exit)...")
@@ -174,14 +176,16 @@ if __name__ == '__main__':
                 n = 0
                 t = 0 # time.time_ns()
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    asyncio.ensure_future(amain(loop=loop))
-    loop.set_debug(True)
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        sys.exit('\nInterrupted by user')
+    asyncio.run(amain())
+
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    # asyncio.ensure_future(amain(loop=loop))
+    # loop.set_debug(True)
+    # try:
+    #     loop.run_forever()
+    # except KeyboardInterrupt:
+    #     sys.exit('\nInterrupted by user')
 
 
 
