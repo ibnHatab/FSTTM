@@ -1,5 +1,6 @@
 
 import os
+import sys
 import time
 import asyncio
 import numpy as np
@@ -19,9 +20,11 @@ class Whisper:
     """
 
     def __init__(self, model_name, n_threads=7):
+        self.loop = asyncio.get_event_loop()
+
         with ignore_stderr():
             self.model = w.Whisper.from_pretrained(model_name)
-        params = (
+        params = ( # noqa # type: ignore
             self.model.params
             .with_print_realtime(False)
             .with_num_threads(n_threads)
@@ -30,6 +33,10 @@ class Whisper:
         )
 
     async def process_data(self, data):
+        text = await self.loop.run_in_executor(None, self.transcribe, data)
+        return text
+
+    def transcribe(self, data: bytes):
         """
         Processes the input speech data and returns the transcribed text.
 
@@ -116,7 +123,6 @@ class SpeechToTextProxy:
 
 
 if __name__ == '__main__':
-    import sys
 
     async def amain():
 

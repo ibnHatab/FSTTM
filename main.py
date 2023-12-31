@@ -3,6 +3,9 @@ from typing import Optional, Dict, Any, AsyncGenerator
 import asyncio
 import os
 from chat import Model, PromptVars, LlamaSvcProxy
+from mic_vad import VADAudio
+from speech_to_text import SpeechToTextProxy, Whisper
+from text_to_speech import APlayThread
 
 
 
@@ -23,23 +26,36 @@ model = Model(
 )
 
 async def main():
-    async_proxy = LlamaSvcProxy(model)
+    vad_audio = VADAudio(aggressiveness=3,
+                        device=0,
+                        input_rate=16000)
+
+    whisper = Whisper(model_name='base')
+    stt_proxy = SpeechToTextProxy(vad_audio, whisper)
+    llama_proxy = LlamaSvcProxy(model)
+    aplay = APlayThread()
 
     # Start the periodic generator in a separate task
-    asyncio.create_task(async_proxy.run_periodic_generator())
+    asyncio.create_task(llama_proxy.run_periodic_generator())
 
-    await async_proxy.send(PromptVars.create(prompt="How are you?", first=True))
-    async_gen = async_proxy.async_generator()
-    async for value in async_gen:
-        print(f"Received value: {value}")
+    stt_proxy.start()
+    first = True
 
-    await async_proxy.send(PromptVars.create(prompt="What is the weather today?", first=False))
-    async_gen = async_proxy.async_generator()
-    async for value in async_gen:
-        print(f"Received value: {value}")
+    async for user_say in stt_proxy.async_generator():
+            print(f"\n{user_say}")
+
+            await llama_proxy.send(PromptVars.create(prompt=user_say.Uterance, first=first))
+            first = False
+
+            async_gen = llama_proxy.async_generator()
+            sentence = ""
+            async for value in async_gen:
+                sentence += value.Response
+            print(f"Received value: {sentence}")
+            aplay.say(sentence)
 
     # Stop the generator
-    await async_proxy.stop()
+    await llama_proxy.stop()
 
 # Run the event loop
 asyncio.run(main())
