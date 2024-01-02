@@ -3,6 +3,7 @@
   Finite-State Turn-Taking Machine (FSTTM), a model to control the turn-taking behavior of conversational agent
   https://aclanthology.org/N09-1071.pdf
 
+![Image of state](state.png)
 
 ## Install
 
@@ -10,7 +11,7 @@
 sudo apt install portaudio19-dev
 CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 WHISPER_CUBLAS=1 pip install -r requirements.txt
 ```
-NB: whisoercpp failing CI bu can be installed from repo using bazel
+NB: whispercpp failing CI but can be installed from repo using bazel
 
 - Memory management
   https://arxiv.org/pdf/2308.15022.pdf
@@ -54,24 +55,38 @@ https://github.com/nomic-ai/gpt4all-ui
 
 
 ## Glue scripts
-Pybind11 bindings for whisper.cpp
-https://github.com/aarnphm/whispercpp
 
-Python Bindings for llama.cpp
-https://github.com/abetlen/llama-cpp-python
+- Pybind11 bindings for whisper.cpp
+  (https://github.com/aarnphm/whispercpp)
+
+- Python Bindings for llama.cpp
+  (https://github.com/abetlen/llama-cpp-python)
 
 
 ## Voice activity detection (VAD)
-- VAD
-  https://github.com/mozilla/DeepSpeech-examples
+- Mozzila VAD
+  (https://github.com/mozilla/DeepSpeech-examples)
 
-- adjust_for_ambient_noise
-  https://github.com/Uberi/speech_recognition/blob/master/speech_recognition/__init__.py
+- Adjust_for_ambient_noise
+  (https://github.com/Uberi/speech_recognition/blob/master/speech_recognition/__init__.py)
 
 - Monitor module for controll and testing
+
+```
   : pactl list short | egrep "alsa_(input|output)" | fgrep -v ".monitor"
   : pactl load-module module-loopback
 	sudo sh -c ' echo "load-module module-loopback" >>  /etc/pulse/default.pa '
+```
+
+- testing from monitor
+
+  In pavcontroll in Recording set sink to Monitor
+
+```
+fortune  |tee `strace -o spork tty | tr --delete '\n\r'` | RHVoice-client  -s  SLT -r 0.6 -v -0.1 | aplay
+
+```
+
 
 - Echo cross cancelation in time domain /etc/pulse/default.pa
 
@@ -83,7 +98,7 @@ set-default-sink echocancel1
 .endif
 ```
 
-Enable echo cancelation for this session
+- Enable echo cancelation for this session
 
 ```
 #!/usr/bin/env bash
@@ -93,38 +108,39 @@ pacmd set-default-source echocancel
 pacmd set-default-sink echocancel1
 ```
 
-- testing from monitor
-
-In pavcontroll in Recording set sink to Monitor
-
-```
-fortune  |tee `strace -o spork tty | tr --delete '\n\r'` | RHVoice-client  -s  SLT -r 0.6 -v -0.1 | aplay
-
-```
 
 
 ### Voice stream
-mic_vad.py
 
+- mic_vad.py
+
+```
     FORMAT = pyaudio.paInt16
     # Network/VAD rate-space
     RATE_PROCESS = 16000
     CHANNELS = 1
     BLOCKS_PER_SECOND = 50
+```
 
 ```
-        vad_audio = VADAudio(loop,
-                            aggressiveness=3,
-                            device=0,
-                            input_rate=16000)
+    vad_audio = VADAudio(loop,
+                        aggressiveness=3,
+                        device=0,
+                        input_rate=16000)
 
  'device': 0,
- 'input_rate': 16000,         # rate
+  # rate
+ 'input_rate': 16000,
+  #
  'sample_rate': 16000,
- 'block_size': 320,           # RATE_PROCESS / BLOCKS_PER_SECOND
- 'block_size_input': 320,     # frames_per_buffer; RATE_PROCESS / BLOCKS_PER_SECOND
+  # RATE_PROCESS / BLOCKS_PER_SECOND
+ 'block_size': 320,
+  # frames_per_buffer; RATE_PROCESS / BLOCKS_PER_SECOND
+ 'block_size_input': 320,
 
- ```
+
  len(frame) == 640
  VAD rate ~ 20 f/s
+ ```
+
 
