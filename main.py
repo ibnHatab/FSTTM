@@ -38,18 +38,22 @@ async def main():
     stt_svc.start()
     first = True
 
-    async for user_say in stt_svc.async_generator():
-            print(f"\n{user_say}")
+    user_input = stt_svc.async_generator()
 
-            await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
-            first = False
+    while True:
 
-            async_gen = llama_svc.async_generator()
-            sentence = ""
-            async for value in async_gen:
-                sentence += value.Response
-            print(f"Received value: {sentence}")
-            aplay.say(sentence)
+        user_say = await  user_input.__anext__()
+        print(f"\n{user_say}")
+
+        await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
+        first = False
+
+        async_gen = llama_svc.async_generator()
+        sentence = ""
+        async for value in async_gen:
+            sentence += value.Response
+        print(f"Received value: {sentence}")
+        aplay.say(sentence)
 
     # Stop the generator
     await llama_svc.stop()

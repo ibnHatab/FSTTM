@@ -183,3 +183,7 @@ class Model(Automaton):
                 'W': P_F*C_g(tau),
                 'G': (1-P_F)*C_u,
             }
+
+
+if __name__ == "__main__":
+    ...

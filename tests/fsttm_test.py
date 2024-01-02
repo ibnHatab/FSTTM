@@ -2,7 +2,8 @@ import os
 import sys
 import pytest
 import inspect
-from gpt_fsttm_server.fsttm import Model
+
+from fsttm import Model
 
 # run all tests
 def trace(): print("\n"+inspect.stack()[1][3])
