@@ -1,7 +1,7 @@
 
 # The Finite-State Turn-Taking Machine
   Finite-State Turn-Taking Machine (FSTTM), a model to control the turn-taking behavior of conversational agent
-  https://aclanthology.org/N09-1071.pdf
+  (https://aclanthology.org/N09-1071.pdf)
 
 ![Image of state](state.png)
 
@@ -14,10 +14,10 @@ CMAKE_ARGS="-DLLAMA_CUBLAS=on -DWHISPER_CUBLAS=on" FORCE_CMAKE=1 LLAMA_CUBLAS=1 
 NB: whispercpp failing CI but can be installed from repo using bazel
 
 - Memory management
-  https://arxiv.org/pdf/2308.15022.pdf
+  (https://arxiv.org/pdf/2308.15022.pdf)
 
 - Rule based
-  https://www.businessrulesgroup.org/brmanifesto.htm
+  (https://www.businessrulesgroup.org/brmanifesto.htm)
 
 
 ## Speech-to-Intent
@@ -32,26 +32,26 @@ Combining Rasa NLU with a language model like can create a comprehensive convers
         Utilize this context to generate appropriate prompts or responses using the language model.
         Pass the context or key information obtained from Rasa to the language model as a prompt to generate human-like responses.
 
-  https://rasa.com/docs/rasa/tuning-your-model/
+  (https://rasa.com/docs/rasa/tuning-your-model/)
 
 
 ## HW section
-https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/
-https://github.com/Picovoice/picovoice/blob/master/demo/respeaker/pvrespeakerdemo/picovoice_demo.py
+- (https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/)
+- (https://github.com/Picovoice/picovoice/blob/master/demo/respeaker/pvrespeakerdemo/picovoice_demo.py)
 
 ## GPT Models
 
 High-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model
-https://github.com/ggerganov/whisper.cpp
+(https://github.com/ggerganov/whisper.cpp)
 
 Run the LLaMA model using 4-bit integer quantization
-https://github.com/ggerganov/llama.cpp
+(https://github.com/ggerganov/llama.cpp)
 
 Open-source assistant-style large language model based on GPT-J and LLaMa
-https://github.com/nomic-ai/gpt4all
+(https://github.com/nomic-ai/gpt4all)
 
 Gpt4All Web UI Flask web application
-https://github.com/nomic-ai/gpt4all-ui
+(https://github.com/nomic-ai/gpt4all-ui)
 
 
 ## Glue scripts
