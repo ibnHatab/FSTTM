@@ -13,7 +13,7 @@ import threading
 import queue
 import pyaudio
 
-class APlayThread(threading.Thread):
+class TTSPlayThread(threading.Thread):
     """
     A class that represents a player for text-to-speech conversion.
 
@@ -139,7 +139,7 @@ class APlayThread(threading.Thread):
 
 if __name__ == '__main__':
 
-    player = APlayThread()
+    player = TTSPlayThread()
     player.say('''
 Q:	Why did the programmer call his mother long distance?
 A:	Because that was her name.

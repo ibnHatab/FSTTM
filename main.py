@@ -5,7 +5,7 @@ import os
 from chat import Model, PromptVars, LlamaSvcProxy
 from mic_vad import VADAudio
 from speech_to_text import SpeechToTextProxy, Whisper
-from text_to_speech import APlayThread
+from text_to_speech import TTSPlayThread
 
 
 
@@ -26,28 +26,25 @@ model = Model(
 )
 
 async def main():
-    vad_audio = VADAudio(aggressiveness=3,
-                        device=0,
-                        input_rate=16000)
-
+    vad_audio = VADAudio(aggressiveness=3, device=0, input_rate=16000)
     whisper = Whisper(model_name='base')
-    stt_proxy = SpeechToTextProxy(vad_audio, whisper)
-    llama_proxy = LlamaSvcProxy(model)
-    aplay = APlayThread()
+    stt_svc = SpeechToTextProxy(vad_audio, whisper)
+    llama_svc = LlamaSvcProxy(model)
+    aplay = TTSPlayThread()
 
     # Start the periodic generator in a separate task
-    asyncio.create_task(llama_proxy.run_periodic_generator())
+    asyncio.create_task(llama_svc.run_periodic_generator())
 
-    stt_proxy.start()
+    stt_svc.start()
     first = True
 
-    async for user_say in stt_proxy.async_generator():
+    async for user_say in stt_svc.async_generator():
             print(f"\n{user_say}")
 
-            await llama_proxy.send(PromptVars.create(prompt=user_say.Uterance, first=first))
+            await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
             first = False
 
-            async_gen = llama_proxy.async_generator()
+            async_gen = llama_svc.async_generator()
             sentence = ""
             async for value in async_gen:
                 sentence += value.Response
@@ -55,7 +52,7 @@ async def main():
             aplay.say(sentence)
 
     # Stop the generator
-    await llama_proxy.stop()
+    await llama_svc.stop()
 
 # Run the event loop
 asyncio.run(main())
