@@ -178,15 +178,6 @@ if __name__ == '__main__':
 
     asyncio.run(amain())
 
-    # loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(loop)
-    # asyncio.ensure_future(amain(loop=loop))
-    # loop.set_debug(True)
-    # try:
-    #     loop.run_forever()
-    # except KeyboardInterrupt:
-    #     sys.exit('\nInterrupted by user')
-
 
 
 

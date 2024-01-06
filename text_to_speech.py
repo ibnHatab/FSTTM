@@ -129,11 +129,15 @@ class TTSPlayThread(threading.Thread):
         Args:
             text (str): The text to be processed and spoken.
         """
-        with self.tts.say(text, format_='pcm', buff=4*1024) as gen:
+        with self.tts.say(text, format_='pcm', buff=48*1024) as gen:
+            # time.sleep(0.1)
             for chunk in gen:
+                #self._stream.write(b'\x00' * 1024 * 8)
                 if not self._work or self._clear_queue.is_set():
                     break
-                self._stream.write(chunk)
+                #print(f"Playing chunk: {len(chunk)}")
+                with ignore_stderr():
+                    self._stream.write(chunk)
 
 
 
@@ -144,11 +148,16 @@ if __name__ == '__main__':
 Q:	Why did the programmer call his mother long distance?
 A:	Because that was her name.
     ''')
-
+    time.sleep(5)
+    player.say('''
+There is a great discovery still to be made in Literature: that of
+paying literary men by the quantity they do NOT write.
+    ''')
+    time.sleep(5)
     player.say('''
 There is a great discovery still to be made in Literature: that of
 paying literary men by the quantity they do NOT write.
     ''')
 
-    time.sleep(3)
+    time.sleep(13)
     player.stop()

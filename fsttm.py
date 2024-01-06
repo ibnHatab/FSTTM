@@ -81,6 +81,7 @@ class Model(Automaton):
             (su('G', 'W'), 'FREEu',  'SYSTEM'),
 
             (su('G', 'W'), 'SYSTEM',  'SYSTEM'),
+            (su('K', 'W'), 'SYSTEM',  'SYSTEM'),
 
             (su('W', 'R'), 'USER',   'FREEu'),
             (su('W', 'G'), 'FREEu',  'USER'),
@@ -90,6 +91,7 @@ class Model(Automaton):
             (su('W', 'G'), 'FREEs',  'USER'),
 
             (su('W', 'G'), 'USER',  'USER'),
+            (su('W', 'K'), 'USER',  'USER'),
 
     ]
     _initial_state = 'USER'
@@ -98,10 +100,10 @@ class Model(Automaton):
     def __init__(self, system_cb=None, user_cb=None):
         self.state = Model._initial_state
         super(Model, self).__init__(Model._initial_state, Model._transitions)
-        self.system = 'W'
         self.user = 'W'
-        self.system_cb = system_cb
+        self.system = 'W'
         self.user_cb = user_cb
+        self.system_cb = system_cb
 
     def onchangestate(self, e):
         print(f'\t>> {e.src}:\t({e.event}) -> {e.dst}\t--- ({self.system_actions_cost()})')
@@ -123,11 +125,12 @@ class Model(Automaton):
                 'R': 'W',
                 'G': 'K',
                 'K': 'K',
+                'W': 'W',
             }[action]
 
         # signal floor turn to the system
         if flooor != self.is_system and self.system_cb:
-            self.system_cb(self.system, flooor)
+            self.system_cb(action, flooor)
 
 
     def user_action(self, action):
@@ -139,11 +142,12 @@ class Model(Automaton):
                 'R': 'W',
                 'G': 'K',
                 'K': 'K',
+                'W': 'W',
             }[action]
 
         # signal floor turn to the user
         if flooor != self.is_user and self.user_cb:
-            self.user_cb(self.system, flooor)
+            self.user_cb(action, flooor)
 
     def system_actions_cost(self):
         """
@@ -162,7 +166,7 @@ class Model(Automaton):
         C_g_speech = 500  # cost to grab in speech
         P_F_speech = 0.20 # probability of being in a free state (regressor)
 
-        tau = self.in_state(self.state_start_time)
+        tau = self.in_state(self.state_start_time)*10
         if self.is_system:
             return {
                 'K': P_B * C_o(tau), # cost of overlap
@@ -186,4 +190,51 @@ class Model(Automaton):
 
 
 if __name__ == "__main__":
-    ...
+    import datetime
+    import itertools
+
+    def select_min_cost(costs):
+        return min(costs, key=costs.get)
+
+    def system_cb(system, flooor):
+        print(f'\t\t >> SYSTEM_CB: {system}, {flooor}')
+
+    def user_cb(user, flooor):
+        print(f'\t\t >> USER_CB: {user}, {flooor}')
+
+    m = Model(system_cb=system_cb, user_cb=user_cb)
+
+
+    m.state = 'FREEu'
+
+    dialog = [
+        (lambda c: 1, 1),
+        (lambda c: m.user_action('G'), 2),
+        (lambda c: m.system_action(select_min_cost(c)), 0),
+        (lambda c: m.user_action('R'), 1),
+        (lambda c: m.system_action('G'), 3),
+        (lambda c: m.system_action('R'), 3),
+        (lambda c: 1, 1),
+        #(lambda: m.system_action('G'), 3),
+    ]
+
+    # Define a starting timestamp
+    start_timestamp = datetime.datetime.now()
+    duration = 0
+    # Infinite loop generating an index and timestamp
+    for index, timestamp in enumerate(itertools.count()):
+        current_time = start_timestamp + datetime.timedelta(seconds=index)
+
+        sa_cost = m.system_actions_cost()
+        print(f'{index} - {m.state}:{m.system, m.user} \t(sa cost:{sa_cost})')
+
+        if duration <= 0 and dialog:
+            action, duration = dialog.pop(0)
+            action(sa_cost)
+
+        duration -= 1
+
+        # Simulate some processing time
+        time.sleep(.3)  # Adjust this delay as needed
+        if not dialog:
+            break

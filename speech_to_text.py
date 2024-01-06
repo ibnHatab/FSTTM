@@ -10,6 +10,17 @@ import whispercpp as w
 from mic_vad import VADAudio
 from utils import ignore_stderr
 
+stopwords = [
+    '[BLANK_AUDIO]',
+    '(clicks)',
+    '[CLICK]',
+    '[Music]',
+    '(keyboard clicking)',
+    '(crashing)',
+    '(knocking)',
+    '[BANG]',
+]
+
 class Whisper:
     """
     A class that performs speech-to-text conversion using the Whisper model.
@@ -104,7 +115,7 @@ class SpeechToTextProxy:
 
         """
         ts = time.time_ns()
-        count = 0
+        wc = 0
         uterance = bytearray()
         async for frame in self.audio.vad_collector():
             if frame is not None:
@@ -115,18 +126,21 @@ class SpeechToTextProxy:
             else:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
-                text = await self.stt.process_data(uterance)
+                text_query = await self.stt.process_data(uterance)
+                text = ' '.join(filter(lambda x: x not in stopwords,  text_query.split()))
+                if text:
+                    yield SpeechVars(text, wc, tt)
+                ts = 0
+                wc += 1
                 uterance.clear()
-                yield SpeechVars(text, count, tt)
-                ts = 0  # time.time_ns()
-                count += 1
 
+# FIXME: Implement dramatical pause of 0.5 seconds using asyncio.queue and asyncio.sleep
 
 if __name__ == '__main__':
 
     async def amain():
 
-        vad_audio = VADAudio(aggressiveness=3,
+        vad_audio = VADAudio(aggressiveness=1,
                             device=0,
                             input_rate=16000)
 

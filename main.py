@@ -1,4 +1,7 @@
 
+from datetime import datetime
+import itertools
+import time
 from typing import Optional, Dict, Any, AsyncGenerator
 import asyncio
 import os
@@ -32,6 +35,10 @@ async def main():
     llama_svc = LlamaSvcProxy(model)
     aplay = TTSPlayThread()
 
+    # dialog = Model()
+    # dialog.state = 'USER'
+
+
     # Start the periodic generator in a separate task
     asyncio.create_task(llama_svc.run_periodic_generator())
 
@@ -40,9 +47,21 @@ async def main():
 
     user_input = stt_svc.async_generator()
 
-    while True:
+    # Define a starting timestamp
+    start_timestamp = datetime.now()
 
-        user_say = await  user_input.__anext__()
+    # Infinite loop generating an index and timestamp
+    # for index, timestamp in enumerate(itertools.count()):
+    #     current_time = start_timestamp + datetime.timedelta(seconds=index)
+    #     print(f"Index: {index}, Timestamp: {current_time}")
+
+    #     try:
+    #         user_say = await  user_input.__anext__()
+    #     except StopAsyncIteration:
+    #         break
+
+    async for user_say in user_input:
+
         print(f"\n{user_say}")
 
         await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
@@ -54,6 +73,9 @@ async def main():
             sentence += value.Response
         print(f"Received value: {sentence}")
         aplay.say(sentence)
+
+        # Simulate some processing time
+        time.sleep(1)  # Adjust this delay as needed
 
     # Stop the generator
     await llama_svc.stop()

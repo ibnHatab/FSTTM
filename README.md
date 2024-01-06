@@ -33,7 +33,7 @@ Combining Rasa NLU with a language model like can create a comprehensive convers
         Pass the context or key information obtained from Rasa to the language model as a prompt to generate human-like responses.
 
   (https://rasa.com/docs/rasa/tuning-your-model/)
-
+  (https://rhasspy.readthedocs.io/en/latest/)
 
 ## HW section
 - (https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/)
