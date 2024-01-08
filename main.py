@@ -30,7 +30,7 @@ model = Model(
 
 async def main():
     vad_audio = VADAudio(aggressiveness=3, device=0, input_rate=16000)
-    whisper = Whisper(model_name='base')
+    whisper = Whisper(model_name='base.en')
     stt_svc = SpeechToTextProxy(vad_audio, whisper)
     llama_svc = LlamaSvcProxy(model)
     aplay = TTSPlayThread()
@@ -70,9 +70,12 @@ async def main():
         async_gen = llama_svc.async_generator()
         sentence = ""
         async for value in async_gen:
-            sentence += value.Response
-        print(f"Received value: {sentence}")
-        aplay.say(sentence)
+            word = value.Response
+            sentence += word
+            if word.endswith('.') or word.endswith(',') or word.endswith('!') or word.endswith('?'):
+                print(f"Received value: {sentence}")
+                aplay.say(sentence)
+                sentence = ""
 
         # Simulate some processing time
         time.sleep(1)  # Adjust this delay as needed

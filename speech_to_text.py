@@ -138,7 +138,7 @@ if __name__ == '__main__':
                             device=0,
                             input_rate=16000)
 
-        whisper = Whisper(model_name='base')
+        whisper = Whisper(model_name='base.en')
         stt_svc = SpeechToTextProxy(vad_audio, whisper)
         stt_svc.start()
 
