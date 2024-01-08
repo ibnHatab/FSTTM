@@ -1,5 +1,6 @@
 
 import os
+import re
 import sys
 import time
 import asyncio
@@ -10,16 +11,6 @@ import whispercpp as w
 from mic_vad import VADAudio
 from utils import ignore_stderr
 
-stopwords = [
-    '[BLANK_AUDIO]',
-    '(clicks)',
-    '[CLICK]',
-    '[Music]',
-    '(keyboard clicking)',
-    '(crashing)',
-    '(knocking)',
-    '[BANG]',
-]
 
 class Whisper:
     """
@@ -42,6 +33,7 @@ class Whisper:
             .with_suppress_blank(True)
             .build()
         )
+            #asas.with_suppress_none_speech_tokens(True)
 
     async def process_data(self, data):
         text = await self.loop.run_in_executor(None, self.transcribe, data)
@@ -117,6 +109,8 @@ class SpeechToTextProxy:
         ts = time.time_ns()
         wc = 0
         uterance = bytearray()
+        pattern = r'\{([^{}]*)\}|\(([^()]*)\)|\[([^[\]]*)\]'
+        non_speech_tokens = re.compile(pattern)
         async for frame in self.audio.vad_collector():
             if frame is not None:
                 if not ts:
@@ -127,7 +121,7 @@ class SpeechToTextProxy:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
                 text_query = await self.stt.process_data(uterance)
-                text = ' '.join(filter(lambda x: x not in stopwords,  text_query.split()))
+                text = non_speech_tokens.sub('', text_query).strip()
                 if text:
                     yield SpeechVars(text, wc, tt)
                 ts = 0
@@ -145,7 +139,6 @@ if __name__ == '__main__':
                             input_rate=16000)
 
         whisper = Whisper(model_name='base')
-
         stt_svc = SpeechToTextProxy(vad_audio, whisper)
         stt_svc.start()
 

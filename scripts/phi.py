@@ -19,36 +19,34 @@ txt = "How are you?"
 prompt = tmpl.format(prompt=txt)
 prompt = system + "\n" + prompt
 
-def completion(prompt):
+def completion(prompt, max_tokens=256):
     iter = llm.create_completion(prompt=prompt,
                             stream=False,
                             stop=["<|endoftext|>", "User:","Assistant:", "System:"],
-                            max_tokens=256,
+                            max_tokens=max_tokens,
                             echo=True,
                             stopping_criteria=stopping_criteria
                             )
-    print(iter)
+    text = iter["choices"][0]["text"]
+    print(text)
 
+completion(prompt)
 
 to_eval = [
-"User: ",
-"Q:      What is the difference between Texas and yogurt?\n",
-"A:      Yogurt has culture.\n",
+    "User:  What is the weather today?\n",
+    "Q:      What is the difference between Texas and yogurt?\n",
+    "A:      Yogurt has culture.\n",
+    "Assistant:",
 ]
 
+prompt = "".join(to_eval)
+completion(prompt)
 
 to_gen = [
-"Assistant:",
+"Assistant: So, ",
 ]
 
-completion(prompt)
-
 prompt = "".join(to_gen)
-
 completion(prompt)
-
-
-
-
 
 del llm
