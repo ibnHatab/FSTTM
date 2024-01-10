@@ -174,6 +174,7 @@ class LlamaSvcProxy:
         self.queue = asyncio.Queue()
         self.thread_queue = queue.Queue()
         self.periodic_generator = LlamaSvcThread(model, self.thread_queue)
+        self._generator_active = False
 
     async def async_generator(self):
         """
@@ -184,8 +185,11 @@ class LlamaSvcProxy:
         """
         while True:
             value = await self.queue.get()
+            if not self.generator_active:
+                self.generator_active = True
             yield value
             if value.Last:
+                self.generator_active = False
                 break
 
     async def run_periodic_generator(self):
@@ -202,7 +206,7 @@ class LlamaSvcProxy:
             await self.queue.put(value)
             await asyncio.sleep(0.1)
 
-    async def stop(self):
+    def stop(self):
         """
         Stops the periodic generator.
         """
@@ -216,6 +220,20 @@ class LlamaSvcProxy:
             data (PromptVars): The data to be sent.
         """
         self.periodic_generator.send(data)
+
+    @property
+    def generator_active(self):
+        return self._generator_active
+
+    @generator_active.setter
+    def generator_active(self, val: bool):
+        self._generator_active = val
+        self.generator_active_ind(self._generator_active)
+
+    def generator_active_ind(self, active: bool):
+        print(f"{'*' if active else '.'}", end='', flush=True)
+        pass
+
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class Whisper:
             .with_print_realtime(False)
             .with_num_threads(n_threads)
             .with_suppress_blank(True)
+            .with_language('en')
             .build()
         )
             #asas.with_suppress_none_speech_tokens(True)
@@ -85,6 +86,7 @@ class SpeechToTextProxy:
     def __init__(self, vad: VADAudio, stt: Whisper) -> None:
         self.audio = vad
         self.stt = stt
+        self.vad_active = False
 
     def start(self):
         """
@@ -115,18 +117,36 @@ class SpeechToTextProxy:
             if frame is not None:
                 if not ts:
                     ts = time.time_ns()
-                os.write(sys.stdout.fileno(), b'.')
                 uterance.extend(frame)
+                if not self.vad_active:
+                    self.voice_active = True
             else:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
                 text_query = await self.stt.process_data(uterance)
+                print(f"\n>> {text_query}")
                 text = non_speech_tokens.sub('', text_query).strip()
                 if text:
+                    self.voice_active = False
                     yield SpeechVars(text, wc, tt)
+                else:
+                    self.voice_active = False # bare noice
                 ts = 0
                 wc += 1
                 uterance.clear()
+
+    @property
+    def voice_active(self):
+        return self.vad_active
+
+    @voice_active.setter
+    def voice_active(self, val: bool):
+        self.vad_active = val
+        self.voice_active_ind(self.vad_active)
+
+    def voice_active_ind(self, active: bool):
+        print(f"{'*' if active else '.'}", end='', flush=True)
+        pass
 
 # FIXME: Implement dramatical pause of 0.5 seconds using asyncio.queue and asyncio.sleep
 
@@ -134,7 +154,7 @@ if __name__ == '__main__':
 
     async def amain():
 
-        vad_audio = VADAudio(aggressiveness=1,
+        vad_audio = VADAudio(aggressiveness=3,
                             device=0,
                             input_rate=16000)
 

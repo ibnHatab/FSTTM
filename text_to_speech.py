@@ -108,7 +108,7 @@ class TTSPlayThread(threading.Thread):
             self._say(data)
         self._stream.stop_stream()
 
-    def say(self, text: str, print_=True):
+    def say(self, text: str, print_=False):
         """
         Add text to the queue to be spoken.
 
@@ -119,7 +119,7 @@ class TTSPlayThread(threading.Thread):
         if not text:
             return
         if print_:
-            print(text)
+            print('TTS >>', text)
         self._queue.put_nowait(text)
 
     def _say(self, text):

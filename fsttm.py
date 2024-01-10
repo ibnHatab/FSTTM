@@ -70,7 +70,7 @@ class Automaton():
         ti = int(round(time.time() * 1000)) - t0
         return ti
 
-class Model(Automaton):
+class Dialog(Automaton):
     su = lambda s, u: f'{s}_{u}' # (System_User) action
     _transitions = [
             (su('R', 'W'), 'SYSTEM', 'FREEs'),
@@ -94,12 +94,12 @@ class Model(Automaton):
             (su('W', 'K'), 'USER',  'USER'),
 
     ]
-    _initial_state = 'USER'
+    _initial_state = 'FREEu'
 
 
     def __init__(self, system_cb=None, user_cb=None):
-        self.state = Model._initial_state
-        super(Model, self).__init__(Model._initial_state, Model._transitions)
+        self.state = Dialog._initial_state
+        super(Dialog, self).__init__(Dialog._initial_state, Dialog._transitions)
         self.user = 'W'
         self.system = 'W'
         self.user_cb = user_cb
@@ -118,7 +118,7 @@ class Model(Automaton):
 
     def system_action(self, action):
         flooor = self.is_system
-        ret = self.trigger(Model.su(action, self.user))
+        ret = self.trigger(Dialog.su(action, self.user))
         # remap system state
         if ret:
             self.system = {
@@ -135,7 +135,7 @@ class Model(Automaton):
 
     def user_action(self, action):
         flooor = self.is_user
-        ret = self.trigger(Model.su(self.system, action))
+        ret = self.trigger(Dialog.su(self.system, action))
         # remap user state
         if ret:
             self.user = {
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     def user_cb(user, flooor):
         print(f'\t\t >> USER_CB: {user}, {flooor}')
 
-    m = Model(system_cb=system_cb, user_cb=user_cb)
+    m = Dialog(system_cb=system_cb, user_cb=user_cb)
 
 
     m.state = 'FREEu'

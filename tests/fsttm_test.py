@@ -3,7 +3,7 @@ import sys
 import pytest
 import inspect
 
-from fsttm import Model
+from fsttm import Dialog
 
 # run all tests
 def trace(): print("\n"+inspect.stack()[1][3])
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 def test_system_to_user():
     trace()
     # SYSTEM: (R,W) → FREEs:(W,G) → USER
-    m = Model()
+    m = Dialog()
     m.state = 'SYSTEM'
     m.system_action('R')
     m.user_action('G')
@@ -33,7 +33,7 @@ def test_system_to_user():
 def test_user_to_system():
     trace()
     # USER: (R,W ) → FREEu: (G,W) → SYSTEM
-    m = Model()
+    m = Dialog()
     m.state == 'USER'
     m.user_action('R')
     m.system_action('G')
@@ -50,7 +50,7 @@ def test_user_to_system():
 def test_user_barge_in_on_system():
     trace()
     # SYSTEM: (K,G) → BOTHs: (R,K → USER
-    m = Model()
+    m = Dialog()
     m.state = 'SYSTEM'
     m.system_action('G')
     m.user_action('G')
@@ -61,7 +61,7 @@ def test_user_barge_in_on_system():
 def test_system_interrupts_user():
     trace()
     # USER: (G,K) → BOTHu: (K,R) → SYSTEM
-    m = Model()
+    m = Dialog()
     m.user_action('G')
     m.system_action('G')
     m.user_action('R')
@@ -74,7 +74,7 @@ def test_system_interrupts_user():
 def test_system_interrupts_user_but_detects_it():
     trace()
     # USER: (G,K) → BOTHu: (R,K) → USER
-    m = Model()
+    m = Dialog()
     m.user_action('G')
     m.system_action('G')
     m.system_action('R')
@@ -85,7 +85,7 @@ def test_system_interrupts_user_but_detects_it():
 def test_system_failing_to_react_fast_enough():
     trace()
     # SYSTEM: (K,G) → BOTHs: (K,R) → SYSTEM
-    m = Model()
+    m = Dialog()
     m.state = 'SYSTEM'
     m.system_action('G')
     m.user_action('G')
@@ -99,7 +99,7 @@ def test_system_failing_to_react_fast_enough():
 def test_system_attempts_to_reestablish_communication():
     trace()
     # SYSTEM: (R,W ) → FREEs: (G,W → SYSTEM
-    m = Model()
+    m = Dialog()
     m.state = 'SYSTEM'
     m.system_action('G')
     m.system_action('R')
@@ -112,7 +112,7 @@ def test_system_attempts_to_reestablish_communication():
 def test_system_to_slow_to_respond_to_user():
     trace()
     # USER: (W,R) → FREEu: (W,G → USER
-    m = Model()
+    m = Dialog()
     m.user_action('G')
     m.user_action('R')
     # timeout
@@ -125,7 +125,7 @@ def test_system_to_slow_to_respond_to_user():
 def test_user_to_free_user_and_back():
     trace()
     # USER -> (R,W ) → FREEu -> (W,G) →  USER
-    m = Model()
+    m = Dialog()
     assert m.state == 'USER'
     m.user_action('R')
     assert m.state == 'FREEu'

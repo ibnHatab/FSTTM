@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any, AsyncGenerator
 import asyncio
 import os
 from chat import Model, PromptVars, LlamaSvcProxy
+from fsttm import Dialog
 from mic_vad import VADAudio
 from speech_to_text import SpeechToTextProxy, Whisper
 from text_to_speech import TTSPlayThread
@@ -28,12 +29,53 @@ model = Model(
     },
 )
 
-async def main():
+
+class SpeechToText(SpeechToTextProxy):
+    def __init__(self, dialog: Dialog, vad: VADAudio, stt: Whisper) -> None:
+        super().__init__(vad, stt)
+        self.dialog = dialog
+        self.dialog.user_cb = self.floor_switch_ind
+
+    def floor_switch_ind(self, action: str, floor: bool):
+        pass
+
+    def voice_active_ind(self, active: bool):
+        if active:
+            self.dialog.user_action('G')
+        else:
+            self.dialog.user_action('R')
+
+class LlamaSvc(LlamaSvcProxy):
+    def __init__(self, dialog: Dialog, model: Model, speaker: TTSPlayThread) -> None:
+        super().__init__(model)
+        self.dialog = Dialog()
+        self.dialog.system_cb = self.floor_switch_ind
+        self.speaker = speaker
+
+    def floor_switch_ind(self, action: str, floor: bool):
+        print('++ system > ' + action + ' ' + str(floor))
+        # if floor:
+        #     self.speaker.clear()
+
+    def generator_active_ind(self, active: bool):
+        if active:
+            self.dialog.system_action('G')
+            # if not self.can_speak:
+            #     self.stop()
+        else:
+            self.dialog.system_action('R')
+
+
+async def amain():
+
+    dialog = Dialog()
+
     vad_audio = VADAudio(aggressiveness=3, device=0, input_rate=16000)
     whisper = Whisper(model_name='base.en')
-    stt_svc = SpeechToTextProxy(vad_audio, whisper)
-    llama_svc = LlamaSvcProxy(model)
+    stt_svc = SpeechToText(dialog, vad_audio, whisper)
+
     aplay = TTSPlayThread()
+    llama_svc = LlamaSvc(dialog, model, aplay)
 
     # dialog = Model()
     # dialog.state = 'USER'
@@ -77,11 +119,12 @@ async def main():
                 aplay.say(sentence)
                 sentence = ""
 
-        # Simulate some processing time
-        time.sleep(1)  # Adjust this delay as needed
+        time.sleep(.3)  # Adjust this delay as needed
 
     # Stop the generator
     await llama_svc.stop()
+    all_tasks = asyncio.all_tasks()
+    await asyncio.wait(all_tasks)
 
 # Run the event loop
-asyncio.run(main())
+asyncio.run(amain())
