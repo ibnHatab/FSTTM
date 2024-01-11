@@ -29,7 +29,6 @@ model = Model(
     },
 )
 
-
 class SpeechToText(SpeechToTextProxy):
     def __init__(self, dialog: Dialog, vad: VADAudio, stt: Whisper) -> None:
         super().__init__(vad, stt)
@@ -37,9 +36,11 @@ class SpeechToText(SpeechToTextProxy):
         self.dialog.user_cb = self.floor_switch_ind
 
     def floor_switch_ind(self, action: str, floor: bool):
-        pass
+        print('++ user floor > ' + action + ' ' + str(floor))
+
 
     def voice_active_ind(self, active: bool):
+        print('++ user voice act > ' + str(active))
         if active:
             self.dialog.user_action('G')
         else:
@@ -48,16 +49,17 @@ class SpeechToText(SpeechToTextProxy):
 class LlamaSvc(LlamaSvcProxy):
     def __init__(self, dialog: Dialog, model: Model, speaker: TTSPlayThread) -> None:
         super().__init__(model)
-        self.dialog = Dialog()
+        self.dialog = dialog
         self.dialog.system_cb = self.floor_switch_ind
         self.speaker = speaker
 
     def floor_switch_ind(self, action: str, floor: bool):
-        print('++ system > ' + action + ' ' + str(floor))
+        print('++ system floor > ' + action + ' ' + str(floor))
         # if floor:
         #     self.speaker.clear()
 
     def generator_active_ind(self, active: bool):
+        print('++ system generator act > ' + str(active))
         if active:
             self.dialog.system_action('G')
             # if not self.can_speak:
@@ -66,7 +68,7 @@ class LlamaSvc(LlamaSvcProxy):
             self.dialog.system_action('R')
 
 
-async def amain():
+async def amain(dialog=None):
 
     dialog = Dialog()
 
@@ -76,10 +78,6 @@ async def amain():
 
     aplay = TTSPlayThread()
     llama_svc = LlamaSvc(dialog, model, aplay)
-
-    # dialog = Model()
-    # dialog.state = 'USER'
-
 
     # Start the periodic generator in a separate task
     asyncio.create_task(llama_svc.run_periodic_generator())
@@ -104,7 +102,7 @@ async def amain():
 
     async for user_say in user_input:
 
-        print(f"\n{user_say}")
+        print(f"\nUSER: {user_say}")
 
         await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
         first = False
@@ -115,7 +113,7 @@ async def amain():
             word = value.Response
             sentence += word
             if word.endswith('.') or word.endswith(',') or word.endswith('!') or word.endswith('?'):
-                print(f"Received value: {sentence}")
+                print(f"\nSYSTEM: {sentence}")
                 aplay.say(sentence)
                 sentence = ""
 

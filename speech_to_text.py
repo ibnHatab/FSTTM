@@ -124,7 +124,7 @@ class SpeechToTextProxy:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
                 text_query = await self.stt.process_data(uterance)
-                print(f"\n>> {text_query}")
+                #print(f"\n>> {text_query}")
                 text = non_speech_tokens.sub('', text_query).strip()
                 if text:
                     self.voice_active = False

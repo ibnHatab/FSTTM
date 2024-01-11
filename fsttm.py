@@ -41,16 +41,16 @@ Event = namedtuple('Event', ['event', 'src', 'dst'])
 class Automaton():
 
     def __init__(self, initial_state=None, transitions=None):
+        self.prev_state = None
         self.state = initial_state
         self.events = [Event(event, src, dst) for (event, src, dst) in transitions]
-        self.prev_state = None
         self.state_start_time = int(round(time.time() * 1000))
 
     def trigger(self, e, predicate=None):
         """ Trigger an event with optional predicate
         """
         for tr in self.events:
-            if tr.event == e and tr.src== self.state:
+            if tr.event == e and tr.src == self.state:
                 ret = True
                 if predicate is not None:
                     ret = predicate(tr)
@@ -98,6 +98,7 @@ class Dialog(Automaton):
 
 
     def __init__(self, system_cb=None, user_cb=None):
+        print(f'DIALOG Initial state: {Dialog._initial_state}')
         self.state = Dialog._initial_state
         super(Dialog, self).__init__(Dialog._initial_state, Dialog._transitions)
         self.user = 'W'
@@ -106,7 +107,8 @@ class Dialog(Automaton):
         self.system_cb = system_cb
 
     def onchangestate(self, e):
-        print(f'\t>> {e.src}:\t({e.event}) -> {e.dst}\t--- ({self.system_actions_cost()})')
+        print(f'\t>> {e.src}:\t - ({e.event}) -> {e.dst}\t')
+        # --- ({self.system_actions_cost()})
 
     @property
     def is_system(self):
@@ -202,10 +204,8 @@ if __name__ == "__main__":
     def user_cb(user, flooor):
         print(f'\t\t >> USER_CB: {user}, {flooor}')
 
-    m = Dialog(system_cb=system_cb, user_cb=user_cb)
-
-
-    m.state = 'FREEu'
+    # m = Dialog(system_cb=system_cb, user_cb=user_cb)
+    # m.state = 'FREEu'
 
     dialog = [
         (lambda c: 1, 1),
