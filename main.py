@@ -1,5 +1,5 @@
 
-from datetime import datetime
+import datetime as dt
 import itertools
 import time
 from typing import Optional, Dict, Any, AsyncGenerator
@@ -36,7 +36,7 @@ class SpeechToText(SpeechToTextProxy):
         self.dialog.user_cb = self.floor_switch_ind
 
     def floor_switch_ind(self, action: str, floor: bool):
-        print('++ user floor > ' + action + ' ' + str(floor))
+        print('=== user floor > ' + action + ' ' + str(floor))
 
 
     def voice_active_ind(self, active: bool):
@@ -54,8 +54,9 @@ class LlamaSvc(LlamaSvcProxy):
         self.speaker = speaker
 
     def floor_switch_ind(self, action: str, floor: bool):
-        print('++ system floor > ' + action + ' ' + str(floor))
+        print('=== system floor > ' + action + ' ' + str(floor))
         # if floor:
+        #     print('CLEAR', flush=True)
         #     self.speaker.clear()
 
     def generator_active_ind(self, active: bool):
@@ -66,6 +67,16 @@ class LlamaSvc(LlamaSvcProxy):
             #     self.stop()
         else:
             self.dialog.system_action('R')
+
+    async def run_obligation_check(self):
+        def select_min_cost(costs):
+            return min(costs, key=costs.get)
+
+        while True:
+            select = self.dialog.system_actions_cost()
+            action = select_min_cost(select)
+            #print(f"System actions cost: {select} => {action}")
+            await asyncio.sleep(1)
 
 
 async def amain(dialog=None):
@@ -81,6 +92,7 @@ async def amain(dialog=None):
 
     # Start the periodic generator in a separate task
     asyncio.create_task(llama_svc.run_periodic_generator())
+    asyncio.create_task(llama_svc.run_obligation_check())
 
     stt_svc.start()
     first = True
@@ -88,21 +100,18 @@ async def amain(dialog=None):
     user_input = stt_svc.async_generator()
 
     # Define a starting timestamp
-    start_timestamp = datetime.now()
+    start_timestamp = dt.datetime.now()
 
     # Infinite loop generating an index and timestamp
-    # for index, timestamp in enumerate(itertools.count()):
-    #     current_time = start_timestamp + datetime.timedelta(seconds=index)
-    #     print(f"Index: {index}, Timestamp: {current_time}")
+    for index, timestamp in enumerate(itertools.count()):
+        current_time = start_timestamp + dt.timedelta(seconds=index)
+        #print(f"Index: {index}, Timestamp: {current_time}")
 
-    #     try:
-    #         user_say = await  user_input.__anext__()
-    #     except StopAsyncIteration:
-    #         break
-
-    async for user_say in user_input:
-
-        print(f"\nUSER: {user_say}")
+        try:
+            user_say = await  user_input.__anext__()
+            print(f"\nUSER: {user_say}")
+        except StopAsyncIteration:
+            break
 
         await llama_svc.send(PromptVars.create(prompt=user_say.Uterance, first=first))
         first = False
@@ -116,8 +125,9 @@ async def amain(dialog=None):
                 print(f"\nSYSTEM: {sentence}")
                 aplay.say(sentence)
                 sentence = ""
+            await asyncio.sleep(.1)
 
-        time.sleep(.3)  # Adjust this delay as needed
+        await asyncio.sleep(.3)  # Adjust this delay as needed
 
     # Stop the generator
     await llama_svc.stop()

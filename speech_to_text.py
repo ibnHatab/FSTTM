@@ -114,17 +114,21 @@ class SpeechToTextProxy:
         pattern = r'\{([^{}]*)\}|\(([^()]*)\)|\[([^[\]]*)\]'
         non_speech_tokens = re.compile(pattern)
         async for frame in self.audio.vad_collector():
+            os.write(sys.stdout.fileno(), b'2')
+
             if frame is not None:
                 if not ts:
                     ts = time.time_ns()
                 uterance.extend(frame)
+                print(f"{'*' if self.vad_active else '.'}", end='', flush=True)
                 if not self.vad_active:
                     self.voice_active = True
             else:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
+                print('<<', end='', flush=True)
                 text_query = await self.stt.process_data(uterance)
-                #print(f"\n>> {text_query}")
+                print(f"\n>> {text_query}", flush=True)
                 text = non_speech_tokens.sub('', text_query).strip()
                 if text:
                     self.voice_active = False

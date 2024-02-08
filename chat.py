@@ -4,6 +4,7 @@ import threading
 import queue
 
 from dataclasses import dataclass
+import time
 from typing import List, Dict
 
 import llama_cpp
@@ -150,7 +151,9 @@ class LlamaSvcThread(threading.Thread):
                     text = res["choices"][0]["text"]
                     last = res["choices"][0]["finish_reason"] == "stop"
                     out = ResponseVars(Response=text, Last=last)
+                    print('x', end='', flush=True)
                     self.output_queue.put_nowait(out)
+                    time.sleep(0.1) # yield to other threads
 
 
 
@@ -204,7 +207,6 @@ class LlamaSvcProxy:
                     await asyncio.sleep(0.1)
                     continue
             await self.queue.put(value)
-            await asyncio.sleep(0.1)
 
     def stop(self):
         """

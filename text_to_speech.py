@@ -35,23 +35,8 @@ class TTSPlayThread(threading.Thread):
         super().__init__()
         self.tts = TTS(threads=3, force_process=False)
         self._queue = queue.Queue()
-        # with ignore_stderr():
-        #     self._p_audio = pyaudio.PyAudio()
-        # self._stream = self._p_audio.open(
-        #     format=self._p_audio.get_format_from_width(2),
-        #     channels=1,
-        #     rate=24000,
-        #     output=True,
-        #     start=False,
-        # )
-
-        # Initialize SDL audio
-        sdl2.SDL_Init(sdl2.SDL_INIT_AUDIO)
-        sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
         self.sample_rate = 24000
         self.channels = 1
-        if sdlmixer.Mix_OpenAudio(self.sample_rate, sdlmixer.MIX_DEFAULT_FORMAT, self.channels, 1024) != 0:
-            print("Unable to initialize audio")
 
         self._sets = {
             'absolute_rate': 0.2,
@@ -69,24 +54,18 @@ class TTSPlayThread(threading.Thread):
         self.start()
 
     def play_pcm_chunk(self, samples):
-
-        # Convert samples to bytearray
         pcm_data = array.array('h', samples).tobytes()
         buflen = len(pcm_data)
         c_buf = (ctypes.c_ubyte * buflen).from_buffer_copy(pcm_data)
         chunk = sdlmixer.Mix_QuickLoad_RAW(
             ctypes.cast(c_buf, ctypes.POINTER(ctypes.c_ubyte)), buflen
         )
-
-#        sdlmixer.Mix_PlayChannel(-1, chunk, 0)
         delay = int(buflen / self.channels / self.sample_rate * 600)
         sdlmixer.Mix_PlayChannelTimed(-1, chunk, 0, delay)
 
         #print(f"Delay: {delay}")
         # Wait for the sound to finish playing
         sdl2.SDL_Delay(delay)
-
- #       sdl2.SDL_Delay(int(buflen / self.channels / self.sample_rate * 1000))
 
 
     def configure(self, sets):
@@ -133,14 +112,21 @@ class TTSPlayThread(threading.Thread):
         """
         Start the player and continuously process the text queue.
         """
-        # self._stream.start_stream()
+        # Initialize SDL audio
+        sdl2.SDL_Init(sdl2.SDL_INIT_AUDIO)
+        sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
+        if sdlmixer.Mix_OpenAudio(self.sample_rate, sdlmixer.MIX_DEFAULT_FORMAT, self.channels, 1024) != 0:
+            print("Unable to initialize audio")
+
         while self._work:
             self._clear()
             data = self._queue.get()
             if not data:
                 break
             self._say(data)
-        # self._stream.stop_stream()
+
+        sdlmixer.Mix_CloseAudio()
+        sdl2.SDL_Quit()
 
     def say(self, text: str, print_=False):
         """
@@ -164,15 +150,10 @@ class TTSPlayThread(threading.Thread):
             text (str): The text to be processed and spoken.
         """
         with self.tts.say(text, format_='pcm', buff=self.sample_rate*1024) as gen:
-            # time.sleep(0.1)
             for chunk in gen:
-                #self._stream.write(b'\x00' * 1024 * 8)
                 if not self._work or self._clear_queue.is_set():
                     break
-                #print(f"Playing chunk: {len(chunk)}")
                 self.play_pcm_chunk(chunk)
-                # with ignore_stderr():
-                #     self._stream.write(chunk)
 
 
 
