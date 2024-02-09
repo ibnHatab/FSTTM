@@ -8,6 +8,7 @@ import os
 from chat import Model, PromptVars, LlamaSvcProxy
 from fsttm import Dialog
 from mic_vad import VADAudio
+from mic_vad_thread import VADAudioProxy
 from speech_to_text import SpeechToTextProxy, Whisper
 from text_to_speech import TTSPlayThread
 
@@ -83,7 +84,7 @@ async def amain(dialog=None):
 
     dialog = Dialog()
 
-    vad_audio = VADAudio(aggressiveness=3, device=0, input_rate=16000)
+    vad_audio = VADAudioProxy()
     whisper = Whisper(model_name='base.en')
     stt_svc = SpeechToText(dialog, vad_audio, whisper)
 
@@ -93,6 +94,7 @@ async def amain(dialog=None):
     # Start the periodic generator in a separate task
     asyncio.create_task(llama_svc.run_periodic_generator())
     asyncio.create_task(llama_svc.run_obligation_check())
+    asyncio.create_task(vad_audio.run_periodic_generator())
 
     stt_svc.start()
     first = True

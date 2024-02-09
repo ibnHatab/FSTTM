@@ -9,8 +9,10 @@ from dataclasses import dataclass
 
 import whispercpp as w
 from mic_vad import VADAudio
+from mic_vad_thread import VADAudioProxy
 from utils import ignore_stderr
 
+DEBUG = True
 
 class Whisper:
     """
@@ -83,7 +85,7 @@ class SpeechToTextProxy:
 
     """
 
-    def __init__(self, vad: VADAudio, stt: Whisper) -> None:
+    def __init__(self, vad: VADAudioProxy, stt: Whisper) -> None:
         self.audio = vad
         self.stt = stt
         self.vad_active = False
@@ -113,22 +115,26 @@ class SpeechToTextProxy:
         uterance = bytearray()
         pattern = r'\{([^{}]*)\}|\(([^()]*)\)|\[([^[\]]*)\]'
         non_speech_tokens = re.compile(pattern)
-        async for frame in self.audio.vad_collector():
-            os.write(sys.stdout.fileno(), b'2')
+        async for frame in self.audio.async_generator():
+            if DEBUG:
+                os.write(sys.stdout.fileno(), b'2')
 
             if frame is not None:
                 if not ts:
                     ts = time.time_ns()
                 uterance.extend(frame)
-                print(f"{'*' if self.vad_active else '.'}", end='', flush=True)
+                if DEBUG:
+                    print(f"{'*' if self.vad_active else '.'}", end='', flush=True)
                 if not self.vad_active:
                     self.voice_active = True
             else:
                 tt = time.time_ns() - ts
                 tt = tt / 1e9
-                print('<<', end='', flush=True)
+                if DEBUG:
+                    print('<<', end='', flush=True)
                 text_query = await self.stt.process_data(uterance)
-                print(f"\n>> {text_query}", flush=True)
+                if DEBUG:
+                    print(f"\n>> {text_query}", flush=True)
                 text = non_speech_tokens.sub('', text_query).strip()
                 if text:
                     self.voice_active = False
@@ -149,7 +155,8 @@ class SpeechToTextProxy:
         self.voice_active_ind(self.vad_active)
 
     def voice_active_ind(self, active: bool):
-        print(f"{'*' if active else '.'}", end='', flush=True)
+        if DEBUG:
+            print(f"{'*' if active else '.'}", end='', flush=True)
         pass
 
 # FIXME: Implement dramatical pause of 0.5 seconds using asyncio.queue and asyncio.sleep
@@ -158,9 +165,8 @@ if __name__ == '__main__':
 
     async def amain():
 
-        vad_audio = VADAudio(aggressiveness=3,
-                            device=0,
-                            input_rate=16000)
+        vad_audio = VADAudioProxy()
+        asyncio.create_task(vad_audio.run_periodic_generator())
 
         whisper = Whisper(model_name='base.en')
         stt_svc = SpeechToTextProxy(vad_audio, whisper)
