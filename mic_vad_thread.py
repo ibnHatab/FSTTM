@@ -1,19 +1,20 @@
 import os
 import queue
 import sys
-import asyncio
+import time
 from collections import deque
 import threading
 
 import numpy as np
 import pyaudio
+import pykka
 import webrtcvad
 from scipy import signal
 
 
 from utils import ignore_stderr
 
-DEBUG = False
+DEBUG = True
 
 class Audio(object):
     """Streams raw audio from microphone. Data is received in a separate thread,
@@ -77,14 +78,14 @@ class Audio(object):
         resample16 = np.array(resample, dtype=np.int16)
         return resample16.tostring()
 
-    def read_resampled(self):
+    def read_resampled(self, timeout=None):
         """Return a block of audio data resampled to 16000hz, blocking if necessary."""
-        data = self.buffer_queue.get()
+        data = self.buffer_queue.get(timeout=timeout)
         return self.resample(data=data, input_rate=self.input_rate)
 
-    def read(self):
+    def read(self, timeout=None):
         """Return a block of audio data, blocking if necessary."""
-        data = self.buffer_queue.get()
+        data = self.buffer_queue.get(timeout=timeout)
         return data
 
     def destroy_audio(self):
@@ -92,22 +93,23 @@ class Audio(object):
         self.stream.close()
         self.pa.terminate()
 
+
     frame_duration_ms = property(lambda self: 1000 * self.block_size // self.sample_rate)
 
 
-class VADAudioThread(threading.Thread):
+class VADAudioProducer(threading.Thread):
     """Filter & segment audio with voice activity detection."""
 
-    def __init__(self, output_queue: queue.Queue, aggressiveness=3, device=None, input_rate=None):
+    def __init__(self, consumer: pykka.ThreadingActor, aggressiveness=3, device=None, input_rate=None):
         super().__init__()
         self.audio = Audio(device=device, input_rate=input_rate)
-        self.output_queue = output_queue
+        self.consumer = consumer
         self.vad = webrtcvad.Vad(aggressiveness)
 
         self._stopped = threading.Event()
         self._lock = threading.Lock()
+        self.audio.start_audio()
         self.start()
-
 
     def run(self):
         """Generator that yields series of consecutive audio frames comprising each utterence, separated by yielding a single None.
@@ -128,122 +130,85 @@ class VADAudioThread(threading.Thread):
         ring_buffer = deque(maxlen=num_padding_frames)
         triggered = False
 
+
+        def _send_uterance(data, stamp):
+            tt = time.time_ns() - stamp
+            tt = tt / 1e9
+            self.consumer.tell({'uterance': data.copy(), 'time': tt})
+            data.clear()
+            stamp = None
+
+        ts = None
+        uterance = bytearray()
+
         while not self._stopped.is_set():
-            frame = _read()
+            try:
+                frame = _read(timeout=1)
+            except queue.Empty:
+                continue
 
             if len(frame) < 640:
                 if DEBUG:
                     print('frame fenerator < 640')
-                self.output_queue.put_nowait(None)
+                _send_uterance(uterance, ts)
 
             is_speech = self.vad.is_speech(frame, self.audio.sample_rate)
             if DEBUG:
                 os.write(sys.stdout.fileno(), b'1' if is_speech else b'0')
 
             if not triggered:
+                if not ts:
+                    ts = time.time_ns()
+
                 ring_buffer.append((frame, is_speech))
                 num_voiced = len([f for f, speech in ring_buffer if speech])
                 if num_voiced > ratio * ring_buffer.maxlen:
                     triggered = True
                     for f, s in ring_buffer:
-                        self.output_queue.put_nowait(f)
+                        uterance.extend(frame)
                     ring_buffer.clear()
 
             else:
-                self.output_queue.put_nowait(frame)
+                uterance.extend(frame)
                 ring_buffer.append((frame, is_speech))
                 num_unvoiced = len([f for f, speech in ring_buffer if not speech])
                 if num_unvoiced > ratio * ring_buffer.maxlen:
                     triggered = False
-                    self.output_queue.put_nowait(None)
+                    _send_uterance(uterance, ts)
                     ring_buffer.clear()
+
+
 
     def stop(self):
         """
         Stops the thread.
         """
+        self.audio.destroy_audio()
         self._stopped.set()
         self.join()
 
-class VADAudioProxy:
-
-    def __init__(self) -> None:
-        self.queue = asyncio.Queue()
-        self.thread_queue = queue.Queue()
-        self.generator_active = False
-
-        self.periodic_generator = VADAudioThread(self.thread_queue,
-                                        aggressiveness=3,
-                                        device=0,
-                                        input_rate=16000)
-
-    def start(self):
-        self.periodic_generator.audio.start_audio()
-
-    async def async_generator(self):
-        """
-        An asynchronous generator that yields values from the queue.
-
-        Yields:
-            value: The value retrieved from the queue.
-        """
-        while True:
-            value = await self.queue.get()
-            if not self.generator_active:
-                self.generator_active = True
-            yield value
-            if value == None:
-                self.generator_active = False
-
-    async def run_periodic_generator(self):
-        """
-        Runs the periodic generator to generate values and put them into the queue.
-        """
-        while True:
-            with self.periodic_generator._lock:
-                try:
-                    value = self.thread_queue.get_nowait()
-                except queue.Empty:
-                    await asyncio.sleep(0.1)
-                    continue
-            await self.queue.put(value)
-
-
-
-    def stop(self):
-        self.periodic_generator.stop_audio()
-        self.periodic_generator.stop()
-
 if __name__ == '__main__':
-    import os
-    import sys
-    import time
 
-    print(sys.path)
-    async def amain():
-        vad_audio = VADAudioProxy()
+    class PlainActor(pykka.ThreadingActor):
+        def __init__(self):
+            super().__init__()
+            self.stored_messages = []
 
-        asyncio.create_task(vad_audio.run_periodic_generator())
-        print("Listening (ctrl-C to exit)...")
+        def on_receive(self, message):
+            print("Received: ", len(message['uterance']), message['time'])
+            self.stored_messages.append(message)
+            return None
 
-        n = 0
-        t = time.time_ns()
-        async for frame in  vad_audio.async_generator():
-            if frame is not None:
-                if not t: t = time.time_ns()
-                n += 1
-                os.write(sys.stdout.fileno(), b'.')
-                #print("streaming frame: {}".format(len(frame)))
-            else:
-                tt = time.time_ns() - t
-                tt = tt/1e9
-                print()
-                print("end of utterence: {}f / {}s = {}f/s".format(n, tt, int(n/tt)))
-                n = 0
-                t = 0 # time.time_ns()
+    consumer = PlainActor.start()
+    vad_audio = VADAudioProducer(consumer, aggressiveness=3, device=None, input_rate=16000)
 
-    asyncio.run(amain())
+    print("Listening (ctrl-C to exit)...")
 
+    time.sleep(5)
+
+    print("Stopping...")
+    consumer.stop()
+    vad_audio.stop()
 
 
 

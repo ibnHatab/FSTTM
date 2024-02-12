@@ -9,7 +9,7 @@ from chat import Model, PromptVars, LlamaSvcProxy
 from fsttm import Dialog
 from mic_vad import VADAudio
 from mic_vad_thread import VADAudioProxy
-from speech_to_text import SpeechToTextProxy, Whisper
+from speech_to_text import SpeechToTextSvc, Whisper
 from text_to_speech import TTSPlayThread
 
 
@@ -30,7 +30,7 @@ model = Model(
     },
 )
 
-class SpeechToText(SpeechToTextProxy):
+class SpeechToText(SpeechToTextSvc):
     def __init__(self, dialog: Dialog, vad: VADAudio, stt: Whisper) -> None:
         super().__init__(vad, stt)
         self.dialog = dialog
@@ -99,7 +99,7 @@ async def amain(dialog=None):
     stt_svc.start()
     first = True
 
-    user_input = stt_svc.async_generator()
+    user_input = stt_svc.transcribe()
 
     # Define a starting timestamp
     start_timestamp = dt.datetime.now()

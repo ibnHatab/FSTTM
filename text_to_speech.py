@@ -104,9 +104,6 @@ class TTSPlayThread(threading.Thread):
             self._queue.put_nowait(None)
             self.join()
             self.tts.join()
-            self._stream.stop_stream()
-            self._stream.close()
-            self._p_audio.terminate()
 
     def run(self):
         """
@@ -165,15 +162,15 @@ Q:	Why did the programmer call his mother long distance?
 A:	Because that was her name.
     ''')
     time.sleep(5)
-    player.say('''
-There is a great discovery still to be made in Literature: that of
-paying literary men by the quantity they do NOT write.
-    ''')
-    time.sleep(5)
-    player.say('''
-There is a great discovery still to be made in Literature: that of
-paying literary men by the quantity they do NOT write.
-    ''')
+#     player.say('''
+# There is a great discovery still to be made in Literature: that of
+# paying literary men by the quantity they do NOT write.
+#     ''')
+#     time.sleep(5)
+#     player.say('''
+# There is a great discovery still to be made in Literature: that of
+# paying literary men by the quantity they do NOT write.
+#     ''')
 
-    time.sleep(13)
+#     time.sleep(13)
     player.stop()

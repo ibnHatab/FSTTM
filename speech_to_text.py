@@ -6,10 +6,12 @@ import time
 import asyncio
 import numpy as np
 from dataclasses import dataclass
+import pykka
 
 import whispercpp as w
 from mic_vad import VADAudio
-from mic_vad_thread import VADAudioProxy
+from mic_vad_thread import VADAudioProducer
+
 from utils import ignore_stderr
 
 DEBUG = True
@@ -24,8 +26,6 @@ class Whisper:
     """
 
     def __init__(self, model_name, n_threads=7):
-        self.loop = asyncio.get_event_loop()
-
         with ignore_stderr():
             self.model = w.Whisper.from_pretrained(model_name)
         params = ( # noqa # type: ignore
@@ -37,10 +37,6 @@ class Whisper:
             .build()
         )
             #asas.with_suppress_none_speech_tokens(True)
-
-    async def process_data(self, data):
-        text = await self.loop.run_in_executor(None, self.transcribe, data)
-        return text
 
     def transcribe(self, data: bytes):
         """
@@ -70,7 +66,7 @@ class SpeechVars:
     Count: int
     Stamp: int
 
-class SpeechToTextProxy:
+class SpeechToTextSvc(pykka.ThreadingActor):
     """
     A high-performance inference of OpenAI's Whisper with automatic speech recognition (ASR) model.
 
@@ -85,24 +81,19 @@ class SpeechToTextProxy:
 
     """
 
-    def __init__(self, vad: VADAudioProxy, stt: Whisper) -> None:
-        self.audio = vad
+    def __init__(self, consumer: pykka.ThreadingActor, stt: Whisper) -> None:
+        super().__init__()
+        self.consumer = consumer
         self.stt = stt
-        self.vad_active = False
+        pattern = r'\{([^{}]*)\}|\(([^()]*)\)|\[([^[\]]*)\]'
+        self.non_speech_tokens = re.compile(pattern)
 
-    def start(self):
-        """
-        Starts the audio processing.
-        """
-        self.audio.start()
 
-    def stop(self):
-        """
-        Stops the audio processing.
-        """
-        self.audio.stop()
+    def on_receive(self, message):
 
-    async def async_generator(self):
+        self.process_data(message['uterance'])
+
+    def process_data(self, uterance: bytes):
         """
         Asynchronously generates speech variables.
 
@@ -110,75 +101,46 @@ class SpeechToTextProxy:
             SpeechVars: A named tuple containing the processed text, count, and processing time.
 
         """
+        if DEBUG:
+            print('<<', end='', flush=True)
         ts = time.time_ns()
         wc = 0
-        uterance = bytearray()
-        pattern = r'\{([^{}]*)\}|\(([^()]*)\)|\[([^[\]]*)\]'
-        non_speech_tokens = re.compile(pattern)
-        async for frame in self.audio.async_generator():
-            if DEBUG:
-                os.write(sys.stdout.fileno(), b'2')
-
-            if frame is not None:
-                if not ts:
-                    ts = time.time_ns()
-                uterance.extend(frame)
-                if DEBUG:
-                    print(f"{'*' if self.vad_active else '.'}", end='', flush=True)
-                if not self.vad_active:
-                    self.voice_active = True
-            else:
-                tt = time.time_ns() - ts
-                tt = tt / 1e9
-                if DEBUG:
-                    print('<<', end='', flush=True)
-                text_query = await self.stt.process_data(uterance)
-                if DEBUG:
-                    print(f"\n>> {text_query}", flush=True)
-                text = non_speech_tokens.sub('', text_query).strip()
-                if text:
-                    self.voice_active = False
-                    yield SpeechVars(text, wc, tt)
-                else:
-                    self.voice_active = False # bare noice
-                ts = 0
-                wc += 1
-                uterance.clear()
-
-    @property
-    def voice_active(self):
-        return self.vad_active
-
-    @voice_active.setter
-    def voice_active(self, val: bool):
-        self.vad_active = val
-        self.voice_active_ind(self.vad_active)
-
-    def voice_active_ind(self, active: bool):
+        text_query = self.stt.transcribe(uterance)
+        tt = time.time_ns() - ts
+        tt = tt / 1e9
         if DEBUG:
-            print(f"{'*' if active else '.'}", end='', flush=True)
-        pass
+            print(f"\n>> {text_query}", flush=True)
+        text = self.non_speech_tokens.sub('', text_query).strip()
+        if text:
+            self.consumer.tell(SpeechVars(text, wc, tt))
 
-# FIXME: Implement dramatical pause of 0.5 seconds using asyncio.queue and asyncio.sleep
 
 if __name__ == '__main__':
 
-    async def amain():
+    class PlainActor(pykka.ThreadingActor):
+        def __init__(self):
+            super().__init__()
 
-        vad_audio = VADAudioProxy()
-        asyncio.create_task(vad_audio.run_periodic_generator())
+        def on_receive(self, message):
+            print("Received: ", message)
+            return None
 
-        whisper = Whisper(model_name='base.en')
-        stt_svc = SpeechToTextProxy(vad_audio, whisper)
-        stt_svc.start()
+    consumer = PlainActor.start()
 
-        async for text in stt_svc.async_generator():
-                print(f"\n{text}")
+    whisper = Whisper(model_name='base.en')
+    stt_svc = SpeechToTextSvc.start(consumer, whisper)
 
-    try:
-        asyncio.run(amain())
-    except KeyboardInterrupt:
-        sys.exit('\nInterrupted by user')
+    vad_audio = VADAudioProducer(stt_svc, aggressiveness=3, device=None, input_rate=16000)
+
+    print("Listening (ctrl-C to exit)...")
+
+    time.sleep(5)
+
+    print("Stopping...")
+
+    pykka.ActorRegistry.stop_all()
+    vad_audio.stop()
+
 
 
 
