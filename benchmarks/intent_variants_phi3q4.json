@@ -1,0 +1,41 @@
+[
+  {
+    "intent_pct": 100.0,
+    "field_pct": 100.0,
+    "intent_ok": 27,
+    "field_ok": 27,
+    "n": 27,
+    "p50_ms": 298,
+    "p95_ms": 379,
+    "model": "Phi-3-mini-Q4",
+    "prompt": "few-shot",
+    "json_temp": 0.0,
+    "prompt_toks": 1802
+  },
+  {
+    "intent_pct": 100.0,
+    "field_pct": 100.0,
+    "intent_ok": 27,
+    "field_ok": 27,
+    "n": 27,
+    "p50_ms": 384,
+    "p95_ms": 468,
+    "model": "Phi-3-mini-Q4",
+    "prompt": "few-shot-extra",
+    "json_temp": 0.0,
+    "prompt_toks": 2026
+  },
+  {
+    "intent_pct": 96.29629629629629,
+    "field_pct": 85.18518518518519,
+    "intent_ok": 26,
+    "field_ok": 23,
+    "n": 27,
+    "p50_ms": 292,
+    "p95_ms": 390,
+    "model": "Phi-3-mini-Q4",
+    "prompt": "one-shot",
+    "json_temp": 0.0,
+    "prompt_toks": 1382
+  }
+]

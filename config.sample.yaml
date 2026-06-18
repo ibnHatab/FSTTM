@@ -1,3 +1,11 @@
+hvac_backend:
+    url: "http://127.0.0.1:8000"    # hvac-react backend; null to disable
+    timeout: 2.0
+
+aec:
+    enabled: true     # load PipeWire echo-cancel module (WebRTC AEC + NS)
+    rnnoise: false    # chain RNNoise LADSPA on top of AEC (requires librnnoise_ladspa.so)
+
 server:
   http:
     host: "0.0.0.0"
@@ -5,31 +13,79 @@ server:
     request_max_size: 1048576
 log:
   level:
-    - logger: gpt_fsttm_server
+    - logger: fsttm
       level: INFO
-    - logger: gpt_fsttm_server.ears
-      level: INFO
-    - logger: gpt_fsttm_server.whisper
+    - logger: fsttm.whisper
       level: DEBUG
 vad:
     vad_aggressiveness: 3
-    device: 0
+    device: null
+    device_name: "pulse"   # capture via PulseAudio default; AEC routes the EC source there (TTS echo removed)
     rate: 16000
+    padding_ms: 700    # silence before closing utterance (300=fast, 700=natural pauses)
+    soft_duck: true    # during TTS, route speech to a barge-in sentinel instead of
+                       # STT (suppresses AEC residue / raw-mic speaker bleed).
+                       # false → rely on AEC alone, barge-in from a plain VAD onset.
 stt:
-    model: "small.en"
+    # whisper.cpp GGML model. A short name ("base") resolves to
+    # ~/repo/vox/whisper.cpp/models/ggml-base.en-q5_1.bin; prefer a full path so
+    # all models live under models/ (matches tts/gpt):
+    model: "models/ggml-base.en-q5_1.bin"
+    language: "en"   # force language; change to null for auto-detect
+    # Parasite phrases — whole-string whisper hallucinations dropped as noise
+    # (on top of automatic []/()/** sound-annotation detection like "(sighs)",
+    # "*cough*"). null = built-in defaults ("thank you", "thanks").
+    parasites: ["thank you", "thanks", "thanks for watching", "you"]
 tts:
-    model: "tts_models/en/ljspeech/tacotron2-DDC"
+    model: "/home/axadmin/repo/vox/FSTTM/models/en_US-lessac-medium.onnx"
+    sample_rate: 22050
+    # Output routing — PCM is written straight to a PyAudio stream (no aplay).
+    # Devices are matched BY NAME against `aplay -l` / PyAudio device names.
+    device: "pulse"   # PyAudio output device substring; "pulse" lets PulseAudio
+                      # resample/convert. Use a card name (e.g. "Jabra EVOLVE 20")
+                      # to target hardware directly (must accept the sample_rate).
+    sink: null        # PulseAudio sink substring. null → fsttm_ec_sink when AEC is
+                      # on (so the echo-canceller sees the TTS), else the default
+                      # sink. Set e.g. "Jabra" to force the headset speaker.
 gpt:
-    n_ctx: 2048
+    # n_ctx must hold the assembled intent system prompt (domain prompt +
+    # hvac_prompt + few-shot ≈ 2.5k tokens) in ONE model.eval, else the first
+    # decode fails with "llama_decode returned 1". 4096 fits Phi-3-mini-4k.
+    n_ctx: 4096
     seed: 42
     temp: 0.7
     top_k: 40
-    top_p: 0.5
+    top_p: 0.95
     repeat_last_n: 256
-    n_batch: 1024
-    repeat_penalty: 1.17647
-    model: "./models/7B/ggml-vicuna-7b-1.1-q5_1.bin"
-    n_threads: 8
-    n_predict: 2048
+    n_batch: 2048      # ≥ base-prompt token count (single-shot prompt eval)
+    repeat_penalty: 1.1
+    model: "/home/axadmin/repo/vox/FSTTM/models/Phi-3-mini-4k-instruct-Q4_K_M.gguf"
+    n_threads: 6
+    n_predict: 512
     safeword: "coyotes"
     conversation: "vicuna_v1.1"
+
+# System-level behaviour: intents + wake word ("attention").
+system:
+    name: "Nina"           # assistant name — used as the wake word and in the
+                           # plain-chat system prompt ("You are Nina …")
+    # HVAC / vehicle intent mode — two-pass grammar over the unified HVAC schema
+    # (climate + doors/windows/seats + lights incl. cabin).
+    hvac_intent: false     # true=structured HVAC/vehicle commands, false=plain chat
+    hvac_prompt: "/home/axadmin/repo/vox/FSTTM/prompts/hvac-intentions-phi3.txt"
+    # Manual RAG — answer how-to/where-is/explain questions from a manual.
+    # Needs hvac_intent: true and "manual" in intent_domains. Ingest a PDF with
+    #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>
+    manual: false          # master toggle for manual RAG
+    intent_domains: ["climate", "lights", "body", "manual"]   # null = all
+    manual_store: "models/manual.npz"                          # ingested .npz
+    manual_embed: "models/nomic-embed-text-v1.5.Q4_K_M.gguf"   # embedding GGUF
+    attention: false       # true → wake-word layer ON; starts ASLEEP. The mic
+                           # keeps transcribing but commands are ignored until a
+                           # wake word ("Nina" / "hey Nina") is heard. Once woken
+                           # it stays AWAKE (see sleep_intent to allow re-sleeping).
+    sleep_intent: false    # true → the LLM system-intent grammar decides when to
+                           # go back to sleep ("that's all", "voice off", …),
+                           # adding one classification pass per command. Requires
+                           # attention: true. false → never re-sleeps once awake.
+    wake_words: ["nina", "hey nina", "hi nina"]

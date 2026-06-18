@@ -138,3 +138,26 @@ dmypy.json
 tests/RxPY
 up
 
+# ── Models (large GGUF/ONNX files — download links in README) ────────────────
+models/
+*.gguf
+*.onnx
+*.onnx.json
+
+# ── HVAC React — generated / installed dirs ──────────────────────────────────
+hvac-react/frontend/node_modules/
+hvac-react/frontend/dist/
+hvac-react/backend/.venv/
+# Airflow animation sprite frames (424 MB, 15360 PNGs) — generate with scripts/gen_anim.py
+hvac-react/frontend/public/anim/
+
+# ── Playwright artefacts ─────────────────────────────────────────────────────
+.playwright-mcp/
+hvac_*.png
+
+core
+N09-1071.pdf
+*.npz
+.venv-rag/
+*.chunks.json
+docs/*.pdf

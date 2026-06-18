@@ -13,7 +13,7 @@ disposed = ReactiveTest.disposed
 created = ReactiveTest.created
 
 
-from gpt_fsttm_server.trace import *
+from fsttm.trace import *
 
 def test_window():
     scheduler = TestScheduler()

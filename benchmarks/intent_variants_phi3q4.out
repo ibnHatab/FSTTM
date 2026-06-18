@@ -1,0 +1,22 @@
+
+### loading Phi-3-mini-Q4 (models/Phi-3-mini-4k-instruct-Q4_K_M.gguf)
+    loaded in 3.0s
+  [Phi-3-mini-Q4 · one-shot · t=0.0] intent 26/27 (96%) | field 23/27 (85%) | p50 292ms p95 390ms | prompt 1382tok
+        MISS 'set my temperature to 23': exp SET_TEMPERATURE{'temp': 23, 'area': 1} got {"intent": "SET_TEMPERATURE", "area": 0, "temp": 23}
+        MISS 'turn on the air conditioning': exp AC_ON got {"intent": "SET_TEMPERATURE", "area": 0}
+        MISS 'unlock my door': exp DOOR_UNLOCK{'area': 1} got {"intent": "DOOR_UNLOCK", "area": 0}
+        MISS 'warm my seat': exp SEAT_HEAT_UP{'area': 1} got {"intent": "SEAT_HEAT_UP", "area": 0}
+  [Phi-3-mini-Q4 · few-shot · t=0.0] intent 27/27 (100%) | field 27/27 (100%) | p50 298ms p95 379ms | prompt 1802tok
+  [Phi-3-mini-Q4 · few-shot-extra · t=0.0] intent 27/27 (100%) | field 27/27 (100%) | p50 384ms p95 468ms | prompt 2026tok
+
+========================================================================
+RANKED (by field% → intent% → latency)
+========================================================================
+model            prompt    jt    field%  intent%    p50    p95   ptok
+Phi-3-mini-Q4    few-shot  0.0     100%     100%   298m   379m   1802
+Phi-3-mini-Q4    few-shot-extra 0.0     100%     100%   384m   468m   2026
+Phi-3-mini-Q4    one-shot  0.0      85%      96%   292m   390m   1382
+
+SWEET POINT: Phi-3-mini-Q4 · prompt=few-shot · json_temp=0.0 → field 100% / intent 100% @ p50 298ms
+
+wrote opt_variants.json

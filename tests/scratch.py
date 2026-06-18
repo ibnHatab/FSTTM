@@ -2,7 +2,7 @@
 import reactivex as rx
 import reactivex.operators as ops
 
-from gpt_fsttm_server.trace import *
+from fsttm.trace import *
 
 
 xs = rx.from_marbles("1-2-3-4-5-6-7-n-8-9-10-11-12-13-14-n-15-16-17-|")

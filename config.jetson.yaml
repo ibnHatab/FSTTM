@@ -1,0 +1,53 @@
+hvac_backend:
+    url: "http://127.0.0.1:8000"    # hvac-react backend on the Jetson
+    timeout: 2.0
+
+server:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_max_size: 1048576
+log:
+  level:
+    - logger: fsttm
+      level: INFO
+    - logger: fsttm.whisper
+      level: INFO
+vad:
+    vad_aggressiveness: 3
+    device: null
+    device_name: "pulse"   # capture via PulseAudio default (AEC sets EC source as default)
+    rate: 16000
+    padding_ms: 700
+    soft_duck: true
+stt:
+    model: "/home/nvidia/repo/vox/fsttm/models/ggml-base.en-q5_1.bin"
+    language: "en"
+tts:
+    model: "/home/nvidia/repo/vox/fsttm/models/en_US-lessac-medium.onnx"
+    sample_rate: 22050
+    device: "pulse"
+    sink: null
+gpt:
+    n_ctx: 2048
+    seed: 42
+    temp: 0.7
+    top_k: 40
+    top_p: 0.95
+    repeat_last_n: 256
+    n_batch: 512
+    repeat_penalty: 1.1
+    model: "/home/nvidia/repo/vox/fsttm/models/Phi-3-mini-4k-instruct-Q6_K.gguf"
+    n_threads: 6
+    n_predict: 512
+    safeword: "coyotes"
+    conversation: "vicuna_v1.1"
+
+system:
+    name: "Nina"
+    # HVAC / vehicle intent mode (climate + doors/windows/seats + lights/cabin)
+    hvac_intent: false   # disabled for pipeline test: plain Phi-3 reply -> piper TTS
+    hvac_prompt: "/home/nvidia/repo/vox/fsttm/prompts/hvac-intentions-phi3.txt"
+    attention: true
+    sleep_intent: true
+    wake_words: ["nina", "hey nina", "hi nina"]

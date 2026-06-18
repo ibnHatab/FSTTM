@@ -1,3 +1,11 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fsttm*"]
+
 [project]
 name = "gpt-fsttm-server"
 version = "0.1.0"
@@ -18,11 +26,17 @@ classifiers = [
 
 dependencies = [
   'reactivex~=4.0',
-  'llama-cpp-python==0.1.5',
-  'whispercpp==0.0.17',
   'cyclotron>=2.0.0',
   'cyclotron_std>=2.0.0',
-  #'langchain'
+  'llama-cpp-python>=0.2.0',
+  'faster-whisper>=1.0.0',
+  'piper-tts>=1.2.0',
+  'pyaudio>=0.2.13',
+  'webrtcvad>=2.0.10',
+  'numpy>=1.24.0',
+  'scipy>=1.10.0',
+  'pydantic>=2.0.0',
+  'pyyaml>=6.0',
 ]
 
 [project.optional-dependencies]

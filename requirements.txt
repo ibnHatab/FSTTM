@@ -1,14 +1,35 @@
-scipy
-numpy
-webrtcvad
-pytest
-PyYAML==6.0
+# ── core reactive runtime ─────────────────────────────────────────────
 reactivex>=4.0
-pydantic>=1.10
 cyclotron>=2.0.0
 cyclotron-std>=2.0.0
-rhvoice-wrapper==0.7.1
-whispercpp @ git+https://github.com/aarnphm/whispercpp.git@main
-llama-cpp-python @ git+https://github.com/abetlen/llama-cpp-python.git@main
+pydantic>=1.10
+PyYAML>=6.0
 
+# ── audio I/O + VAD ───────────────────────────────────────────────────
+pyaudio>=0.2.14          # mic capture + TTS playback
+webrtcvad                # voice-activity detection
+numpy
+scipy                    # resampling
 
+# ── STT (whisper.cpp, CUDA) ───────────────────────────────────────────
+# pywhispercpp builds whisper.cpp with CUDA; see scripts/build-whisper.sh
+# for the model. On CPU-only/dev boxes faster-whisper is a fallback.
+pywhispercpp
+# faster-whisper            # optional CPU fallback backend
+
+# ── LLM (llama.cpp, CUDA) ─────────────────────────────────────────────
+# Build from source with CUDA for recent models — see README.
+llama-cpp-python
+
+# ── TTS (Piper, ONNX) ─────────────────────────────────────────────────
+piper-tts                # ONNX voice synthesis
+onnxruntime              # (onnxruntime-gpu on CUDA hosts)
+
+# ── HVAC bridge ───────────────────────────────────────────────────────
+httpx                    # POST intents to hvac-react backend
+
+# ── TUI (optional) ────────────────────────────────────────────────────
+rich>=12.0               # 3-panel --tui interface; degrades to stdout if absent
+
+# ── test ──────────────────────────────────────────────────────────────
+pytest

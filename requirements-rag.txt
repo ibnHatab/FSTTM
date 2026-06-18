@@ -1,0 +1,9 @@
+# Manual RAG extras (feat/rag-manual). Install on top of requirements.txt.
+# Uses llama.cpp for BOTH embeddings (a GGUF embed model) and the answer LLM —
+# one runtime, no extra ML framework. PDF text via poppler's `pdftotext` (system
+# package, not pip): apt-get install poppler-utils
+llama-cpp-python    # GGUF embeddings + grounded answer
+numpy
+# Models (gitignored, fetch separately):
+#   embed: nomic-ai/nomic-embed-text-v1.5-GGUF  (Q4_K_M, ~84MB)
+#   answer: any chat GGUF (Phi-3-mini / Qwen2.5-1.5B-Instruct)
