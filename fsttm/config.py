@@ -1,8 +1,11 @@
+import logging
 import yaml
-from typing import List, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel, ConfigDict
 import reactivex.operators as ops
 import cyclotron_std.argparse as argparse
+
+_log = logging.getLogger("fsttm.config")
 
 
 class VAD(BaseModel):
@@ -68,12 +71,6 @@ class AecConfig(BaseModel):
     method: str = "auto"   # "auto" | "webrtc" | "speex"
 
 
-class HvacBackend(BaseModel):
-    """Optional HTTP backend to forward intent commands to (hvac-react)."""
-    url: Optional[str] = None        # e.g. "http://127.0.0.1:8000" — null disables
-    timeout: float = 2.0             # per-command POST timeout in seconds
-
-
 class GptParams(BaseModel):
     model_config = ConfigDict(extra='allow')
     n_ctx: int = 2048
@@ -98,25 +95,22 @@ class System(BaseModel):
     intents are added."""
     model_config = ConfigDict(extra='allow')
     name: str = "Nina"                  # the assistant's name (wake word + prompt)
-    # HVAC / vehicle intent mode — two-pass grammar-constrained generation.
-    # Replaces the old gpt.intent_mode / gpt.intent_prompt.
-    hvac_intent: bool = False
-    # Which intent domains are active (assembled into the grammar + prompt).
-    # null → all registered domains; or a subset e.g. ["climate", "lights"].
+    # Intent mode — two-pass grammar-constrained generation against the active
+    # domain provider's schema. (was: hvac_intent)
+    intent_mode: bool = False
+    # Which domain provider to load (fsttm.domains entry-point name, e.g.
+    # "hvac", "dog"). null → auto: the sole installed domain (hvac preferred),
+    # or plain chat when no contrib package is installed.
+    domain: Optional[str] = None
+    # Which sub-domains of the provider are active (assembled into the grammar
+    # + prompt). null → all; or a subset e.g. ["climate", "lights"].
     intent_domains: Optional[List[str]] = None
-    hvac_prompt: Optional[str] = None   # optional EXTRA prompt file appended to
-                                        # the auto-assembled domain prompt
+    intent_prompt: Optional[str] = None  # optional EXTRA prompt file appended
+                                         # to the assembled domain prompt
+                                         # (was: hvac_prompt)
     # Intent prompt variant: "one-shot" (lean, fastest), "few-shot" (production,
-    # +accuracy), or "few-shot-extra" (max coverage). See intents.PROMPT_VARIANTS.
+    # +accuracy), or "few-shot-extra" (max coverage).
     prompt_variant: str = "few-shot"
-    # Manual RAG — answer how-to/where-is/explain questions (the `manual` intent
-    # domain) from a manual. Enable with manual: true AND both paths set.
-    manual: bool = False                # master toggle for manual RAG
-    manual_store: Optional[str] = None  # path to an ingested .npz vector store
-    manual_embed: Optional[str] = None  # path to the embedding GGUF
-    manual_embed_gpu: bool = False      # offload the embedder to GPU. Default CPU
-                                        # — on a shared-memory Jetson a GPU embedder
-                                        # competes with the LLM for VRAM and OOMs.
     attention: bool = False             # wake-word layer; start ASLEEP when true.
                                         # Once woken it stays AWAKE unless
                                         # sleep_intent re-enables sleeping.
@@ -134,9 +128,62 @@ class Config(BaseModel):
     gpt: GptParams
     server: Server
     log: Log
-    hvac_backend: HvacBackend = HvacBackend()   # optional — defaults to disabled
     system: System = System()                   # attention / system-intent flags
-    aec: AecConfig = AecConfig()                 # echo-cancel / rnnoise
+    aec: AecConfig = AecConfig()                # echo-cancel / rnnoise
+    # Per-domain config blocks, passed through RAW to the matching provider's
+    # dispatcher (the provider validates its own block). E.g.
+    #   domains:
+    #     hvac: {backend_url: "http://127.0.0.1:8000", timeout: 2.0,
+    #            manual: {enabled: true, store: ..., embed: ...}}
+    domains: Dict[str, dict] = {}
+
+
+# Legacy-key mapping (pre-0.2 configs). Applied before validation with a
+# deprecation warning per hit, so out-of-tree configs keep booting.
+def normalize_config(raw: dict) -> dict:
+    if not isinstance(raw, dict):
+        return raw
+    raw = dict(raw)
+    sysc = dict(raw.get('system') or {})
+    domains = dict(raw.get('domains') or {})
+    hvac = dict(domains.get('hvac') or {})
+    legacy_hvac = False
+
+    def _warn(old, new):
+        _log.warning("config: legacy key %s — use %s", old, new)
+
+    if 'hvac_intent' in sysc:
+        _warn('system.hvac_intent', 'system.intent_mode')
+        sysc.setdefault('intent_mode', sysc.pop('hvac_intent'))
+    if 'hvac_prompt' in sysc:
+        _warn('system.hvac_prompt', 'system.intent_prompt')
+        sysc.setdefault('intent_prompt', sysc.pop('hvac_prompt'))
+        legacy_hvac = True
+    if 'hvac_backend' in raw:
+        _warn('hvac_backend', 'domains.hvac.{backend_url,timeout}')
+        hb = raw.pop('hvac_backend') or {}
+        if hb.get('url'):
+            hvac.setdefault('backend_url', hb.get('url'))
+            hvac.setdefault('timeout', hb.get('timeout', 2.0))
+            legacy_hvac = True
+    if any(k in sysc for k in ('manual', 'manual_store', 'manual_embed',
+                               'manual_embed_gpu')):
+        _warn('system.manual*', 'domains.hvac.manual.*')
+        hvac.setdefault('manual', {
+            'enabled': bool(sysc.pop('manual', False)),
+            'store': sysc.pop('manual_store', None),
+            'embed': sysc.pop('manual_embed', None),
+            'embed_gpu': bool(sysc.pop('manual_embed_gpu', False)),
+        })
+        legacy_hvac = True
+    if legacy_hvac and not sysc.get('domain'):
+        sysc['domain'] = 'hvac'
+    if hvac:
+        domains['hvac'] = hvac
+    if domains:
+        raw['domains'] = domains
+    raw['system'] = sysc
+    return raw
 
 
 def parse_config(config_data):
@@ -144,7 +191,7 @@ def parse_config(config_data):
         ops.filter(lambda i: i.id == "config"),
         ops.flat_map(lambda i: i.data),
         ops.map(lambda i: yaml.load(i, Loader=yaml.FullLoader)),
-        ops.map(lambda i: Config(**i)),
+        ops.map(lambda i: Config(**normalize_config(i))),
         ops.share(),
     )
     return config

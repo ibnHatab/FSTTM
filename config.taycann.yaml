@@ -1,6 +1,15 @@
-hvac_backend:
-    url: "http://127.0.0.1:8000"    # hvac-react backend; null to disable
-    timeout: 2.0
+domains:
+    hvac:                                # config block for the hvac domain provider
+        backend_url: "http://127.0.0.1:8000"   # hvac-react backend; null to disable
+        timeout: 2.0
+        # Manual RAG — answer how-to/where-is/explain questions from a manual.
+        # Needs intent_mode: true and "manual" in intent_domains. Ingest a PDF:
+        #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>
+        manual:
+            enabled: true
+            store: "/home/axadmin/repo/vox/FSTTM/models/taycan-manual.npz"
+            embed: "/home/axadmin/repo/vox/FSTTM/models/nomic-embed-text-v1.5.Q4_K_M.gguf"
+            embed_gpu: true   # taycann has spare VRAM
 
 aec:
     enabled: false     # load PipeWire echo-cancel module (WebRTC AEC + NS)
@@ -49,7 +58,7 @@ tts:
                       # sink. Set e.g. "Jabra" to force the headset speaker.
 gpt:
     # n_ctx must hold the assembled intent system prompt (domain prompt +
-    # hvac_prompt + few-shot ≈ 2.5k tokens) in ONE model.eval, else the first
+    # intent_prompt + few-shot ≈ 2.5k tokens) in ONE model.eval, else the first
     # decode fails with "llama_decode returned 1". 4096 fits Phi-3-mini-4k.
     n_ctx: 4096
     seed: 42
@@ -68,19 +77,12 @@ gpt:
 system:
     name: "Nina"           # assistant name — used as the wake word and in the
                            # plain-chat system prompt ("You are Nina …")
-    # HVAC / vehicle intent mode — two-pass grammar over the unified HVAC schema
-    # (climate + doors/windows/seats + lights incl. cabin).
-    hvac_intent: true
+    # Intent mode — two-pass grammar over the active domain's schema.
+    intent_mode: true
+    domain: "hvac"         # fsttm.domains entry-point (pip install fsttm-hvac)
     prompt_variant: "few-shot-extra"
-    hvac_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
-    # Manual RAG — answer how-to/where-is/explain questions from a manual.
-    # Needs hvac_intent: true and "manual" in intent_domains. Ingest a PDF with
-    #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>
-    manual: true
+    intent_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
     intent_domains: ["climate", "lights", "body", "manual"]
-    manual_store: "/home/axadmin/repo/vox/FSTTM/models/taycan-manual.npz"
-    manual_embed: "/home/axadmin/repo/vox/FSTTM/models/nomic-embed-text-v1.5.Q4_K_M.gguf"
-    manual_embed_gpu: true   # taycann has spare VRAM
     attention: true
                            # keeps transcribing but commands are ignored until a
                            # wake word ("Nina" / "hey Nina") is heard. Once woken

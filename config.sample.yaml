@@ -1,6 +1,17 @@
-hvac_backend:
-    url: "http://127.0.0.1:8000"    # hvac-react backend; null to disable
-    timeout: 2.0
+# Per-domain config blocks — passed raw to the active domain provider's
+# dispatcher (pip install the matching contrib package, e.g. fsttm-hvac).
+domains:
+    hvac:
+        backend_url: "http://127.0.0.1:8000"   # hvac-react backend; null to disable
+        timeout: 2.0
+        # Manual RAG — answer how-to/where-is/explain questions from a manual.
+        # Needs intent_mode: true and "manual" in intent_domains. Ingest a PDF:
+        #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>
+        manual:
+            enabled: false
+            store: "models/manual.npz"                          # ingested .npz
+            embed: "models/nomic-embed-text-v1.5.Q4_K_M.gguf"   # embedding GGUF
+            embed_gpu: false
 
 aec:
     enabled: true     # load PipeWire echo-cancel module (WebRTC AEC + NS)
@@ -49,7 +60,7 @@ tts:
                       # sink. Set e.g. "Jabra" to force the headset speaker.
 gpt:
     # n_ctx must hold the assembled intent system prompt (domain prompt +
-    # hvac_prompt + few-shot ≈ 2.5k tokens) in ONE model.eval, else the first
+    # intent_prompt + few-shot ≈ 2.5k tokens) in ONE model.eval, else the first
     # decode fails with "llama_decode returned 1". 4096 fits Phi-3-mini-4k.
     n_ctx: 4096
     seed: 42
@@ -68,17 +79,12 @@ gpt:
 system:
     name: "Nina"           # assistant name — used as the wake word and in the
                            # plain-chat system prompt ("You are Nina …")
-    # HVAC / vehicle intent mode — two-pass grammar over the unified HVAC schema
-    # (climate + doors/windows/seats + lights incl. cabin).
-    hvac_intent: false     # true=structured HVAC/vehicle commands, false=plain chat
-    hvac_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
-    # Manual RAG — answer how-to/where-is/explain questions from a manual.
-    # Needs hvac_intent: true and "manual" in intent_domains. Ingest a PDF with
-    #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>
-    manual: false          # master toggle for manual RAG
+    # Intent mode — two-pass grammar over the active domain provider's schema.
+    intent_mode: false     # true=structured domain commands, false=plain chat
+    domain: "hvac"         # fsttm.domains entry-point name (hvac, dog, …);
+                           # null → auto (sole installed domain, else plain chat)
+    intent_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
     intent_domains: ["climate", "lights", "body", "manual"]   # null = all
-    manual_store: "models/manual.npz"                          # ingested .npz
-    manual_embed: "models/nomic-embed-text-v1.5.Q4_K_M.gguf"   # embedding GGUF
     attention: false       # true → wake-word layer ON; starts ASLEEP. The mic
                            # keeps transcribing but commands are ignored until a
                            # wake word ("Nina" / "hey Nina") is heard. Once woken

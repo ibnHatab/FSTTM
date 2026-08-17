@@ -1,6 +1,7 @@
-hvac_backend:
-    url: "http://127.0.0.1:8000"    # hvac-react backend on the Jetson
-    timeout: 2.0
+domains:
+    hvac:
+        backend_url: "http://127.0.0.1:8000"   # hvac-react backend on the Jetson
+        timeout: 2.0
 
 server:
   http:
@@ -44,9 +45,10 @@ gpt:
 
 system:
     name: "Nina"
-    # HVAC / vehicle intent mode (climate + doors/windows/seats + lights/cabin)
-    hvac_intent: false   # disabled for pipeline test: plain Phi-3 reply -> piper TTS
-    hvac_prompt: "/home/nvidia/repo/vox/fsttm/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
+    # Intent mode (two-pass grammar over the hvac domain schema)
+    intent_mode: false   # disabled for pipeline test: plain Phi-3 reply -> piper TTS
+    domain: "hvac"
+    intent_prompt: "/home/nvidia/repo/vox/fsttm/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
     attention: true
     sleep_intent: true
     wake_words: ["nina", "hey nina", "hi nina"]

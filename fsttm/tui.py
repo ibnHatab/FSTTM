@@ -8,7 +8,7 @@ Layout
   │  [user] … / [assistant] …     │  (right, full     │
   ├───────────────────────────────┤   height,         │
   │ Intents         (bottom-left) │   refreshable)    │
-  │  JSON commands → hvac-react    │                   │
+  │  JSON commands → domain backend│                   │
   └───────────────────────────────┴───────────────────┘
 
 Design
@@ -96,8 +96,7 @@ class TUIState:
         self.attention_enabled = False
         self.attention_state = "OFF"   # OFF | ASLEEP | AWAKE
         self.aec = "?"
-        self.hvac_url = None
-        self.hvac_ok = False
+        self.domain_status = None   # (label, ok) from the domain dispatcher
 
         # narrator
         self.ckpt_cur = -1
@@ -116,8 +115,8 @@ class TUIState:
         self.chat.append(("assistant", text, time.monotonic()))
 
     def add_intent(self, intent_json, voice):
-        # kind 'hvac' → JSON command + spoken text (magenta)
-        self.intents.append(("hvac", str(intent_json), voice, time.monotonic()))
+        # kind 'domain' → JSON command + spoken text (magenta)
+        self.intents.append(("domain", str(intent_json), voice, time.monotonic()))
 
     def add_system_intent(self, text, action):
         # kind 'system' → attention classifier decision for an utterance.
@@ -201,7 +200,7 @@ def _intent_panel(state, height=0, width=0):
                     _ACTION_STYLE.get(primary, "magenta"))]
             if secondary:
                 ent.append(("   ↳ " + repr(secondary), "dim"))
-        else:  # hvac
+        else:  # domain
             ent = [(ts_s + primary, "magenta")]
             if secondary:
                 ent.append(("   ↳ " + repr(secondary), "dim"))
@@ -223,7 +222,7 @@ def _intent_panel(state, height=0, width=0):
             body.append(t + "\n", style=style)
     if not state.intents:
         body = Text("…no intents yet…", style="dim italic")
-    return Panel(body, title="Intents (hvac · sys)", title_align="left",
+    return Panel(body, title="Intents (domain · sys)", title_align="left",
                  border_style="magenta")
 
 
@@ -315,9 +314,9 @@ def _state_panel(state):
     t.add_row("AEC", str(state.aec))
     t.add_row("soft_duck", "on" if state.soft_duck else "off")
 
-    hvac = Text(state.hvac_url or "disabled",
-                style="green" if state.hvac_ok else "dim")
-    t.add_row("hvac", hvac)
+    label, ok = state.domain_status or (None, False)
+    dom = Text(label or "disabled", style="green" if ok else "dim")
+    t.add_row("domain", dom)
 
     t.add_row("", "")
     t.add_row("turns", str(state.turns))

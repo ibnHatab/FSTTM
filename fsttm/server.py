@@ -25,7 +25,7 @@ from fsttm.aec import EchoCancelSession
 from fsttm.attention import Attention
 from fsttm.config import parse_arguments, parse_config
 from fsttm.dispatch import IntentFlow, strip_placeholders as _strip_placeholders
-from fsttm.domain import DomainContext, NullProvider, active_provider
+from fsttm.domain import DomainContext, NullProvider, active_provider, load_provider
 from fsttm.fsttm import Model as FSM
 import fsttm.perception as perception
 from fsttm.perception import SpeechDuringPlayback
@@ -280,31 +280,27 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     def _tui_domain_status(label, ok):
         if tui_state is not None:
-            tui_state.hvac_url = label
-            tui_state.hvac_ok = ok
-
-    def _domain_cfg_from(cfg):
-        """The active domain's config block. Legacy schema: assembled from the
-        hvac_backend + system.manual* keys (config rename lands separately)."""
-        sysc = getattr(cfg, 'system', None)
-        return {
-            'backend_url': getattr(cfg.hvac_backend, 'url', None),
-            'timeout': getattr(cfg.hvac_backend, 'timeout', 2.0),
-            'manual': {
-                'enabled': bool(getattr(sysc, 'manual', False)) if sysc else False,
-                'store': getattr(sysc, 'manual_store', None) if sysc else None,
-                'embed': getattr(sysc, 'manual_embed', None) if sysc else None,
-                'embed_gpu': bool(getattr(sysc, 'manual_embed_gpu', False)) if sysc else False,
-            },
-        }
+            tui_state.domain_status = (label, ok)
 
     def _init_domain(cfg):
-        provider = active_provider()
         sysc = getattr(cfg, 'system', None)
+        domain_name = getattr(sysc, 'domain', None) if sysc else None
+        if domain_name:
+            try:
+                provider = load_provider(domain_name)
+            except LookupError as e:
+                _emit(f"[domain] {e}", "warn")
+                provider = active_provider()
+        else:
+            provider = active_provider()   # auto: sole installed domain / null
         name = getattr(sysc, 'name', 'Nina') if sysc else 'Nina'
+        domain_cfg = (getattr(cfg, 'domains', None) or {}).get(provider.name, {})
+        for unknown in set(getattr(cfg, 'domains', None) or {}) - {provider.name}:
+            _emit(f"[domain] config block domains.{unknown} ignored "
+                  f"(active domain: {provider.name})", "warn")
         old = _flow[0]
         ctx = DomainContext(
-            config=_domain_cfg_from(cfg),
+            config=domain_cfg,
             assistant_name=name,
             emit=_emit,
             narrate_prompt=_narrate_prompt,
@@ -337,7 +333,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     def _read_intent_cfg(cfg):
         sysc = getattr(cfg, 'system', None)
-        _intent_mode[0] = bool(getattr(sysc, 'hvac_intent', False)) if sysc else False
+        _intent_mode[0] = bool(getattr(sysc, 'intent_mode', False)) if sysc else False
         _intent_domains[0] = getattr(sysc, 'intent_domains', None) if sysc else None
         if tui_state is not None:
             tui_state.intent_mode = _intent_mode[0]
@@ -395,7 +391,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             prompt = provider.build_prompt(_intent_domains[0], variant=variant)
             _emit(f"[intent] prompt variant: {variant} "
                   f"(~{len(prompt)//4} tok)", "info")
-            extra_file = getattr(sysc, 'hvac_prompt', None) if sysc else None
+            extra_file = getattr(sysc, 'intent_prompt', None) if sysc else None
             if extra_file:
                 try:
                     with open(extra_file) as f:

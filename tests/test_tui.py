@@ -53,7 +53,7 @@ def test_system_intent_in_intent_panel():
     assert "that's all for today" in out
 
 
-def test_hvac_and_system_intents_coexist():
+def test_domain_and_system_intents_coexist():
     st = tui.TUIState()
     st.add_intent('{"action":"set_temp"}', "ok")
     st.add_system_intent("go to sleep", "sleep")
@@ -65,7 +65,7 @@ def test_fsm_and_perf_fields():
     st = tui.TUIState()
     st.set_fsm("SYSTEM", prev="SYSTEM", action="K")
     st.intent_mode = True
-    st.hvac_url = "http://127.0.0.1:8000"; st.hvac_ok = True
+    st.domain_status = ("http://127.0.0.1:8000", True)
     tui.record_stt_perf(120.0, 1.5, 0.08)
     out = _render_to_text(st)
     assert "SYSTEM" in out
