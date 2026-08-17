@@ -150,7 +150,7 @@ def test_fifo_stress_100_turns():
     from fsttm.two_pass import approach_a
     from fsttm.llama import ConversationHistory
 
-    with open("prompts/vehicle-intentions-phi3.txt") as f:
+    with open("contrib/hvac/tests/data/vehicle-intentions-phi3.txt") as f:
         sys_prompt = f.read().strip()
 
     print("\n  Loading model on GPU…")

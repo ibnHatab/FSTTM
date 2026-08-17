@@ -3,9 +3,10 @@
 #   pane 0: hvac-react backend  (FastAPI :8000)
 #   pane 1: hvac-react frontend (Vite :5173, bound 0.0.0.0)
 #   pane 2: fsttm voice server  (Jabra mic → Phi-3 intent → backend)
-# Usage:  scripts/start-e2e.sh   then:  tmux attach -t fsttm
+# Usage:  contrib/hvac/scripts/start-e2e.sh   then:  tmux attach -t fsttm
 set -e
-ROOT="$HOME/repo/vox/fsttm"
+# repo root (this script lives in contrib/hvac/scripts/)
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 SESS=fsttm
 
 # Ensure the Jabra capture level is usable (33% default is too quiet for VAD)
@@ -17,12 +18,12 @@ tmux new-session -d -s "$SESS" -n e2e
 
 # pane 0 — backend
 tmux send-keys -t "$SESS":e2e.0 \
-  "cd $ROOT/hvac-react/backend && . .venv/bin/activate && uvicorn server:app --host 127.0.0.1 --port 8000" C-m
+  "cd $ROOT/contrib/hvac/hvac-react/backend && . .venv/bin/activate && uvicorn server:app --host 127.0.0.1 --port 8000" C-m
 
 # pane 1 — frontend (split below)
 tmux split-window -v -t "$SESS":e2e
 tmux send-keys -t "$SESS":e2e.1 \
-  "cd $ROOT/hvac-react/frontend && npm run dev -- --host 0.0.0.0" C-m
+  "cd $ROOT/contrib/hvac/hvac-react/frontend && npm run dev -- --host 0.0.0.0" C-m
 
 # pane 2 — fsttm voice (split right of backend)
 tmux split-window -h -t "$SESS":e2e.0

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fsttm_dog*"]
+
+[project]
+name = "fsttm-dog"
+version = "0.2.0"
+description = "Robot-dog intent domain for the FSTTM spoken dialog engine — natural-language intents to Go2 local actions, semantic queries, and navigation goals (GOAT-style intent language; no ROS2 dependency)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+
+dependencies = [
+  "fsttm>=0.2.0",
+]
+
+[project.entry-points."fsttm.domains"]
+dog = "fsttm_dog.provider:PROVIDER"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

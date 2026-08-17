@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fsttm_hvac*"]
+
+[tool.setuptools.package-data]
+fsttm_hvac = ["prompts/*.txt"]
+
+[project]
+name = "fsttm-hvac"
+version = "0.2.0"
+description = "HVAC / vehicle intent domain for the FSTTM spoken dialog engine (climate, lights, body, manual RAG; hvac-react VHAL backend bridge)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+
+dependencies = [
+  "fsttm>=0.2.0",
+  "httpx",           # bridge → hvac-react backend
+]
+
+[project.entry-points."fsttm.domains"]
+hvac = "fsttm_hvac.provider:PROVIDER"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

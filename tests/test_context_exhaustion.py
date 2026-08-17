@@ -136,7 +136,7 @@ class IntentTestResult:
 
 
 def _run_intent_headless(utterances: list[tuple[str, str]],
-                         prompt_file: str = "prompts/vehicle-intentions-phi3.txt",
+                         prompt_file: str = "contrib/hvac/tests/data/vehicle-intentions-phi3.txt",
                          model_path: str = "models/Phi-3-mini-4k-instruct-Q6_K.gguf",
                          n_ctx: int = 2048) -> list[IntentTestResult]:
     """

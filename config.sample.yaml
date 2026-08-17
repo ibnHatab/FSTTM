@@ -71,7 +71,7 @@ system:
     # HVAC / vehicle intent mode — two-pass grammar over the unified HVAC schema
     # (climate + doors/windows/seats + lights incl. cabin).
     hvac_intent: false     # true=structured HVAC/vehicle commands, false=plain chat
-    hvac_prompt: "/home/axadmin/repo/vox/FSTTM/prompts/hvac-intentions-phi3.txt"
+    hvac_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
     # Manual RAG — answer how-to/where-is/explain questions from a manual.
     # Needs hvac_intent: true and "manual" in intent_domains. Ingest a PDF with
     #   python -m fsttm.rag.ingest manual.pdf --embed <embed.gguf> --out <store.npz>

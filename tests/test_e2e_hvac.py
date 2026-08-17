@@ -13,7 +13,7 @@ intent → protocol-command → backend-state path, which is the integration the
 FSTTM pipeline depends on.
 
 Run:
-    PYTHONPATH=hvac-react/backend pytest tests/test_e2e_hvac.py -v --asyncio-mode=auto
+    PYTHONPATH=contrib/hvac/hvac-react/backend pytest tests/test_e2e_hvac.py -v --asyncio-mode=auto
 """
 import subprocess
 import sys
@@ -22,7 +22,7 @@ import pytest
 import httpx
 
 BACKEND_URL = "http://127.0.0.1:8000"
-BACKEND_DIR = "hvac-react/backend"
+BACKEND_DIR = "contrib/hvac/hvac-react/backend"
 
 # ── wait helper ──────────────────────────────────────────────────────────────
 
