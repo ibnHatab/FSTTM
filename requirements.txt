@@ -1,35 +1,11 @@
-# ── core reactive runtime ─────────────────────────────────────────────
-reactivex>=4.0
-cyclotron>=2.0.0
-cyclotron-std>=2.0.0
-pydantic>=1.10
-PyYAML>=6.0
-
-# ── audio I/O + VAD ───────────────────────────────────────────────────
-pyaudio>=0.2.14          # mic capture + TTS playback
-webrtcvad                # voice-activity detection
-numpy
-scipy                    # resampling
-
-# ── STT (whisper.cpp, CUDA) ───────────────────────────────────────────
-# pywhispercpp builds whisper.cpp with CUDA; see scripts/build-whisper.sh
-# for the model. On CPU-only/dev boxes faster-whisper is a fallback.
-pywhispercpp
-# faster-whisper            # optional CPU fallback backend
-
-# ── LLM (llama.cpp, CUDA) ─────────────────────────────────────────────
-# Build from source with CUDA for recent models — see README.
-llama-cpp-python
-
-# ── TTS (Piper, ONNX) ─────────────────────────────────────────────────
-piper-tts                # ONNX voice synthesis
-onnxruntime              # (onnxruntime-gpu on CUDA hosts)
-
-# ── HVAC bridge ───────────────────────────────────────────────────────
-httpx                    # POST intents to hvac-react backend
-
-# ── TUI (optional) ────────────────────────────────────────────────────
-rich>=12.0               # 3-panel --tui interface; degrades to stdout if absent
-
-# ── test ──────────────────────────────────────────────────────────────
-pytest
+# Dev convenience only — pyproject.toml is the source of truth.
+# Engine + all extras for a full dev box:
+#   pip install -e ".[piper,tui,voicefilter,test]"
+# plus the contrib packages:
+#   pip install -e contrib/hvac -e contrib/dog
+#
+# CUDA notes:
+#  - llama-cpp-python: build from source with GGML_CUDA=ON (see README)
+#  - pywhispercpp:     scripts/build-whisper.sh builds it with CUDA
+#  - onnxruntime-gpu instead of onnxruntime for piper on CUDA hosts
+-e .[piper,tui,voicefilter,test]

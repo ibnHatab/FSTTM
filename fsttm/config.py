@@ -90,7 +90,6 @@ class GptParams(BaseModel):
     n_threads: int = 6
     n_predict: int = 512
     safeword: str = ""
-    conversation: str = "vicuna_v1.1"
 
 
 class System(BaseModel):

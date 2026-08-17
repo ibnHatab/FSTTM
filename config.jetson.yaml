@@ -41,7 +41,6 @@ gpt:
     n_threads: 6
     n_predict: 512
     safeword: "coyotes"
-    conversation: "vicuna_v1.1"
 
 system:
     name: "Nina"

@@ -7,48 +7,64 @@ where = ["."]
 include = ["fsttm*"]
 
 [project]
-name = "gpt-fsttm-server"
-version = "0.1.0"
-description = "A Finite-State Turn-Taking Model for Spoken Dialog Systems"
+name = "fsttm"
+version = "0.2.0"
+description = "Finite-State Turn-Taking Machine — local spoken dialog engine (N09-1071 FSM, STT/LLM/TTS pipeline, pluggable intent domains)"
 readme = "README.md"
-requires-python = ">=3.7"
-license = {file = "LICENSE.txt"}
-keywords = ["reactivex"]
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+keywords = ["spoken-dialog", "turn-taking", "voice-assistant", "reactivex"]
 authors = [
   {email = "lib.aca55a@gmail.com"},
   {name = "Jean-Luc Picard"}
 ]
 classifiers = [
-  'Development Status :: 3 - Alpha',
+  'Development Status :: 4 - Beta',
   'Intended Audience :: Developers',
   'Programming Language :: Python :: 3',
 ]
 
 dependencies = [
+  # reactive runtime
   'reactivex~=4.0',
   'cyclotron>=2.0.0',
   'cyclotron_std>=2.0.0',
+  # LLM (llama.cpp; build with CUDA where available — see README)
   'llama-cpp-python>=0.2.0',
-  'faster-whisper>=1.0.0',
-  'piper-tts>=1.2.0',
+  # STT (whisper.cpp binding; see scripts/build-whisper.sh for CUDA build)
+  'pywhispercpp',
+  # audio I/O + VAD
   'pyaudio>=0.2.13',
-  'webrtcvad>=2.0.10',
-  'numpy>=1.24.0',
-  'scipy>=1.10.0',
+  'webrtcvad',
+  'numpy',
+  'scipy',
+  # config
   'pydantic>=2.0.0',
   'pyyaml>=6.0',
 ]
 
 [project.optional-dependencies]
+piper = [
+  'piper-tts>=1.2.0',   # ONNX TTS voice backend (default)
+  'onnxruntime',
+]
+tui = [
+  'rich>=12.0',         # 3-panel --tui interface; degrades to stdout if absent
+]
+voicefilter = [
+  'sherpa-onnx',        # speaker-embedding verification (CPU, no torch)
+]
 test = [
-  "pytest",
+  'pytest',
+  'pytest-asyncio',
 ]
 
 [project.urls]
 repository = "https://github.com/ibnHatab/FSTTM"
 
 [project.scripts]
-audio-encode-server="fsttm.server:main"
+fsttm = "fsttm.server:main"
+fsttm-headless = "fsttm.headless:main"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
