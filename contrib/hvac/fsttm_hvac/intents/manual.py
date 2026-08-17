@@ -7,7 +7,7 @@ manual retrieval + a grounded LLM answer. translate() returns a single marker
 command {"cmd": "manual", ...} so the dispatcher recognises the RAG path; the
 server reads it and does the retrieval instead of POSTing to the HVAC backend.
 """
-from fsttm.intents.base import IntentModule, register
+from fsttm_hvac.registry import IntentModule, register
 
 INTENTS = ["HOWTO", "LOCATE", "EXPLAIN"]
 

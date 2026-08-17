@@ -210,13 +210,13 @@ def make_driver(loop=None):
 
         # ── intent two-pass handler ───────────────────────────────────────
         def _handle_intent(item: IntentGenerate):
-            from fsttm.grammar import make_hvac_grammar, TTS_TRANSLATION_EXAMPLES
+            from fsttm.domain import active_provider
             from fsttm.two_pass import approach_a
             _log.debug("intent dispatch: text=%r domains=%s", item.text, item.domains)
             try:
-                grammar = make_hvac_grammar(item.domains)
+                grammar = active_provider().build_grammar(item.domains)
             except Exception as exc:
-                _log.exception("make_hvac_grammar failed (domains=%s)", item.domains)
+                _log.exception("build_grammar failed (domains=%s)", item.domains)
                 loop.call_soon_threadsafe(observer.on_next, LlamaError(error=exc, context=item.context))
                 return
             try:

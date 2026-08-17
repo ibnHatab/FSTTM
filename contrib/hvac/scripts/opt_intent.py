@@ -163,8 +163,8 @@ def main():
     args = ap.parse_args()
 
     from llama_cpp import Llama
-    from fsttm import intents, two_pass
-    from fsttm.grammar import make_hvac_grammar
+    from fsttm_hvac import provider as intents, two_pass
+    from fsttm_hvac.provider import build_grammar as make_hvac_grammar
 
     # --config: pull domains (and the gpt model path) straight from a deployment
     # config so the sweep measures exactly what ships there.

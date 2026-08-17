@@ -1,6 +1,6 @@
 """Body intent domain: doors (lock/unlock), windows (open/close), seat comfort
 (heat/cool up/down)."""
-from fsttm.intents.base import IntentModule, register, AREA_BOTH, AREA_BOTH_BM
+from fsttm_hvac.registry import IntentModule, register, AREA_BOTH, AREA_BOTH_BM
 
 INTENTS = [
     "DOOR_LOCK", "DOOR_UNLOCK",

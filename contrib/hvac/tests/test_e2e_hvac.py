@@ -100,7 +100,7 @@ async def test_initial_state(hvac_backend):
 
 @pytest.mark.asyncio
 async def test_bridge_set_temperature(hvac_backend):
-    from fsttm.hvac_bridge import HvacBridge
+    from fsttm_hvac.bridge import HvacBridge
     b = HvacBridge(url=BACKEND_URL)
     await b.post_intent({"intent": "SET_TEMPERATURE", "area": 1, "temp": 21.0})
     assert state_prop("HVAC_TEMPERATURE_SET", "1") == 21.0
@@ -109,7 +109,7 @@ async def test_bridge_set_temperature(hvac_backend):
 
 @pytest.mark.asyncio
 async def test_bridge_fan_up(hvac_backend):
-    from fsttm.hvac_bridge import HvacBridge
+    from fsttm_hvac.bridge import HvacBridge
     b = HvacBridge(url=BACKEND_URL)
     before = state_prop("HVAC_FAN_SPEED", "1")
     await b.post_intent({"intent": "FAN_UP", "area": 1, "delta": 1})
@@ -119,7 +119,7 @@ async def test_bridge_fan_up(hvac_backend):
 
 @pytest.mark.asyncio
 async def test_bridge_warmer_both_zones(hvac_backend):
-    from fsttm.hvac_bridge import HvacBridge
+    from fsttm_hvac.bridge import HvacBridge
     b = HvacBridge(url=BACKEND_URL)
     # reset to known value first
     set_prop("HVAC_TEMPERATURE_SET", 0, 22.0)
@@ -133,7 +133,7 @@ async def test_bridge_warmer_both_zones(hvac_backend):
 
 @pytest.mark.asyncio
 async def test_bridge_ac_toggle(hvac_backend):
-    from fsttm.hvac_bridge import HvacBridge
+    from fsttm_hvac.bridge import HvacBridge
     b = HvacBridge(url=BACKEND_URL)
     before = state_prop("HVAC_AC_ON", "0")
     await b.post_intent({"intent": "AC_ON", "area": 0})
@@ -145,7 +145,7 @@ async def test_bridge_ac_toggle(hvac_backend):
 
 @pytest.mark.asyncio
 async def test_bridge_unknown_does_nothing(hvac_backend):
-    from fsttm.hvac_bridge import HvacBridge
+    from fsttm_hvac.bridge import HvacBridge
     b = HvacBridge(url=BACKEND_URL)
     s0 = httpx.get(f"{BACKEND_URL}/state").json()["props"]
     await b.post_intent({"intent": "UNKNOWN", "area": 0})
@@ -158,7 +158,7 @@ async def test_bridge_unknown_does_nothing(hvac_backend):
 
 def test_intent_to_protocol_set_temperature(hvac_backend):
     """SET_TEMPERATURE intent translates to a protocol command that mutates state."""
-    from fsttm.grammar import intent_to_protocol_cmd
+    from fsttm_hvac.provider import translate as intent_to_protocol_cmd
     set_prop("HVAC_TEMPERATURE_SET", 0, 20.0)
     for cmd in intent_to_protocol_cmd({"intent": "SET_TEMPERATURE", "area": 1, "temp": 25.5}):
         post_cmd(cmd)
@@ -167,7 +167,7 @@ def test_intent_to_protocol_set_temperature(hvac_backend):
 
 def test_intent_to_protocol_ac_on(hvac_backend):
     """AC_ON intent translates to a protocol command that enables A/C."""
-    from fsttm.grammar import intent_to_protocol_cmd
+    from fsttm_hvac.provider import translate as intent_to_protocol_cmd
     set_prop("HVAC_AC_ON", 0, False)
     for cmd in intent_to_protocol_cmd({"intent": "AC_ON", "area": 0}):
         post_cmd(cmd)

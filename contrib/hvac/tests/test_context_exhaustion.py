@@ -145,7 +145,7 @@ def _run_intent_headless(utterances: list[tuple[str, str]],
     """
     from llama_cpp import Llama
     from fsttm.utils import ignoreStderr
-    from fsttm.grammar import make_hvac_grammar
+    from fsttm_hvac.provider import build_grammar as make_hvac_grammar
     from fsttm.two_pass import approach_a
 
     with open(prompt_file) as f:

@@ -2,7 +2,7 @@
 HVAC Bridge — forwards FSTTM IntentResult to the hvac-react backend.
 
 On each IntentResult:
-  1. call grammar.intent_to_protocol_cmd(intent_json)
+  1. translate intent_json via fsttm_hvac.provider.translate
   2. POST each resulting command to <backend_url>/command
   3. Log the delta changes returned by the backend
   4. If the backend is unreachable, warn and continue (never blocks the pipeline)
@@ -40,7 +40,7 @@ class HvacBridge:
         """Translate intent and POST each protocol command to the backend."""
         if not intent_json:
             return
-        from fsttm.grammar import intent_to_protocol_cmd
+        from fsttm_hvac.provider import translate as intent_to_protocol_cmd
         cmds = intent_to_protocol_cmd(intent_json)
         if not cmds:
             return

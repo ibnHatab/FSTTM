@@ -1,34 +1,26 @@
 """
-Intent domains, assembled on demand from the enabled set.
+HvacProvider — the `hvac` entry in the engine's fsttm.domains registry.
 
-Importing this package registers all built-in domains (climate, lights, body, manual).
-The server passes the config-enabled domain names to build_schema / build_grammar
-/ build_prompt / translate; pass None for "all".
+Owns the complete HVAC/vehicle intent language: the flat intent-JSON schema
+assembled from the climate/lights/body/manual modules (fsttm_hvac.registry),
+the car-flavored prompt + few-shot examples, and the PROTOCOL.md command
+translation. The dispatcher (fsttm_hvac.dispatcher) executes those commands
+against the hvac-react backend.
 
-Public API:
-    INTENT_DOMAINS                       — registered domain names, in order
-    build_schema(enabled)  -> dict
-    build_grammar(enabled) -> LlamaGrammar   (compiled + cached)
-    build_prompt(enabled)  -> str            (header + fragments + footer)
-    translate(intent, enabled) -> list[dict] (PROTOCOL.md commands)
-    TTS_TRANSLATION_EXAMPLES                 — 2nd-pass spoken-ack examples
+The assembled prompt and schema are BYTE-IDENTICAL to the pre-plugin
+fsttm.intents output — guarded by tests/test_golden_prompt.py.
 """
-from fsttm.intents.base import (  # noqa: F401
-    build_schema as _build_schema,
-    build_grammar,
-    translate,
-    all_names,
-    _enabled_modules,
-)
-from fsttm.intents.base import build_prompt as _build_prompt
+from typing import Optional
 
-# Register the built-in domains (import side effect).
-from fsttm.intents import climate, lights, body, manual  # noqa: F401,E402
+from fsttm.domain import DomainContext, DomainDispatcher
+
+from fsttm_hvac import registry
+from fsttm_hvac.registry import all_names, _enabled_modules  # noqa: F401
+import fsttm_hvac.intents  # noqa: F401  — registration side effect
 
 INTENT_DOMAINS = all_names()
 
-# Prompt header (zone addressing) + footer is added by the server when it builds
-# the full prompt; kept here so the wording lives with the domains.
+# Prompt header (zone addressing); the few-shot footer is added per variant.
 PROMPT_HEADER = """\
 You are a voice assistant for a car's control system. Map what the driver says
 to exactly one structured intent JSON per utterance. Respond with only the JSON.
@@ -62,12 +54,9 @@ or force an unrelated request into a control intent.
 # Each line is tagged with the intent it demonstrates so we only show examples
 # for ENABLED domains (showing a disabled intent would teach a bad mapping).
 # Adding the few-shot block lifted intent+field accuracy ~70%→90% in the
-# scripts/opt_intent.py sweep (see memory: intent-optimization).
+# contrib/hvac/scripts/opt_intent.py sweep.
 _FEWSHOT = [
     # (intent_label, "utterance" → JSON) — label gates inclusion by enabled domain.
-    # Trimmed to one example per PATTERN (the KV-prefix cache makes prompt length
-    # cheap, but a tight prompt still classifies better). Kept: possessive→area,
-    # "by N"→delta, light_type, seat up-direction, manual how-to, and refusal.
     ("WARMER",          '"raise the temperature by two" → {"intent":"WARMER","area":0,"delta":2}'),
     ("COOLER",          '"it\'s too hot in here" → {"intent":"COOLER","area":0,"delta":1}'),
     ("SET_TEMPERATURE", '"set my temperature to 22" → {"intent":"SET_TEMPERATURE","area":1,"temp":22}'),
@@ -94,7 +83,6 @@ _FEWSHOT = [
 
 # EXTRA few-shot — a second tier of examples appended only for the
 # "few-shot-extra" variant (more coverage at the cost of a longer prompt).
-# Same (label → line) tagging so they stay domain-gated.
 _FEWSHOT_EXTRA = [
     ("WARMER",          '"warmer please" → {"intent":"WARMER","area":0,"delta":1}'),
     ("FAN_UP",          '"more air" → {"intent":"FAN_UP","area":0,"delta":1}'),
@@ -110,9 +98,17 @@ _FEWSHOT_EXTRA = [
     ("UNKNOWN",         '"call my wife" → {"intent":"UNKNOWN","area":0}'),
 ]
 
-# Meta intents present in every grammar (base.py appends them) — their few-shot
+# Meta intents present in every grammar (registry appends them) — their few-shot
 # lines are always relevant regardless of which control domains are enabled.
 _META_INTENTS = {"TIME", "DATE", "STATUS", "CHITCHAT", "UNKNOWN"}
+
+# Intents the ENGINE resolves (mapped via HvacProvider.meta_intent). STATUS is
+# NOT engine meta — the dispatcher answers it from live backend telemetry.
+_ENGINE_META = {"TIME", "DATE", "CHITCHAT", "UNKNOWN"}
+
+# Manual/RAG intents translate to a {"cmd": "manual"} marker consumed by the
+# dispatcher (RAG retrieval + grounded answer).
+MANUAL_INTENTS = {"HOWTO", "LOCATE", "EXPLAIN"}
 
 # Prompt variants — switchable via config (system.prompt_variant) so we can A/B
 # accuracy vs latency and bisect regressions:
@@ -160,16 +156,24 @@ def build_prompt(enabled=None, fewshot=True, variant=None):
         footer = None
     else:
         footer = _fewshot_footer(enabled, extra=(variant == "few-shot-extra"))
-    return _build_prompt(enabled, header=PROMPT_HEADER, footer=footer)
+    return registry.build_prompt(enabled, header=PROMPT_HEADER, footer=footer)
 
 
 def build_schema(enabled=None):
-    return _build_schema(enabled)
+    return registry.build_schema(enabled)
 
 
-# 2nd-pass (intent JSON → spoken acknowledgment) few-shot examples. Domain-
-# agnostic enough to keep as one block; only the lines for enabled domains
-# matter at inference but extra examples are harmless context.
+def build_grammar(enabled=None):
+    return registry.build_grammar(enabled)
+
+
+def translate(intent, enabled=None):
+    return registry.translate(intent, enabled)
+
+
+# 2nd-pass (intent JSON → spoken acknowledgment) few-shot examples. Reference
+# data: two_pass builds its own "Spoken response:" cue at runtime; kept for
+# prompt experiments (opt_intent.py).
 TTS_TRANSLATION_EXAMPLES = """\
 Translate this intent JSON to a spoken acknowledgment (8 words max, no JSON):
 {"intent":"WARMER","area":0,"delta":1} → Turning up the heat.
@@ -186,3 +190,42 @@ Translate this intent JSON to a spoken acknowledgment (8 words max, no JSON):
 {"intent":"STATUS","area":0} → Checking your current settings.
 {"intent":"UNKNOWN","area":0} → Sorry, I can't do that.\
 """
+
+
+class HvacProvider:
+    """fsttm.domains provider for the HVAC/vehicle deployment."""
+    name = "hvac"
+
+    @property
+    def sub_domains(self):
+        return list(INTENT_DOMAINS)
+
+    def build_schema(self, enabled=None):
+        return build_schema(enabled)
+
+    def build_grammar(self, enabled=None):
+        return build_grammar(enabled)
+
+    def build_prompt(self, enabled=None, variant=None):
+        return build_prompt(enabled, variant=variant)
+
+    def translate(self, intent, enabled=None):
+        return translate(intent, enabled)
+
+    def meta_intent(self, intent) -> Optional[str]:
+        name = (intent or {}).get("intent") if isinstance(intent, dict) else None
+        return name if name in _ENGINE_META else None
+
+    def chitchat_system(self, assistant_name: str) -> Optional[str]:
+        # The in-car persona, verbatim from the pre-plugin server wiring.
+        return (f"You are {assistant_name}, a warm, concise in-car voice "
+                f"assistant. Reply to the driver's greeting or remark in ONE "
+                f"short, friendly spoken sentence. No lists, no questions "
+                f"about car functions unless natural.")
+
+    def make_dispatcher(self, ctx: DomainContext) -> DomainDispatcher:
+        from fsttm_hvac.dispatcher import HvacDispatcher
+        return HvacDispatcher(ctx)
+
+
+PROVIDER = HvacProvider()

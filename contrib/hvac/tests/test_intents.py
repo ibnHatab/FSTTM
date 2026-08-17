@@ -1,10 +1,10 @@
 """
-Intent-module registry tests (fsttm/intents).
+Intent-module registry tests (fsttm_hvac).
 
 Pure assembly + translation — no model. build_grammar is the only thing needing
 llama_cpp, so it's not exercised here; schema/prompt/translate are.
 """
-from fsttm import intents
+from fsttm_hvac import provider as intents
 
 
 def test_domains_registered():

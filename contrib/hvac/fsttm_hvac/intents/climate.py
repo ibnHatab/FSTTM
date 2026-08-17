@@ -1,6 +1,6 @@
 """Climate (HVAC) intent domain: temperature, fan, A/C, vents, recirc, auto,
 power, rear defrost."""
-from fsttm.intents.base import IntentModule, register, AREA_BOTH, AREA_BOTH_BM
+from fsttm_hvac.registry import IntentModule, register, AREA_BOTH, AREA_BOTH_BM
 
 # Fan direction bitmask (PROTOCOL.md).
 FAN_FACE    = 1   # 0x1

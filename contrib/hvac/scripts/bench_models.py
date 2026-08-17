@@ -4,8 +4,8 @@ quality + latency on a fixed test set."""
 import sys, time, json
 sys.path.insert(0, ".")
 from llama_cpp import Llama
-from fsttm.intents.base import build_grammar
-from fsttm import intents
+from fsttm_hvac.registry import build_grammar
+from fsttm_hvac import provider as intents
 from fsttm.rag.retrieve import Retriever, build_answer_prompt
 
 EMBED = "models/nomic-embed-text-v1.5.Q4_K_M.gguf"

@@ -11,8 +11,6 @@ The active schema, LlamaGrammar, prompt, and protocol dispatcher are ASSEMBLED
 from the enabled modules — so domains can be toggled in config without touching
 the others, and new domains drop in by registering a module.
 """
-import json
-import os
 
 # Shared zone/area constants (PROTOCOL.md addressing).
 AREA_BOTH    = 0   # broadcast for set commands; store expands to all zones
@@ -118,27 +116,9 @@ def translate(intent, enabled=None):
     return []   # STATUS, UNKNOWN, unknown, or disabled-domain → no command
 
 
-# ── grammar (compiled, cached per enabled-set) ────────────────────────────────
-
-_GRAMMAR_CACHE = {}
-
-
-def _compile_silently(schema):
-    from llama_cpp import LlamaGrammar
-    devnull = os.open(os.devnull, os.O_WRONLY)
-    saved = os.dup(1)
-    try:
-        os.dup2(devnull, 1)
-        return LlamaGrammar.from_json_schema(json.dumps(schema))
-    finally:
-        os.dup2(saved, 1)
-        os.close(saved)
-        os.close(devnull)
-
+# ── grammar (compiled + cached by the engine's shared helper) ─────────────────
 
 def build_grammar(enabled=None):
     """Compile (and cache) the GBNF grammar for the enabled module set."""
-    key = "*" if enabled is None else ",".join(sorted(enabled))
-    if key not in _GRAMMAR_CACHE:
-        _GRAMMAR_CACHE[key] = _compile_silently(build_schema(enabled))
-    return _GRAMMAR_CACHE[key]
+    from fsttm.domain import compile_grammar
+    return compile_grammar(build_schema(enabled))

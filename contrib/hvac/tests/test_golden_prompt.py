@@ -5,7 +5,8 @@ BYTE-IDENTICAL — the Phi-3 few-shot behavior is tuned against exactly this
 text (benchmarks in contrib/hvac/benchmarks/). If a change here is
 intentional, re-run the intent benchmark before updating the hashes.
 
-This file moves to contrib/hvac/tests/ once the hvac domain is extracted.
+The hashes were captured against the pre-plugin fsttm.intents assembly; the
+fsttm_hvac provider must keep producing the identical bytes.
 """
 import hashlib
 import json
@@ -15,9 +16,7 @@ GOLDEN_SCHEMA_SHA = "3b017fb7a35d8fa777877aff195a6f7a74abeaec6f156b7b64a83983416
 
 
 def _build():
-    """Assembly entry points — updated in place when the hvac domain moves
-    from fsttm.intents to fsttm_hvac (the OUTPUT must not change)."""
-    from fsttm import intents
+    from fsttm_hvac import provider as intents
     prompt = intents.build_prompt(None, variant="few-shot-extra")
     schema = intents.build_schema(None)
     return prompt, schema

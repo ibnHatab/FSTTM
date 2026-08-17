@@ -1,4 +1,4 @@
-from __future__ import annotations  # PEP 563: lazy annotations for Python 3.8 (HvacBridge | None)
+from __future__ import annotations
 import asyncio
 import logging as _pylog
 import re
@@ -24,8 +24,9 @@ import cyclotron_std.sys.argv as argv
 from fsttm.aec import EchoCancelSession
 from fsttm.attention import Attention
 from fsttm.config import parse_arguments, parse_config
+from fsttm.dispatch import IntentFlow, strip_placeholders as _strip_placeholders
+from fsttm.domain import DomainContext, NullProvider, active_provider
 from fsttm.fsttm import Model as FSM
-from fsttm.hvac_bridge import HvacBridge
 import fsttm.perception as perception
 from fsttm.perception import SpeechDuringPlayback
 import fsttm.llama as llama
@@ -34,37 +35,6 @@ import fsttm.whisper as whisper
 
 # Spoken when the attention layer goes to sleep / mutes (sleep_intent path).
 _SLEEP_CONFIRM_PHRASE = "Voice controls disabled."
-
-# Bracketed placeholders the LLM emits when it lacks a runtime value, e.g.
-# "[current temperature]", "<value>". They must never be spoken aloud raw.
-_PLACEHOLDER_RE = re.compile(r'[\[<][^\]>]*[\]>]')
-# A temperature placeholder specifically — interpolated with the real value when
-# the hvac backend cache has one. Matches "[current temperature]", "[temp]", etc.
-_TEMP_PLACEHOLDER_RE = re.compile(r'[\[<][^\]>]*temp[^\]>]*[\]>]', re.IGNORECASE)
-
-
-def _interpolate_placeholders(text, temp_value=None):
-    """Replace known placeholders with REAL values before any stripping. Today
-    that's the temperature placeholder → the live hvac reading (just the number;
-    the sentence usually already says "degrees"). Returns the text (possibly with
-    other placeholders left for _strip_placeholders)."""
-    if not text or temp_value is None:
-        return text
-    if '[' not in text and '<' not in text:
-        return text
-    return _TEMP_PLACEHOLDER_RE.sub("{:g}".format(float(temp_value)), text)
-
-
-def _strip_placeholders(text):
-    """Remove any remaining [..]/<..> placeholder spans from a spoken line and
-    tidy the leftover spacing/punctuation. Returns None if nothing meaningful
-    remains, so the caller can substitute a clean fallback than speak a fragment."""
-    if not text or ('[' not in text and '<' not in text):
-        return text
-    cleaned = _PLACEHOLDER_RE.sub('', text)
-    cleaned = re.sub(r'\s{2,}', ' ', cleaned)
-    cleaned = re.sub(r'\s+([.,!?])', r'\1', cleaned).strip()
-    return cleaned if len(cleaned) >= 3 else None
 
 FSTTMSink = namedtuple('Sink', [
     'perception', 'stt', 'llm', 'tts', 'logging', 'file', 'stdout'
@@ -296,129 +266,69 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
     )
     stt_subjects = rx.merge(stt_init, stt_request)
 
-    # ── HVAC backend bridge ───────────────────────────────────────────────────
-    _bridge: list[HvacBridge | None] = [None]
+    # ── Domain provider + dispatcher (the plugin seam) ────────────────────────
+    # The active domain (hvac, dog, …) owns the intent schema/prompt/translate;
+    # its dispatcher executes commands against the backend. The engine only
+    # talks to IntentFlow.
+    _flow = [IntentFlow(NullProvider(), NullProvider().make_dispatcher(
+        DomainContext(config={})))]
 
-    def _init_bridge(cfg):
-        url = getattr(cfg.hvac_backend, 'url', None)
-        t   = getattr(cfg.hvac_backend, 'timeout', 2.0)
-        if url:
-            _bridge[0] = HvacBridge(url=url, timeout=t)
-            if tui_state is not None:
-                tui_state.hvac_url = url
-                tui_state.hvac_ok = True
-            _emit(f"[hvac-bridge] connected to {url}", "good")
-            # Seed the state cache so the first STATUS query has real values, then
-            # refresh periodically to pick up changes made outside the voice path
-            # (e.g. the web UI). The /command response also updates it live.
-            async def _seed_and_poll():
-                while _bridge[0] is not None:
-                    try:
-                        await _bridge[0].refresh_state()
-                    except Exception:
-                        pass
-                    await asyncio.sleep(10.0)
-            asyncio.ensure_future(_seed_and_poll())
-        else:
-            _bridge[0] = None
-
-    config.subscribe(on_next=_init_bridge)
-
-    # ── Manual RAG retriever (system.manual_store + manual_embed) ─────────────
-    _retriever = [None]
-    _manual_name = ['Nina']
-
-    def _init_retriever(cfg):
-        sysc = getattr(cfg, 'system', None)
-        enabled = bool(getattr(sysc, 'manual', False)) if sysc else False
-        store = getattr(sysc, 'manual_store', None) if sysc else None
-        embed = getattr(sysc, 'manual_embed', None) if sysc else None
-        _manual_name[0] = getattr(sysc, 'name', 'Nina') if sysc else 'Nina'
-        if not enabled:
-            _retriever[0] = None
-            return
-        if store and embed:
-            try:
-                from fsttm.rag import Retriever
-                embed_gpu = bool(getattr(sysc, 'manual_embed_gpu', False))
-                _retriever[0] = Retriever(store, embed, embed_gpu=embed_gpu)
-                _emit(f"[manual] RAG ready ({store}, embed={'GPU' if embed_gpu else 'CPU'})",
-                      "good")
-            except Exception as e:
-                _emit(f"[manual] RAG unavailable: {e}", "warn")
-                _retriever[0] = None
-        else:
-            _emit("[manual] enabled but manual_store/manual_embed not set", "warn")
-
-    config.subscribe(on_next=_init_retriever)
-
-    _MANUAL_INTENTS = {'HOWTO', 'LOCATE', 'EXPLAIN'}
-
-    def _is_manual(item):
-        ij = item.intent_json or {}
-        return isinstance(ij, dict) and ij.get('intent') in _MANUAL_INTENTS
-
-    def _is_chitchat(item):
-        ij = item.intent_json or {}
-        return isinstance(ij, dict) and ij.get('intent') == 'CHITCHAT'
-
-    def _on_chitchat_intent(item) -> bool:
-        """A greeting / social remark → a real conversational reply (like chat
-        mode), not the canned UNKNOWN deflection. Reuses the ManualGenerate
-        path (one-shot full prompt → Response/ResponseDone narration), so no new
-        event type. Returns True if it dispatched. Needs the original utterance."""
-        utter = _last_user_text[0].strip()
-        if not utter:
-            return False
-        name = _manual_name[0]
-        prompt = (
-            f"<|system|>\nYou are {name}, a warm, concise in-car voice assistant. "
-            f"Reply to the driver's greeting or remark in ONE short, friendly "
-            f"spoken sentence. No lists, no questions about car functions unless "
-            f"natural.<|end|>\n"
-            f"<|user|>\n{utter}<|end|>\n<|assistant|>\n"
-        )
-        _llm_subject.on_next(llama.ManualGenerate(prompt=prompt, context='manual'))
-        return True
-
-    def _on_manual_intent(item) -> bool:
-        """Run RAG retrieval + a grounded answer for a manual question, narrated
-        via ManualGenerate→ResponseDone. Returns True if it dispatched the RAG
-        answer; False means the caller must speak a fallback (so we never deadlock
-        with the floor held and nothing narrated)."""
-        from fsttm.rag import build_answer_prompt
-        if _retriever[0] is None:
-            return False
-        ij = item.intent_json or {}
-        # Prefer the model's `topic`; fall back to the raw utterance (the model
-        # often omits topic — "where is the trunk button" → {HOWTO} with no topic).
-        query = (ij.get('topic') or '').strip() or _last_user_text[0].strip()
-        if not query:
-            return False
-        context, hits = _retriever[0].context(query)
-        if not context:
-            _emit(f"[manual] no passages for {query!r}", "warn")
-            return False
-        pages = sorted({h[2].get('page') for h in hits})
-        _emit(f"[manual] {query!r} → {len(hits)} passages (pp.{pages})", "info")
-        prompt = build_answer_prompt(_manual_name[0], query, context)
+    def _narrate_prompt(prompt):
         # context='manual' tags the ResponseDone so it's narrated even in intent
         # mode (where the normal narrator-response path is gated off).
         _llm_subject.on_next(llama.ManualGenerate(prompt=prompt, context='manual'))
-        return True
 
-    def _on_intent_result(item):
-        # Manual/RAG and chitchat intents are handled in _on_narrator_intent and
-        # don't map to a device command — don't forward them to the hvac backend.
-        if _is_manual(item) or _is_chitchat(item):
-            return
-        if _bridge[0] is not None and item.intent_json:
-            asyncio.ensure_future(_bridge[0].post_intent(item.intent_json))
+    def _tui_domain_status(label, ok):
+        if tui_state is not None:
+            tui_state.hvac_url = label
+            tui_state.hvac_ok = ok
 
-    # Forward IntentResult to hvac-react backend (must be after _on_intent_result)
+    def _domain_cfg_from(cfg):
+        """The active domain's config block. Legacy schema: assembled from the
+        hvac_backend + system.manual* keys (config rename lands separately)."""
+        sysc = getattr(cfg, 'system', None)
+        return {
+            'backend_url': getattr(cfg.hvac_backend, 'url', None),
+            'timeout': getattr(cfg.hvac_backend, 'timeout', 2.0),
+            'manual': {
+                'enabled': bool(getattr(sysc, 'manual', False)) if sysc else False,
+                'store': getattr(sysc, 'manual_store', None) if sysc else None,
+                'embed': getattr(sysc, 'manual_embed', None) if sysc else None,
+                'embed_gpu': bool(getattr(sysc, 'manual_embed_gpu', False)) if sysc else False,
+            },
+        }
+
+    def _init_domain(cfg):
+        provider = active_provider()
+        sysc = getattr(cfg, 'system', None)
+        name = getattr(sysc, 'name', 'Nina') if sysc else 'Nina'
+        old = _flow[0]
+        ctx = DomainContext(
+            config=_domain_cfg_from(cfg),
+            assistant_name=name,
+            emit=_emit,
+            narrate_prompt=_narrate_prompt,
+            last_user_text=lambda: _last_user_text[0],
+            ensure_future=asyncio.ensure_future,
+            tui_status=_tui_domain_status,
+        )
+        dispatcher = provider.make_dispatcher(ctx)
+        _flow[0] = IntentFlow(provider, dispatcher,
+                              assistant_name=name,
+                              last_user_text=lambda: _last_user_text[0],
+                              narrate_prompt=_narrate_prompt)
+        try:
+            old.dispatcher.close()
+        except Exception:
+            pass
+        dispatcher.start()
+
+    config.subscribe(on_next=_init_domain)
+
+    # Forward IntentResult side effects to the domain dispatcher (backend POSTs)
     llm_src.pipe(
         ops.filter(lambda i: type(i) is llama.IntentResult),
-    ).subscribe(on_next=_on_intent_result)
+    ).subscribe(on_next=lambda i: _flow[0].side_effects(i.intent_json))
 
     # ── intent mode: read config at startup ──────────────────────────────────
     # Mutable cells updated when config stream fires.
@@ -476,13 +386,13 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         )]
         sysc = getattr(cfg, 'system', None)
         if _intent_mode[0]:
-            # Intent mode: assemble the system prompt from the ENABLED intent
-            # domains (climate / lights / body), so the model is taught exactly
-            # the intents the grammar allows. An optional hvac_prompt file is
-            # appended for deployment-specific guidance.
-            from fsttm import intents
+            # Intent mode: the active domain provider assembles the system
+            # prompt from its ENABLED sub-domains, so the model is taught
+            # exactly the intents the grammar allows. An optional prompt file
+            # is appended for deployment-specific guidance.
+            provider = _flow[0].provider
             variant = getattr(sysc, 'prompt_variant', 'few-shot') if sysc else 'few-shot'
-            prompt = intents.build_prompt(_intent_domains[0], variant=variant)
+            prompt = provider.build_prompt(_intent_domains[0], variant=variant)
             _emit(f"[intent] prompt variant: {variant} "
                   f"(~{len(prompt)//4} tok)", "info")
             extra_file = getattr(sysc, 'hvac_prompt', None) if sysc else None
@@ -493,8 +403,9 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
                 except OSError as e:
                     _emit(f"[intent] WARNING: cannot load prompt file: {e}", "warn")
             events.append(llama.AddSystem(prompt=prompt))
-            doms = _intent_domains[0] or intents.INTENT_DOMAINS
-            _emit(f"[intent] domains enabled: {', '.join(doms)}", "good")
+            doms = _intent_domains[0] or provider.sub_domains
+            _emit(f"[intent] domain: {provider.name} "
+                  f"({', '.join(doms) or 'monolithic'})", "good")
         else:
             # Plain chat: tell the model its name so "Nina, …" is natural. Only
             # when the attention layer is on (otherwise keep default behaviour).
@@ -766,12 +677,10 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     def _on_narrator_response(item) -> None:
         if not item.full_text: return
-        # Interpolate a temperature placeholder with the real reading, then strip
-        # any other bracketed placeholder so it's never spoken; whole-placeholder
+        # Interpolate domain placeholders with real readings, then strip any
+        # other bracketed placeholder so it's never spoken; whole-placeholder
         # reply → clean fallback.
-        _t = _bridge[0].get_value('HVAC_TEMPERATURE_CURRENT') if _bridge[0] else None
-        text = _interpolate_placeholders(item.full_text, _t)
-        text = _strip_placeholders(text) or "Okay."
+        text = _flow[0].interpolate_response(item.full_text)
         _ckpts.clear(); _ckpts.extend(_split_checkpoints(text))
         _ckpts_done.clear()
         _ckpt_playing[0] = 0; _ckpt_interrupted[0] = -1
@@ -782,68 +691,21 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         if _play_from(0) > 0:
             _begin_narration()
 
-    def _local_answer(item):
-        """Spoken answer for intents the system resolves itself (TIME/DATE/STATUS)
-        — returns None for everything else so the LLM's tts_text is used.
-        Deterministic; never a hallucinated value."""
-        ij = item.intent_json or {}
-        name = ij.get('intent') if isinstance(ij, dict) else None
-        if name == 'TIME' or name == 'DATE':
-            import datetime as _dt
-            now = _dt.datetime.now()
-            if name == 'TIME':
-                # 12-hour, spoken-friendly: "It's 3:42 PM." (strip leading zero)
-                return "It's {}.".format(now.strftime('%-I:%M %p'))
-            # DATE: "It's Monday, June 2nd." with an ordinal day.
-            d = now.day
-            suffix = 'th' if 11 <= d % 100 <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(d % 10, 'th')
-            return "It's {}.".format(now.strftime('%A, %B {}{}').format(d, suffix))
-        if name == 'STATUS':
-            # A car-state query → answer with REAL telemetry from the hvac_react
-            # backend cache (set + current), not an LLM-invented value.
-            br = _bridge[0]
-            area = int(ij.get('area') or 1) or 1
-            sset = br.get_value('HVAC_TEMPERATURE_SET', area) if br else None
-            cur  = br.get_value('HVAC_TEMPERATURE_CURRENT', area) if br else None
-            zone = {1: "driver side", 4: "passenger side"}.get(area, "")
-            where = (" on the " + zone) if zone else ""
-            if sset is not None and cur is not None:
-                return ("Set to {:g} degrees{}, currently {:g}."
-                        .format(float(sset), where, float(cur)))
-            val = sset if sset is not None else cur
-            if val is not None:
-                return "Temperature{} is {:g} degrees.".format(where, float(val))
-            return "I don't have the current readings right now."
-        return None
-
     def _intent_spoken(item):
-        """The SINGLE source of truth for an intent's spoken/displayed text:
-        a local answer (TIME/DATE/STATUS) if any, else the LLM ack with a
-        temperature placeholder interpolated and any leftover placeholder cleaned.
-        Used by BOTH the narrator (TTS) and the chat/display feeds so they never
-        diverge (was: TTS spoke the real value, chat showed the raw LLM text)."""
-        local = _local_answer(item)
-        if local is not None:
-            return local
-        ack = item.tts_text or ""
-        _t = _bridge[0].get_value('HVAC_TEMPERATURE_CURRENT') if _bridge[0] else None
-        ack = _interpolate_placeholders(ack, _t)
-        return "Okay, done." if ('[' in ack or '<' in ack) else ack
+        """Single source of truth for an intent's spoken/displayed text — the
+        IntentFlow composes engine clock answers, dispatcher telemetry answers
+        and the interpolated LLM ack. Used by BOTH the narrator (TTS) and the
+        chat/display feeds so they never diverge."""
+        return _flow[0].spoken(item.intent_json, item.tts_text)
 
     def _on_narrator_intent(item) -> None:
-        # Manual (RAG) intents: try the grounded RAG answer (narrated separately
-        # via ManualGenerate→ResponseDone). Only skip narration here if RAG
-        # actually fired; if it couldn't (no topic AND no usable query, or no
-        # passages), fall through and speak the classifier's tts_text so the floor
-        # is always released — never deadlock with SYSTEM held and nothing spoken.
-        if _is_chitchat(item):
-            if _on_chitchat_intent(item):
-                return   # conversational reply streams via Response/ResponseDone
-            # couldn't (no utterance) → speak the classifier ack below
-        if _is_manual(item):
-            if _on_manual_intent(item):
-                return
-            # RAG didn't fire → speak a fallback below.
+        # Deferred narration (chitchat conversational reply, manual/RAG
+        # grounded answer) streams separately via ManualGenerate→ResponseDone.
+        # Only skip narration here if it actually dispatched; otherwise fall
+        # through and speak the classifier's tts_text so the floor is always
+        # released — never deadlock with SYSTEM held and nothing spoken.
+        if _flow[0].try_defer(item.intent_json):
+            return
         # Single source of truth — same text the chat/display feeds use.
         spoken = _intent_spoken(item)
         if spoken:
@@ -1107,13 +969,14 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         ).subscribe(on_next=lambda i: (
             # Display the SAME interpolated text that gets spoken (real temp value,
             # placeholders resolved) — not the raw LLM ack — so chat == TTS.
-            # Manual/RAG and chitchat intents stream their reply via ResponseDone,
-            # so skip the classifier ack here (else it double-prints).
-            None if (_is_manual(i) or _is_chitchat(i))
+            # Deferred intents (manual/RAG, chitchat) stream their reply via
+            # ResponseDone, so skip the classifier ack here (else it double-prints).
+            None if (_flow[0].is_deferred_marker(i.intent_json)
+                     or _flow[0].is_chitchat(i.intent_json))
             else tui_state.add_assistant(_intent_spoken(i) or i.tts_text),
             tui_state.add_intent(i.intent_json,
-                                 "(manual → RAG)" if _is_manual(i)
-                                 else "(chitchat)" if _is_chitchat(i)
+                                 "(manual → RAG)" if _flow[0].is_deferred_marker(i.intent_json)
+                                 else "(chitchat)" if _flow[0].is_chitchat(i.intent_json)
                                  else (_intent_spoken(i) or i.tts_text)),
         ))
         std_out = rx.empty()
@@ -1129,8 +992,8 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             # via Response→token_stream), so don't print it — it looked like a
             # double answer.
             ops.map(lambda i: f"\n  JSON  → {i.intent_json}\n" + (
-                "  (manual → RAG answer follows)\n" if _is_manual(i)
-                else "  (chitchat → reply follows)\n" if _is_chitchat(i)
+                "  (manual → RAG answer follows)\n" if _flow[0].is_deferred_marker(i.intent_json)
+                else "  (chitchat → reply follows)\n" if _flow[0].is_chitchat(i.intent_json)
                 else f"  Voice → {(_intent_spoken(i) or i.tts_text)!r}\n")),
         )
         transcript_stream = stt_src.pipe(

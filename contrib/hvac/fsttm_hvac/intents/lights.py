@@ -1,5 +1,5 @@
 """Lights intent domain: head / fog / hazard / cabin (interior) lights."""
-from fsttm.intents.base import IntentModule, register
+from fsttm_hvac.registry import IntentModule, register
 
 INTENTS = ["LIGHTS_ON", "LIGHTS_OFF"]
 

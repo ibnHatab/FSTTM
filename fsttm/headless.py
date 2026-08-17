@@ -23,8 +23,7 @@ from fsttm.llama import (
     Response, ResponseDone, IntentResult, LlamaError,
     make_driver,
 )
-
-_MANUAL_INTENTS = {'HOWTO', 'LOCATE', 'EXPLAIN'}
+from fsttm.domain import active_provider, load_provider
 
 import reactivex as rx
 from reactivex.subject import Subject
@@ -47,12 +46,14 @@ async def run_headless(model_path: str, system_prompt_override: str = None,
 
     global SYSTEM_PROMPT
     if intent_mode and not system_prompt_override:
-        # Assemble the intent prompt from the enabled domains (climate/lights/
-        # body) so the headless test teaches exactly what the grammar allows.
-        from fsttm import intents
-        SYSTEM_PROMPT = intents.build_prompt(domains)
-        doms = domains or intents.INTENT_DOMAINS
-        print(f"[intent] domains: {', '.join(doms)}", flush=True)
+        # The active domain provider assembles the intent prompt from the
+        # enabled sub-domains, so the headless test teaches exactly what the
+        # grammar allows.
+        provider = active_provider()
+        SYSTEM_PROMPT = provider.build_prompt(domains)
+        doms = domains or provider.sub_domains
+        print(f"[intent] domain: {provider.name} "
+              f"({', '.join(doms) or 'monolithic'})", flush=True)
     elif system_prompt_override:
         SYSTEM_PROMPT = system_prompt_override
 
@@ -91,7 +92,14 @@ async def run_headless(model_path: str, system_prompt_override: str = None,
             print(f"\n  JSON  → {item.intent_json}")
             print(f"  Voice → {item.tts_text!r}")
             ij = item.intent_json or {}
-            is_manual = isinstance(ij, dict) and ij.get('intent') in _MANUAL_INTENTS
+            # Domain translation: command dicts with a "cmd" discriminator.
+            # A {"cmd": "manual"} marker means "narrate a RAG answer instead".
+            try:
+                cmds = active_provider().translate(ij) if ij else []
+            except Exception as e:
+                cmds, _err = [], print(f"  Proto → (error: {e})")
+            is_manual = any(isinstance(c, dict) and c.get('cmd') == 'manual'
+                            for c in cmds)
             if is_manual and retriever is not None:
                 # Manual RAG: retrieve → grounded answer (printed as the response)
                 from fsttm.rag import build_answer_prompt
@@ -107,13 +115,8 @@ async def run_headless(model_path: str, system_prompt_override: str = None,
                     return   # ResponseDone (below) prints the streamed answer
                 else:
                     print(f"  Manual→ (no passages for {query!r})")
-            elif item.intent_json:
-                try:
-                    from fsttm.grammar import intent_to_protocol_cmd
-                    cmds = intent_to_protocol_cmd(item.intent_json)
-                    print(f"  Proto → {cmds}")
-                except Exception as e:
-                    print(f"  Proto → (error: {e})")
+            elif ij:
+                print(f"  Proto → {cmds}")
             print()
             try:
                 turn.system_action('R')
@@ -227,9 +230,14 @@ def main():
                         help='Path to a text file containing the system prompt')
     parser.add_argument('--intent', action='store_true', default=False,
                         help='Enable two-pass grammar intent mode (eval+rollback)')
+    parser.add_argument('--domain', default=None,
+                        help='Domain provider to load (fsttm.domains entry-point '
+                             'name, e.g. hvac, dog). Default: config '
+                             'system.domain, else auto (hvac if installed).')
     parser.add_argument('--domains', default=None,
-                        help='Comma-separated intent domains to enable '
-                             '(climate,lights,body,manual). Default: all.')
+                        help='Comma-separated sub-domains to enable within the '
+                             'provider (hvac: climate,lights,body,manual). '
+                             'Default: all.')
     parser.add_argument('--manual-store', default=None,
                         help='Ingested .npz vector store (enables manual RAG)')
     parser.add_argument('--manual-embed', default=None,
@@ -243,6 +251,11 @@ def main():
     with open(args.config) as f:
         cfg = yaml.safe_load(f)
     model_path = args.model or cfg['gpt']['model']
+
+    # Select the domain provider: CLI flag > config system.domain > auto.
+    domain_name = args.domain or (cfg.get('system') or {}).get('domain')
+    if domain_name:
+        load_provider(domain_name)
 
     custom_prompt = None
     if args.prompt:

@@ -146,7 +146,7 @@ def test_fifo_stress_100_turns():
     """
     from llama_cpp import Llama
     from fsttm.utils import ignoreStderr
-    from fsttm.grammar import make_hvac_grammar
+    from fsttm_hvac.provider import build_grammar as make_hvac_grammar
     from fsttm.two_pass import approach_a
     from fsttm.llama import ConversationHistory
 
