@@ -1,0 +1,86 @@
+# FSTTM — robot-dog (Go2) deployment sample.
+# Headless test on a dev box:
+#   fsttm-headless --config contrib/dog/config.dog.sample.yaml --intent --no-aec
+# Orin install: pip install fsttm[voicefilter] fsttm-dog  (+ RHVoice from source)
+
+domains:
+    dog:
+        backend: logging      # scaffold stubs; nav2/DINOv3 backends plug in
+                              # behind fsttm_dog.actions Protocols on the robot
+
+aec:
+    enabled: false            # Go2 head unit: no echo-cancel session yet
+
+server:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_max_size: 1048576
+
+log:
+  level:
+    - logger: fsttm
+      level: INFO
+
+vad:
+    vad_aggressiveness: 3
+    device: null
+    device_name: "pulse"
+    rate: 16000
+    padding_ms: 700
+    soft_duck: true
+
+stt:
+    model: "models/ggml-base.en-q5_1.bin"
+    language: "en"
+    parasites: ["thank you", "thanks", "thanks for watching", "you"]
+
+tts:
+    backend: "rhvoice"        # statistical, CPU-cheap — the Orin default
+    rhvoice:
+        voice: "SLT"
+        rate: 0.3
+        volume: -0.1
+    piper:                    # alternative on boxes with the ONNX voice
+        model: "/home/axadmin/repo/vox/FSTTM/models/en_US-lessac-medium.onnx"
+        sample_rate: 22050
+    device: "pulse"
+    sink: null
+
+# Only-my-voice speaker filter (enroll with fsttm-enroll; tune in shadow mode)
+voice_filter:
+    enabled: false
+    provider: speaker
+    model: "models/speaker/wespeaker_en_voxceleb_resnet34.onnx"
+    profiles: "models/speaker/profiles.npz"
+    threshold: 0.45
+    min_utterance_s: 0.5
+    mode: shadow
+
+gpt:
+    n_ctx: 2048               # robot profile (shared-RAM KV budget)
+    seed: 42
+    temp: 0.7
+    top_k: 40
+    top_p: 0.95
+    repeat_last_n: 256
+    n_batch: 2048
+    repeat_penalty: 1.1
+    model: "/home/axadmin/repo/vox/FSTTM/models/Phi-3-mini-4k-instruct-Q4_K_M.gguf"
+    n_threads: 6
+    n_predict: 512
+    safeword: "coyotes"
+    # Orin execution model: DINOv3 + detector own the GPU continuously;
+    # Whisper/Phi-3 are event-driven bursts. n_gpu_layers 0 = CPU-only
+    # fallback profile; raise for temporal-separation GPU bursts.
+    n_gpu_layers: 99
+
+system:
+    name: "Rex"               # the dog's name — wake word + prompts
+    intent_mode: true
+    domain: "dog"
+    intent_domains: null      # dog is monolithic (one intent language)
+    prompt_variant: "few-shot"
+    attention: false          # enable + wake_words for hands-free operation
+    sleep_intent: false
+    wake_words: ["rex", "hey rex"]
