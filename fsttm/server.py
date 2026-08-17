@@ -968,7 +968,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     # ── output: TUI panels OR stdout ──────────────────────────────────────────
     if tui_state is not None:
-        # Feed the chat/intent panels and right-panel narrator/hvac fields.
+        # Feed the chat/intent panels and right-panel narrator/domain fields.
         # The full assistant reply lands once per response (ResponseDone) rather
         # than token-streaming, which the chat panel can't redraw mid-token.
         stt_src.pipe(
