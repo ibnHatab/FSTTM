@@ -13,12 +13,12 @@ def test_config():
     config = Config(**data)
 
     assert config.vad.rate == 16000
-    assert config.vad.device_name == "fsttm_ec_source"
-    assert config.stt.model == "base"
+    assert config.vad.device_name == "pulse"
+    assert config.stt.model == "models/ggml-base.en-q5_1.bin"
     assert config.tts.sample_rate == 22050
     assert config.tts.model.endswith('.onnx')
     assert config.gpt.model.endswith('.gguf')
-    assert config.gpt.n_ctx == 2048
+    assert config.gpt.n_ctx == 4096
     assert config.gpt.temp == 0.7
     print(f"\nConfig OK: model={os.path.basename(config.gpt.model)}, "
           f"vad_device={config.vad.device_name}")

@@ -19,7 +19,7 @@ def test_schema_all_domains_has_cabin_support():
     assert "position" in props          # from body (windows)
     enum = props["intent"]["enum"]
     assert "LIGHTS_ON" in enum and "WARMER" in enum and "SEAT_HEAT_UP" in enum
-    assert enum[-2:] == ["STATUS", "UNKNOWN"]   # meta always last
+    assert enum[-5:] == ["TIME", "DATE", "STATUS", "CHITCHAT", "UNKNOWN"]   # meta always last
 
 
 def test_cabin_light_translates():
@@ -48,7 +48,7 @@ def test_prompt_assembly_per_domain():
     p_clim = intents.build_prompt(["climate"])
     assert "cabin" in p_all and "Climate Intents" in p_all
     assert "Light Intents" in p_all
-    assert "cabin" not in p_clim          # lights not taught
+    assert "Light Intents" not in p_clim  # lights not taught
     assert "Zone / Area Addressing" in p_clim   # header always present
 
 

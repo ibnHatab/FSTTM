@@ -40,7 +40,8 @@ SYSTEM_PROMPT = (
 
 
 async def run_headless(model_path: str, system_prompt_override: str = None,
-                       intent_mode: bool = False, domains=None, retriever=None):
+                       intent_mode: bool = False, domains=None, retriever=None,
+                       gpt_cfg=None):
     loop = asyncio.get_event_loop()
     turn = FSM()
 
@@ -131,7 +132,15 @@ async def run_headless(model_path: str, system_prompt_override: str = None,
 
     # ── Load model ───────────────────────────────────────────────────────────
     print(f"Loading model: {model_path}")
-    llm_subject.on_next(Initialize(model_path=model_path))
+    # n_ctx/n_batch must come from config: the intent base prompt (system +
+    # domain prompt + few-shot) exceeds the 2048 default, and the last eval
+    # chunk then fails with "llama_decode returned 1". Mirrors server.py.
+    g = gpt_cfg or {}
+    llm_subject.on_next(Initialize(model_path=model_path,
+                                   n_ctx=g.get('n_ctx', 2048),
+                                   n_batch=g.get('n_batch', 512),
+                                   n_threads=g.get('n_threads', 6),
+                                   n_gpu_layers=g.get('n_gpu_layers', 99)))
     llm_subject.on_next(AddSystem(prompt=SYSTEM_PROMPT))
     print("Model ready. Type your message (or STOP to cancel generation).\n")
 
@@ -263,7 +272,8 @@ def main():
                                  system_prompt_override=custom_prompt,
                                  intent_mode=args.intent,
                                  domains=domains,
-                                 retriever=retriever))
+                                 retriever=retriever,
+                                 gpt_cfg=cfg.get('gpt') or {}))
 
 
 if __name__ == '__main__':

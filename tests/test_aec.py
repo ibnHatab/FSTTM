@@ -42,6 +42,10 @@ skip_no_pw = pytest.mark.skipif(
     reason="PipeWire not available"
 )
 
+# Needs live PipeWire audio routing — excluded from the default CI bucket
+# (`pytest -m "not hardware"`); runs on boxes with a real audio session.
+pytestmark = pytest.mark.hardware
+
 
 @skip_no_pw
 def test_aec_enable_creates_devices():

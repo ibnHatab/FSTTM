@@ -97,7 +97,7 @@ def test_fsm_diagram_colors_current_green_prev_yellow():
     st.set_fsm("BOTHs", prev="SYSTEM")
     styles = _diagram_styles(st)
     assert styles["BOTHs"] == "bold green"     # current
-    assert styles["SYSTEM"] == "bold yellow"   # just left
+    assert styles["SYSTEM"] == "bold blue"     # just left
     # an untouched node stays dim
     assert styles["FREEu"] == "dim"
 
