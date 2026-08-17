@@ -48,8 +48,17 @@ stt:
     # "*cough*"). null = built-in defaults ("thank you", "thanks").
     parasites: ["thank you", "thanks", "thanks for watching", "you"]
 tts:
-    model: "/home/axadmin/repo/vox/FSTTM/models/en_US-lessac-medium.onnx"
-    sample_rate: 22050
+    backend: "piper"  # synth backend (fsttm.tts_backends entry point):
+                      #   piper   — ONNX neural voice (default; pip install fsttm[piper])
+                      #   rhvoice — statistical, CPU-cheap (system RHVoice-client)
+    piper:
+        model: "/home/axadmin/repo/vox/FSTTM/models/en_US-lessac-medium.onnx"
+        sample_rate: 22050
+        cuda: false
+    rhvoice:
+        voice: "SLT"      # alan | bdl | clb | evgeniy-eng | lyubov | slt
+        rate: 0.3         # -1..1
+        volume: -0.1      # -1..1
     # Output routing — PCM is written straight to a PyAudio stream (no aplay).
     # Devices are matched BY NAME against `aplay -l` / PyAudio device names.
     device: "pulse"   # PyAudio output device substring; "pulse" lets PulseAudio

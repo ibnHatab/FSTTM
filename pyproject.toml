@@ -66,6 +66,12 @@ repository = "https://github.com/ibnHatab/FSTTM"
 fsttm = "fsttm.server:main"
 fsttm-headless = "fsttm.headless:main"
 
+# TTS synth backends (config tts.backend selects one; contrib packages may
+# register more).
+[project.entry-points."fsttm.tts_backends"]
+piper = "fsttm.tts.piper_backend:PiperBackend"
+rhvoice = "fsttm.tts.rhvoice_backend:RhvoiceBackend"
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 markers = [

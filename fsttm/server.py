@@ -30,7 +30,7 @@ from fsttm.fsttm import Model as FSM
 import fsttm.perception as perception
 from fsttm.perception import SpeechDuringPlayback
 import fsttm.llama as llama
-import fsttm.piper as piper
+import fsttm.tts as tts
 import fsttm.whisper as whisper
 
 # Spoken when the attention layer goes to sleep / mutes (sleep_intent path).
@@ -545,7 +545,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     # ── Checkpoint Narrator ────────────────────────────────────────────────────
     # Split each LLM response into clause-level TTS units ("checkpoints") and
-    # play them one-by-one through piper. Each unit carries a `ckpt:N` context so
+    # play them one-by-one through tts. Each unit carries a `ckpt:N` context so
     # PlaybackStarted / AudioPlaybackStarted / PlaybackDone can be tracked back to
     # its index. Stage 3 builds replay/skip-on-barge-in + TrimHistory on top of
     # the per-checkpoint state tracked here.
@@ -557,7 +557,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     def _split_checkpoints(text: str) -> List[str]:
         """
-        Clause-level TTS units — each becomes one piper.Speak event.
+        Clause-level TTS units — each becomes one tts.Speak event.
         Split on: sentence end (.!?), clause separator (, ; —) with min length.
         Numbered list markers (1. 2.) and decimal points never split.
         Short fragments (<15 chars) merged into previous unit.
@@ -666,7 +666,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         for i in range(idx, len(_ckpts)):
             text = _clean(_ckpts[i])
             if text:
-                _tts_subject.on_next(piper.Speak(text=text, context=f'ckpt:{i}'))
+                _tts_subject.on_next(tts.Speak(text=text, context=f'ckpt:{i}'))
                 _last_emitted[0] = i
                 emitted += 1
         return emitted
@@ -751,7 +751,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         if not _narrating[0]:
             return   # nothing playing to interrupt (already cut / not narrating)
         interrupted = _ckpt_playing[0]
-        _tts_subject.on_next(piper.ClearQueue())
+        _tts_subject.on_next(tts.ClearQueue())
         _llm_subject.on_next(llama.StopGenerate())
         # Narration is cut: floor already flipped + unducked on the tentative
         # signal. The resume path will soft-duck again via _begin_narration.
@@ -789,13 +789,13 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             tui_state.last_barge = "ckpt {} · {}".format(interrupted, decision.strip())
         _emit(msg, "warn")
 
-    tts_src.pipe(ops.filter(lambda i: type(i) is piper.PlaybackStarted)
+    tts_src.pipe(ops.filter(lambda i: type(i) is tts.PlaybackStarted)
     ).subscribe(on_next=_on_ckpt_started)
 
-    tts_src.pipe(ops.filter(lambda i: type(i) is piper.AudioPlaybackStarted)
+    tts_src.pipe(ops.filter(lambda i: type(i) is tts.AudioPlaybackStarted)
     ).subscribe(on_next=_on_audio_started)
 
-    tts_src.pipe(ops.filter(lambda i: type(i) is piper.PlaybackDone)
+    tts_src.pipe(ops.filter(lambda i: type(i) is tts.PlaybackDone)
     ).subscribe(on_next=_on_ckpt_done_narrator)
 
 
@@ -836,10 +836,10 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
                 _emit("[tts] fsttm_ec_sink missing → default sink (AEC not loaded)",
                       "warn")
                 sink = None
-        return [piper.Initialize(model_path=i.tts.model,
-                                 sample_rate=i.tts.sample_rate,
-                                 device=device, sink=sink,
-                                 cuda=bool(getattr(i.tts, 'cuda', False)))]
+        backend = getattr(i.tts, 'backend', None) or 'piper'
+        bcfg = getattr(i.tts, backend, None) or {}
+        return [tts.Initialize(backend=backend, cfg=bcfg,
+                               device=device, sink=sink)]
     tts_init = config.pipe(ops.flat_map(lambda i: rx.from_(_tts_init_events(i))))
     # All Speak events now flow through _tts_subject, fed by the narrator's
     # _play_from(). Barge-in flushes via ClearQueue (emitted on _tts_subject too).
@@ -1014,7 +1014,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
         perception=perception.Sink(control=perception_control),
         stt=whisper.Sink(request=stt_subjects),
         llm=llama.Sink(request=llm_subjects),
-        tts=piper.Sink(request=tts_subjects),
+        tts=tts.Sink(request=tts_subjects),
         logging=logging.Sink(request=logs_config),
         file=file.Sink(request=read_request),
         stdout=stdout.Sink(data=std_out),
@@ -1196,7 +1196,7 @@ def main():
                     perception=perception.make_driver(loop),
                     stt=whisper.make_driver(loop),
                     llm=llama.make_driver(loop),
-                    tts=piper.make_driver(loop),
+                    tts=tts.make_driver(loop),
                     stdout=stdout.make_driver(),
                     logging=logging.make_driver(),
                     file=file.make_driver(),

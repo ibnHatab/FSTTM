@@ -51,10 +51,30 @@ def stage_espeak():
     play_wav(f.name); os.unlink(f.name)
     print("[espeak] spoke:", repr(TEXT))
 
-stages={"tone":stage_tone,"piper":stage_piper,"espeak":stage_espeak}
+def stage_rhvoice():
+    """fsttm.tts RhvoiceBackend: probe → sample rate from the WAV header,
+    synthesize, play through aplay."""
+    print("[rhvoice] trying fsttm.tts rhvoice backend...")
+    try:
+        from fsttm.tts.rhvoice_backend import RhvoiceBackend
+        b = RhvoiceBackend()
+        b.load({})
+    except Exception as e:
+        print("[rhvoice] UNAVAILABLE:", e); return
+    pcm = b.synthesize(TEXT)
+    dur = len(pcm) / (b.sample_rate * 2)
+    print(f"[rhvoice] rate={b.sample_rate} Hz  pcm={len(pcm)}B  dur={dur:.2f}s")
+    f = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    w = wave.open(f.name, "w"); w.setnchannels(1); w.setsampwidth(2)
+    w.setframerate(b.sample_rate); w.writeframes(pcm); w.close()
+    play_wav(f.name); os.unlink(f.name)
+    print("[rhvoice] spoke:", repr(TEXT))
+
+stages={"tone":stage_tone,"piper":stage_piper,"espeak":stage_espeak,
+        "rhvoice":stage_rhvoice}
 if STAGE=="all":
-    for s in ["tone","piper","espeak"]: stages[s]()
+    for s in ["tone","piper","espeak","rhvoice"]: stages[s]()
 elif STAGE in stages:
     stages[STAGE]()
 else:
-    print("unknown stage:", STAGE, "(use tone|piper|espeak|all)")
+    print("unknown stage:", STAGE, "(use tone|piper|espeak|rhvoice|all)")

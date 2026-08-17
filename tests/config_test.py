@@ -15,8 +15,9 @@ def test_config():
     assert config.vad.rate == 16000
     assert config.vad.device_name == "pulse"
     assert config.stt.model == "models/ggml-base.en-q5_1.bin"
-    assert config.tts.sample_rate == 22050
-    assert config.tts.model.endswith('.onnx')
+    assert config.tts.backend == "piper"
+    assert config.tts.piper["sample_rate"] == 22050
+    assert config.tts.piper["model"].endswith('.onnx')
     assert config.gpt.model.endswith('.gguf')
     assert config.gpt.n_ctx == 4096
     assert config.gpt.temp == 0.7

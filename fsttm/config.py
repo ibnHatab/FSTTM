@@ -30,14 +30,18 @@ class STT(BaseModel):
 
 class TTS(BaseModel):
     model_config = ConfigDict(extra='allow')
-    model: str          # path to piper .onnx voice model
-    sample_rate: int = 22050
+    # Which synth backend to use (fsttm.tts_backends entry-point name). The
+    # backend's own settings live in a same-named nested block (tts.piper /
+    # tts.rhvoice), passed to SynthBackend.load() verbatim.
+    backend: str = "piper"
+    piper: Optional[dict] = None    # {model: <onnx>, sample_rate: 22050, cuda: false}
+    rhvoice: Optional[dict] = None  # {voice: SLT, rate: 0.3, volume: -0.1}
     # Output routing (resolved by name, like aplay -l / arecord -l). PCM is
-    # written straight to a PyAudio stream — no aplay subprocess.
+    # written straight to a PyAudio stream — no aplay subprocess. Shared by
+    # all backends.
     device: Optional[str] = None   # PyAudio output device name substring;
                                    # null → "pulse" (PulseAudio handles convert)
     sink: Optional[str] = None     # PulseAudio sink name substring; null →
-    cuda: bool = False             # run ONNX synthesis on GPU (onnxruntime CUDA EP; needs onnxruntime-gpu + cuDNN)
                                    # fsttm_ec_sink when AEC is on (so the AEC sees
                                    # the TTS), else the default sink. e.g. "Jabra"
 
@@ -178,6 +182,15 @@ def normalize_config(raw: dict) -> dict:
         legacy_hvac = True
     if legacy_hvac and not sysc.get('domain'):
         sysc['domain'] = 'hvac'
+    # Flat tts keys (pre-backend schema) → the piper block.
+    ttsc = dict(raw.get('tts') or {})
+    if 'model' in ttsc and 'piper' not in ttsc:
+        _warn('tts.{model,sample_rate,cuda}', 'tts.piper.{model,sample_rate,cuda}')
+        ttsc['piper'] = {'model': ttsc.pop('model'),
+                         'sample_rate': ttsc.pop('sample_rate', 22050),
+                         'cuda': bool(ttsc.pop('cuda', False))}
+        ttsc.setdefault('backend', 'piper')
+        raw['tts'] = ttsc
     if hvac:
         domains['hvac'] = hvac
     if domains:

@@ -25,8 +25,10 @@ stt:
     model: "/home/nvidia/repo/vox/fsttm/models/ggml-base.en-q5_1.bin"
     language: "en"
 tts:
-    model: "/home/nvidia/repo/vox/fsttm/models/en_US-lessac-medium.onnx"
-    sample_rate: 22050
+    backend: "piper"
+    piper:
+        model: "/home/nvidia/repo/vox/fsttm/models/en_US-lessac-medium.onnx"
+        sample_rate: 22050
     device: "pulse"
     sink: null
 gpt:
