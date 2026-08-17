@@ -140,6 +140,11 @@ class Config(BaseModel):
     #     hvac: {backend_url: "http://127.0.0.1:8000", timeout: 2.0,
     #            manual: {enabled: true, store: ..., embed: ...}}
     domains: Dict[str, dict] = {}
+    # Utterance-level voice filter ("only my voice") — see fsttm.voicefilter.
+    #   voice_filter: {enabled: true, provider: speaker, model: <onnx>,
+    #                  profiles: <npz>, threshold: 0.45, min_utterance_s: 0.5,
+    #                  mode: enforce}       # enforce | shadow
+    voice_filter: dict = {}
 
 
 # Legacy-key mapping (pre-0.2 configs). Applied before validation with a

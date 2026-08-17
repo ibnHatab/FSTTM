@@ -31,19 +31,20 @@ import fsttm.perception as perception
 from fsttm.perception import SpeechDuringPlayback
 import fsttm.llama as llama
 import fsttm.tts as tts
+import fsttm.voicefilter as voicefilter
 import fsttm.whisper as whisper
 
 # Spoken when the attention layer goes to sleep / mutes (sleep_intent path).
 _SLEEP_CONFIRM_PHRASE = "Voice controls disabled."
 
 FSTTMSink = namedtuple('Sink', [
-    'perception', 'stt', 'llm', 'tts', 'logging', 'file', 'stdout'
+    'perception', 'vfilter', 'stt', 'llm', 'tts', 'logging', 'file', 'stdout'
 ])
 FSTTMSource = namedtuple('Source', [
-    'perception', 'stt', 'llm', 'tts', 'file', 'argv'
+    'perception', 'vfilter', 'stt', 'llm', 'tts', 'file', 'argv'
 ])
 FSTTMDrivers = namedtuple('Drivers', [
-    'perception', 'stt', 'llm', 'tts', 'stdout', 'logging', 'file', 'argv'
+    'perception', 'vfilter', 'stt', 'llm', 'tts', 'stdout', 'logging', 'file', 'argv'
 ])
 
 
@@ -68,6 +69,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     # ── share driver sources (prevent multiple cold subscriptions) ─────────
     voice_src = sources.perception.voice.pipe(ops.share())
+    vf_src    = sources.vfilter.result.pipe(ops.share())
     stt_src   = sources.stt.text.pipe(ops.share())
     llm_src   = sources.llm.system.pipe(ops.share())
     tts_src   = sources.tts.audio.pipe(ops.share())
@@ -258,13 +260,30 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             whisper.Initialize(i.stt.model, language=i.stt.language)
         ])),
     )
-    # Gate: only send to STT when user has the floor (not during system speech)
-    stt_request = utterance.pipe(
+    # Gate: only send onward when user has the floor (not during system speech).
+    # The buffered utterance then passes the voice filter (speaker verification
+    # — disabled config = synchronous passthrough) before it reaches STT.
+    vf_init = config.pipe(ops.map(
+        lambda i: voicefilter.Initialize(cfg=getattr(i, 'voice_filter', None) or {})))
+    vf_request = utterance.pipe(
         ops.filter(lambda i: len(i) > 0),
         ops.filter(lambda _: turn.is_user),   # FSM gate: user must have floor
-        ops.map(lambda i: whisper.SpeechToText(data=i, context=None)),
+        ops.map(lambda i: voicefilter.Filter(data=i, context=None)),
+    )
+    vf_subjects = rx.merge(vf_init, vf_request)
+
+    stt_request = vf_src.pipe(
+        ops.filter(lambda i: type(i) is voicefilter.Accepted),
+        ops.map(lambda i: whisper.SpeechToText(data=i.data, context=i.context)),
     )
     stt_subjects = rx.merge(stt_init, stt_request)
+
+    # Rejected utterances: surface why nothing happened (wrong speaker).
+    vf_src.pipe(
+        ops.filter(lambda i: type(i) is voicefilter.Rejected),
+    ).subscribe(on_next=lambda i: _emit(
+        f"[voice-filter] dropped utterance (score={i.score:.2f}, "
+        f"closest={i.speaker})", "warn"))
 
     # ── Domain provider + dispatcher (the plugin seam) ────────────────────────
     # The active domain (hvac, dog, …) owns the intent schema/prompt/translate;
@@ -1012,6 +1031,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
 
     return FSTTMSink(
         perception=perception.Sink(control=perception_control),
+        vfilter=voicefilter.Sink(request=vf_subjects),
         stt=whisper.Sink(request=stt_subjects),
         llm=llama.Sink(request=llm_subjects),
         tts=tts.Sink(request=tts_subjects),
@@ -1194,6 +1214,7 @@ def main():
                 ),
                 FSTTMDrivers(
                     perception=perception.make_driver(loop),
+                    vfilter=voicefilter.make_driver(loop),
                     stt=whisper.make_driver(loop),
                     llm=llama.make_driver(loop),
                     tts=tts.make_driver(loop),

@@ -65,6 +65,11 @@ repository = "https://github.com/ibnHatab/FSTTM"
 [project.scripts]
 fsttm = "fsttm.server:main"
 fsttm-headless = "fsttm.headless:main"
+fsttm-enroll = "fsttm.voicefilter.enroll:main"
+
+# Voice-filter providers (config voice_filter.provider selects one).
+[project.entry-points."fsttm.voice_filters"]
+speaker = "fsttm.voicefilter.speaker:SpeakerVerifier"
 
 # TTS synth backends (config tts.backend selects one; contrib packages may
 # register more).
