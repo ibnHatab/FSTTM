@@ -30,6 +30,16 @@ import (
 	"github.com/ibnHatab/fsttm/go/internal/vad"
 )
 
+// Driver seams — small interfaces so e2e tests can fake every stage while
+// the production wiring passes the real drivers unchanged.
+type Transcriber interface {
+	Transcribe(pcm []byte) (stt.Result, bool)
+}
+
+type IntentGen interface {
+	TwoPass(systemPrompt, userText, gbnf string) (*llm.Result, error)
+}
+
 // bargeGrace suppresses barge-in for the first moments of playback (TTS
 // onset transient / leftover VAD frames from the user's own utterance).
 const bargeGrace = 600 * time.Millisecond
@@ -47,9 +57,9 @@ type Config struct {
 
 type Engine struct {
 	cfg  Config
-	LLM  *llm.LLM
-	STT  *stt.STT
-	TTS  *tts.TTS
+	LLM  IntentGen
+	STT  Transcriber
+	TTS  tts.Speaker
 	Dsp  *intent.Dispatcher
 	Turn *fsm.Model
 
@@ -62,7 +72,7 @@ type Engine struct {
 	speaking  bool
 }
 
-func New(cfg Config, l *llm.LLM, s *stt.STT, t *tts.TTS) *Engine {
+func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
 	return &Engine{
 		cfg: cfg, LLM: l, STT: s, TTS: t,
 		Dsp:      intent.NewLogging(),
@@ -84,12 +94,18 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 			case <-ctx.Done():
 				return
 			case text := <-e.speakReq:
-				ok, err := e.TTS.Speak(ctx, text)
+				res, err := e.TTS.Speak(ctx, text)
 				if err != nil {
 					log.Printf("[tts] %v", err)
 				}
+				if !res.Completed && res.Synthesized > 0 {
+					// exact fraction heard — the replay/skip input
+					log.Printf("[tts] cut at %.0f%% (%.2fs of %.2fs)",
+						res.Fraction()*100, res.Played.Seconds(),
+						res.Synthesized.Seconds())
+				}
 				select {
-				case e.ttsDone <- ok:
+				case e.ttsDone <- res.Completed:
 				case <-ctx.Done():
 					return
 				}

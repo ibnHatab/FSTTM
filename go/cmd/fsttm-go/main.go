@@ -44,6 +44,7 @@ type config struct {
 		Parasites []string `yaml:"parasites"`
 	} `yaml:"stt"`
 	TTS struct {
+		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess
 		Voice  string  `yaml:"voice"`
 		Rate   float64 `yaml:"rate"`
 		Volume float64 `yaml:"volume"`
@@ -107,12 +108,13 @@ func main() {
 	defer s.Close()
 	log.Print("[stt] whisper ready (warmed)")
 
-	t, err := tts.New(tts.Config{Voice: cfg.TTS.Voice, Rate: cfg.TTS.Rate,
+	t, err := tts.NewSpeaker(tts.Config{Engine: cfg.TTS.Engine,
+		Voice: cfg.TTS.Voice, Rate: cfg.TTS.Rate,
 		Volume: cfg.TTS.Volume, Player: cfg.TTS.Player})
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print("[tts] rhvoice ready")
+	log.Printf("[tts] rhvoice ready (engine=%T)", t)
 
 	eng := pipeline.New(pipeline.Config{
 		SystemPrompt: string(prompt), GBNF: string(gbnf),

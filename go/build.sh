@@ -17,6 +17,11 @@ export CGO_LDFLAGS="-L$LLIBS -Wl,-rpath,$LLIBS -L${WLIBS//:/ -L} -Wl,-rpath,${WL
 export LIBRARY_PATH="$LLIBS:$WLIBS"
 export C_INCLUDE_PATH="$WHISPER_DIR/include:$WHISPER_DIR/ggml/include:$LLAMA_DIR/include:$LLAMA_DIR/ggml/include"
 
+if [ "${1:-}" = "test" ]; then
+  shift
+  export LD_LIBRARY_PATH="$LLIBS:$WLIBS"
+  exec go test "${@:-./...}"
+fi
 if [ $# -gt 0 ]; then targets=(); for t in "$@"; do targets+=("./cmd/$t"); done; else targets=(./cmd/...); fi
 go build -o bin/ "${targets[@]}"
 echo "built → go/bin/ (rpath-embedded; no LD_LIBRARY_PATH needed)"

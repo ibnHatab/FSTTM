@@ -20,7 +20,7 @@ capture ──frames──▶ vad ──events──▶ orchestrator ──speak
 | whisper.cpp | official `bindings/go` (in-tree, API-current) | **on par**: 42 ms vs pywhispercpp's 44 ms for 11 s audio, same CUDA lib |
 | llama.cpp | go-llama.cpp | **rejected**: frozen 2024-03, pinned llama.cpp predates Phi-3, no sampler-chain / `llama_memory_*` API |
 | llama.cpp | `internal/llm` — ~300-line cgo shim over the current C API | **on par**: two-pass JSON byte-identical to `fsttm/two_pass.py`, latency equal (188–523 ms/turn, tail eval 1–6 ms with KV-prefix reuse) |
-| TTS | Linux RHVoice via `RHVoice-client | aplay` subprocess | zero idle cost; barge-in = SIGKILL the process group |
+| TTS | **librhvoice in-process** (default) — `play_speech` callback per PCM chunk | mid-synthesis abort (callback returns 0) + EXACT fraction heard; `RHVoice-client | aplay` subprocess kept as fallback (`tts.engine: subprocess`) |
 
 Measured idle (30 s, mic live, silent room, this dev box): **1.2 % CPU,
 0 % GPU util, 2 threads** (Python engine: 1.6 % CPU, 7–11 threads,
@@ -62,8 +62,31 @@ PY
 - `barge_in: false` (default) — half-duplex: mic events are ignored while the
   system speaks, and utterances whose audio overlaps our own playback are
   dropped as echo. Enable barge-in ONLY with AEC in the audio path (AEC
-  virtual mic / USB conference speakerphone).
+  virtual mic / USB conference speakerphone). A confirmed barge-in cuts
+  synthesis mid-stream (librhvoice callback abort) and logs the exact
+  fraction heard — the N09-1071 transition-8 semantics.
 - `n_gpu_layers: 0` — CPU-only fallback profile.
+
+## Semantic verification
+
+The FSM is machine-checked against the N09-1071 paper (canonical 12-
+transition table, structural constraints, the six §3.1 phenomena, Table-1
+action availability) in `internal/fsm/paper_test.go` — audit narrative in
+`../docs/fsttm-n09-1071-verification.md`. The concurrency invariants have
+e2e tests:
+
+- **context rollback** (`internal/llm/rollback_test.go`, model-gated):
+  byte-identical JSON for the same utterance across interleaved turns and
+  prefix switches — the KV rewind leaves no trace.
+- **output cutting** (`internal/tts/librhvoice_test.go`, voice-gated):
+  Speak blocks until audio truly finished; Cancel cuts mid-utterance within
+  one device period and reports the exact fraction heard.
+- **turn behavior** (`internal/pipeline/e2e_test.go`, fake drivers): full
+  gap-transition traces, barge-in walks SYSTEM→BOTHs→USER and cuts the
+  speaker, grace-window suppression, half-duplex echo drop, deterministic
+  QUERY answers, JSON-parrot never spoken, wake word.
+
+Run: `./build.sh test ./...`
 
 ## Orin notes
 

@@ -10,6 +10,8 @@ stt:
     language: en
     parasites: ["thank you", "thanks", "thanks for watching", "you"]
 tts:
+    engine: librhvoice    # in-process synthesis: exact progress + mid-synthesis cut
+                          # ("subprocess" = RHVoice-client|aplay fallback)
     voice: SLT            # Linux RHVoice: alan|bdl|clb|evgeniy-eng|lyubov|slt
     rate: 0.3
     volume: -0.1
