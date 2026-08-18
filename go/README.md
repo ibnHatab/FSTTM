@@ -1,0 +1,77 @@
+# fsttm-go
+
+The FSTTM spoken-dialog engine in Go: a message-passing pipeline over
+whisper.cpp, llama.cpp and Linux RHVoice, built for the Orin deployment where
+**idle must mean idle** — every goroutine blocks on a channel receive; a
+silent room costs one native VAD call per 20 ms frame, the GPU schedules no
+kernels between utterances, and TTS is a subprocess that exists only while
+speaking.
+
+```
+capture ──frames──▶ vad ──events──▶ orchestrator ──speak──▶ rhvoice|aplay
+(malgo/pulse)   (webrtcvad)      (owns the N09-1071 FSM;
+                                  whisper + llama called inline, bursty)
+```
+
+## Bindings audit (why this shape)
+
+| Component | Binding | Verdict |
+|---|---|---|
+| whisper.cpp | official `bindings/go` (in-tree, API-current) | **on par**: 42 ms vs pywhispercpp's 44 ms for 11 s audio, same CUDA lib |
+| llama.cpp | go-llama.cpp | **rejected**: frozen 2024-03, pinned llama.cpp predates Phi-3, no sampler-chain / `llama_memory_*` API |
+| llama.cpp | `internal/llm` — ~300-line cgo shim over the current C API | **on par**: two-pass JSON byte-identical to `fsttm/two_pass.py`, latency equal (188–523 ms/turn, tail eval 1–6 ms with KV-prefix reuse) |
+| TTS | Linux RHVoice via `RHVoice-client | aplay` subprocess | zero idle cost; barge-in = SIGKILL the process group |
+
+Measured idle (30 s, mic live, silent room, this dev box): **1.2 % CPU,
+0 % GPU util, 2 threads** (Python engine: 1.6 % CPU, 7–11 threads,
++1.1 GB GPU memory). On the Orin's slower cores the gap is larger.
+
+## Build
+
+Requires Go ≥1.23 and sibling checkouts of llama.cpp + whisper.cpp, each
+built with CMake (`-DGGML_CUDA=ON` where wanted):
+
+```bash
+LLAMA_DIR=~/repo/vox/llama.cpp WHISPER_DIR=~/repo/vox/whisper.cpp ./build.sh
+# binaries land in go/bin/ with rpath embedded — no LD_LIBRARY_PATH needed
+```
+
+The intent grammar/prompt are generated from the Python dog domain
+(single source of truth):
+
+```bash
+cd .. && source .venv/bin/activate && python - <<'PY'
+import json
+from llama_cpp.llama_grammar import json_schema_to_gbnf
+from fsttm_dog.provider import DOG_SCHEMA, PROVIDER
+open('go/grammar/dog.gbnf', 'w').write(json_schema_to_gbnf(json.dumps(DOG_SCHEMA)))
+open('go/grammar/dog-prompt.txt', 'w').write(PROVIDER.build_prompt())
+PY
+```
+
+## Run
+
+```bash
+./bin/fsttm-go -config config.dog.yaml            # voice: mic → intent → voice
+./bin/fsttm-go -config config.dog.yaml -headless  # stdin text turns
+./bin/llmbench -model <gguf> -prompt grammar/dog-prompt.txt \
+    -gbnf grammar/dog.gbnf "go to the chair next to the window"
+```
+
+- `wake_word: rex` — asleep until heard, then stays awake.
+- `barge_in: false` (default) — half-duplex: mic events are ignored while the
+  system speaks, and utterances whose audio overlaps our own playback are
+  dropped as echo. Enable barge-in ONLY with AEC in the audio path (AEC
+  virtual mic / USB conference speakerphone).
+- `n_gpu_layers: 0` — CPU-only fallback profile.
+
+## Orin notes
+
+- Build llama.cpp/whisper.cpp on-device (CUDA sm_87, or CPU-only), then
+  `./build.sh` — pure cgo, no Python at runtime.
+- RHVoice: build from source (no arm64 apt package); the engine shells out to
+  `RHVoice-client`, so binaries + one English voice suffice.
+- The robot seams live in `internal/intent` (`ActionBackend`,
+  `SemanticMemory`, `NavigationBackend`) — implement them against the Go2
+  action interface, the DINOv3 semantic map, and nav2; the logging stubs show
+  the contract. See ../contrib/dog/spec.md and ../docs/orin-deployment.md.

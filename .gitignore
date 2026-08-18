@@ -161,3 +161,6 @@ N09-1071.pdf
 .venv-rag/
 *.chunks.json
 docs/*.pdf
+
+# fsttm-go build artifacts
+go/bin/
