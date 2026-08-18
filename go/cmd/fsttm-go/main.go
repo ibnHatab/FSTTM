@@ -13,6 +13,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -25,6 +26,7 @@ import (
 	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
+	"github.com/ibnHatab/fsttm/go/internal/nina"
 	"github.com/ibnHatab/fsttm/go/internal/pipeline"
 	"github.com/ibnHatab/fsttm/go/internal/stt"
 	"github.com/ibnHatab/fsttm/go/internal/tts"
@@ -73,6 +75,11 @@ type config struct {
 		WakeWords    []string `yaml:"wake_words"`
 		SleepPhrases []string `yaml:"sleep_phrases"`
 	} `yaml:"attention"`
+	Nina struct {
+		Enabled     bool   `yaml:"enabled"`      // jsonl RobotLink on stdout
+		CanvasPack  string `yaml:"canvas_pack"`  // canvas_query_pack.npz
+		PhraseCache string `yaml:"phrase_cache"` // phrase_cache.npz
+	} `yaml:"nina"`
 	Prompt  string `yaml:"prompt"`   // system prompt file
 	Grammar string `yaml:"grammar"`  // GBNF file
 	BargeIn string `yaml:"barge_in"` // off | vad | confirm
@@ -173,6 +180,42 @@ func main() {
 	}, l, s, t)
 	eng.Owner = owner
 
+	// ── Nina robot link (nina_speak override) ────────────────────────────
+	// jsonl events on stdout → nina_relay → the contracted ROS topics; say
+	// requests arrive on stdin. Motion doctrine: see internal/nina.
+	if cfg.Nina.Enabled {
+		link := nina.NewLink(os.Stdout)
+		var canvas *nina.Canvas
+		if cfg.Nina.CanvasPack != "" {
+			c, err := nina.LoadCanvas(cfg.Nina.CanvasPack, cfg.Nina.PhraseCache)
+			if err != nil {
+				log.Printf("[nina] canvas unavailable: %v — semantic "+
+					"queries will find nothing", err)
+			} else {
+				canvas = c
+			}
+		}
+		eng.Dsp = nina.NewDispatcher(link, canvas)
+		eng.Events = func(kind string, payload any) {
+			switch kind {
+			case "intent":
+				if r, ok := payload.(*llm.Result); ok {
+					link.Intent(json.RawMessage(r.JSON), r.Voice)
+				}
+			case "dialog":
+				if s, ok := payload.(string); ok {
+					link.DialogState(s)
+				}
+			}
+		}
+		if !*headless {
+			// The relay owns our stdin (say requests). In -headless the
+			// terminal owns stdin for typed turns — no say channel then.
+			go link.ReadSay(os.Stdin, eng.Announce)
+		}
+		log.Print("[nina] robot link active (jsonl on stdout)")
+	}
+
 	// SIGUSR1 → system-initiated announcement (transition 5: the system may
 	// freely take an unclaimed floor). Robot processes use Engine.Announce
 	// directly; the signal gives shells/tests a live trigger:
@@ -191,16 +234,21 @@ func main() {
 
 	if *headless {
 		textIn = make(chan string)
+		prompt := func() { fmt.Print("> ") }
+		if cfg.Nina.Enabled {
+			// stdout belongs to jsonl events when the robot link is active
+			prompt = func() { fmt.Fprint(os.Stderr, "> ") }
+		}
 		go func() {
 			defer close(textIn)
 			sc := bufio.NewScanner(os.Stdin)
-			fmt.Print("> ")
+			prompt()
 			for sc.Scan() {
 				line := sc.Text()
 				if line != "" {
 					textIn <- line
 				}
-				fmt.Print("> ")
+				prompt()
 			}
 		}()
 	} else {

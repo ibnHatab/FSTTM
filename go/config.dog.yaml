@@ -44,6 +44,14 @@ attention:
     wake_words: ["rex", "hey rex", "hello rex"]
     sleep_phrases: ["go to sleep", "voice off", "stop listening", "that's all"]
 
+# Nina robot link (nina_speak override): jsonl events on stdout for the
+# rclpy relay; canvas pack = the robot's semantic-map RAG (load-once v0,
+# /nina/instance_events increments later).
+nina:
+    enabled: false            # true under the nina_speak relay
+    canvas_pack: ""           # canvas_query_pack.npz (dgx featloc / palace bundles)
+    phrase_cache: ""          # phrase_cache.npz until the SigLIP text tower lands
+
 prompt:  grammar/dog-prompt.txt
 grammar: grammar/dog.gbnf
 barge_in: "off"           # off (half-duplex) | vad (needs clean AEC) |

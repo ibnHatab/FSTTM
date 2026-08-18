@@ -1,0 +1,9 @@
+--- nina_speak setup.py after the Go override ---
+entry_points={"console_scripts": [
+    # ROS main: event-driven relay that spawns fsttm-go (all realtime in Go)
+    "nina_speak = nina_speak.relay:main",
+    # Python engine kept as the playground / SIL fallback:
+    "nina_speak_py = fsttm.server:main",
+]},
+packages=find_packages(include=["fsttm", "fsttm.*", "fsttm_dog",
+                                "fsttm_dog.*", "nina_speak"]),

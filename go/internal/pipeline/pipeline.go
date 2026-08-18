@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -89,6 +90,11 @@ type Engine struct {
 	Turn  *fsm.Model
 	Attn  *attention.Attention
 	Owner OwnerVerifier // nil → open to everyone
+	// Events, when set, receives engine happenings for external consumers
+	// (the nina relay → /nina/intent, /nina/dialog_state):
+	//   kind "intent":  payload = *llm.Result (after a completed turn)
+	//   kind "dialog":  payload = string state (ASLEEP/AWAKE/LISTENING/SPEAKING)
+	Events func(kind string, payload any)
 
 	speakReq  chan string
 	ttsDone   chan bool
@@ -173,6 +179,7 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 			_ = ok
 			// Response finished (or was cut): release the floor.
 			_ = e.Turn.SystemAction('R')
+			e.event("dialog", "LISTENING")
 
 		case text, open := <-textIn:
 			if !open {
@@ -311,6 +318,7 @@ func (e *Engine) processUtterance(text string, pcm []byte) {
 		}
 		d := e.Attn.OnUtterance(text) // wakes
 		log.Print("[attention] awake")
+		e.event("dialog", "AWAKE")
 		if d.Text == "" {
 			e.grabAndSay("Yes?")
 			return
@@ -327,6 +335,7 @@ func (e *Engine) processUtterance(text string, pcm []byte) {
 		switch d.Action {
 		case "sleep":
 			log.Print("[attention] → ASLEEP")
+			e.event("dialog", "ASLEEP")
 			e.grabAndSay("Voice controls disabled.")
 			return
 		case "ignore":
@@ -372,6 +381,9 @@ func (e *Engine) handleUtterance(text string) {
 	}
 	log.Printf("[intent] %s (json=%dms tts=%dms)", r.JSON,
 		r.TJSON.Milliseconds(), r.TTTS.Milliseconds())
+	if e.Events != nil {
+		e.Events("intent", r)
+	}
 
 	cmd, err := intent.Parse(r.JSON)
 	if err != nil {
@@ -405,9 +417,10 @@ func (e *Engine) say(text string) {
 		_ = e.Turn.SystemAction('R')
 		return
 	}
-	fmt.Printf("  voice → %q\n", text)
+	fmt.Fprintf(os.Stderr, "  voice → %q\n", text)
 	e.speaking = true
 	e.speakingT = time.Now()
+	e.event("dialog", "SPEAKING")
 	e.speakReq <- text
 }
 
@@ -454,4 +467,10 @@ func (e *Engine) tryAnnounce() {
 	e.pending = e.pending[1:]
 	log.Printf("[announce] %q", text)
 	e.say(text)
+}
+
+func (e *Engine) event(kind string, payload any) {
+	if e.Events != nil {
+		e.Events(kind, payload)
+	}
 }
