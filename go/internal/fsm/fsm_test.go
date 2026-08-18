@@ -5,10 +5,13 @@ import "testing"
 // Port of the N09-1071 scenarios from tests/fsttm_test.py.
 func TestNormalTurnCycle(t *testing.T) {
 	m := New()
-	if m.State != User || !m.IsUser() {
-		t.Fatalf("initial state = %s", m.State)
+	if m.State != FreeU || !m.IsUser() {
+		t.Fatalf("initial state = %s, want FREEu", m.State)
 	}
 	// user speaks then releases; system grabs, speaks, releases; user again
+	if err := m.UserAction('G'); err != nil || m.State != User {
+		t.Fatalf("boot grab: %s (%v)", m.State, err)
+	}
 	if err := m.UserAction('R'); err != nil || m.State != FreeU {
 		t.Fatalf("USER -R-> %s (%v)", m.State, err)
 	}
@@ -25,8 +28,7 @@ func TestNormalTurnCycle(t *testing.T) {
 
 func TestBargeIn(t *testing.T) {
 	m := New()
-	_ = m.UserAction('R')
-	_ = m.SystemAction('G') // system speaking
+	_ = m.SystemAction('G') // system speaking (boot announcement)
 	// user barges in: SYSTEM -> BOTHs -> USER
 	if err := m.UserAction('G'); err != nil || m.State != BothS {
 		t.Fatalf("barge-in grab: %s (%v)", m.State, err)

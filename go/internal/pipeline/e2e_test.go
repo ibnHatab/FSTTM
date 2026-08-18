@@ -269,3 +269,57 @@ func TestWakeWord(t *testing.T) {
 	events <- utter("hey rex, sit down")         // wake + trailing command
 	waitFor(t, func() bool { return len(spk.said()) == 1 }, "spoken after wake")
 }
+
+// ── system-initiated narration (announcements) ───────────────────────────────
+
+// Regression for the boot-state fix: from a cold start (FREEu, nobody has
+// spoken yet) the system must be able to initiate narration — transition 5,
+// FREEu →(G,W) SYSTEM. Broken while the FSM initialized in USER with an
+// unmatchable (W,W) action vector.
+func TestAnnounceFromBootIdle(t *testing.T) {
+	spk := newFakeSpeaker(30 * time.Millisecond)
+	e := New(Config{SystemPrompt: "p", GBNF: "g"},
+		fakeLLM{json: `{"intent":"STOP"}`, voice: "x"}, fakeSTT{}, spk)
+	tr := trace(e)
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	_ = events // idle: no mic activity before the announcement
+	e.Announce("Battery low.")
+	waitFor(t, func() bool { return len(spk.said()) == 1 }, "announcement spoken")
+	if spk.said()[0] != "Battery low." {
+		t.Fatalf("spoke %q", spk.said()[0])
+	}
+	waitFor(t, func() bool { return e.Turn.State == fsm.FreeS }, "floor released")
+	got := strings.Join(*tr, " ")
+	if !strings.Contains(got, "FREEu-(G_W)->SYSTEM") ||
+		!strings.Contains(got, "SYSTEM-(R_W)->FREEs") {
+		t.Fatalf("announcement must walk FREEu→SYSTEM→FREEs, got: %s", got)
+	}
+}
+
+// Announcements never cut the user: queued while the user holds the floor,
+// delivered after the reply finishes and the floor is free again.
+func TestAnnounceDeferredWhileUserHoldsFloor(t *testing.T) {
+	spk := newFakeSpeaker(30 * time.Millisecond)
+	e := New(Config{SystemPrompt: "p", GBNF: "g"},
+		fakeLLM{json: `{"intent":"LOCAL_ACTION","action":"SIT_DOWN"}`,
+			voice: "Sitting."},
+		fakeSTT{}, spk)
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	events <- vad.Event{SpeechStart: true} // user takes the floor
+	waitFor(t, func() bool { return e.Turn.State == fsm.User }, "USER")
+	e.Announce("Obstacle ahead.")
+	time.Sleep(150 * time.Millisecond)
+	if n := len(spk.said()); n != 0 {
+		t.Fatalf("announcement cut the user (spoke %d early)", n)
+	}
+
+	events <- utter("sit down") // the user finishes; normal turn runs
+	waitFor(t, func() bool { return len(spk.said()) == 2 }, "reply then announcement")
+	if said := spk.said(); said[0] != "Sitting." || said[1] != "Obstacle ahead." {
+		t.Fatalf("order wrong: %v", said)
+	}
+}

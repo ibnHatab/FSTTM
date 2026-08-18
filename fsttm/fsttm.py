@@ -92,7 +92,14 @@ class Model(Automaton):
             (su('W', 'G'), 'USER',  'USER'),
 
     ]
-    _initial_state = 'USER'
+    # Initial state: at boot NOBODY claims the floor — that is precisely a
+    # FREE state, and it makes the initial action vector (W,W) consistent.
+    # FREEu (gap on the user side) gives both parties their paper-legal first
+    # move: user grab (W_G -> USER, transition 6) starts a command; system
+    # grab (G_W -> SYSTEM, transition 5, cost 0 in Table 1) lets the system
+    # INITIATE narration (boot greeting, warnings) — impossible from the old
+    # USER start, where the (W,W) vector made system G unmatchable.
+    _initial_state = 'FREEu'
 
 
     def __init__(self, system_cb=None, user_cb=None):

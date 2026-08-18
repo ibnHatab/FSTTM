@@ -66,6 +66,11 @@ PY
   synthesis mid-stream (librhvoice callback abort) and logs the exact
   fraction heard — the N09-1071 transition-8 semantics.
 - `n_gpu_layers: 0` — CPU-only fallback profile.
+- **System-initiated narration**: `Engine.Announce("Battery low.")` (or
+  `kill -USR1 <pid>` for a live test) — the system takes an unclaimed floor
+  (paper transition 5, cost 0) and speaks; while the user holds the floor
+  the announcement is deferred, never cutting them. Works from cold boot:
+  the FSM initializes in FREEu (nobody claims the floor at start).
 
 ## Semantic verification
 

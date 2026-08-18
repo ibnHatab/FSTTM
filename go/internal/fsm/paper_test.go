@@ -11,17 +11,15 @@ import "testing"
 func at(t *testing.T, s State) *Model {
 	t.Helper()
 	m := New()
-	// NOTE: the model initializes with action vector (W,W) in USER; the
-	// paper's USER state implies the user KEEPS the floor (vector (W,K)).
-	// A first user grab (self-loop) normalizes it — exactly what the live
-	// engine's first VAD onset does. See deviation E2 in the audit doc.
+	// Boot state is FREEu (nobody claims the floor; vector (W,W) is
+	// consistent) — both sides' first grab is paper-legal from there.
 	path := map[State][]func() error{
+		FreeU:  {},
 		User:   {func() error { return m.UserAction('G') }},
-		FreeU:  {func() error { return m.UserAction('G') }, func() error { return m.UserAction('R') }},
-		System: {func() error { return m.UserAction('R') }, func() error { return m.SystemAction('G') }},
-		FreeS: {func() error { return m.UserAction('R') }, func() error { return m.SystemAction('G') },
+		System: {func() error { return m.SystemAction('G') }},
+		FreeS: {func() error { return m.SystemAction('G') },
 			func() error { return m.SystemAction('R') }},
-		BothS: {func() error { return m.UserAction('R') }, func() error { return m.SystemAction('G') },
+		BothS: {func() error { return m.SystemAction('G') },
 			func() error { return m.UserAction('G') }},
 		BothU: {func() error { return m.UserAction('G') },
 			func() error { return m.SystemAction('G') }},
@@ -201,5 +199,24 @@ func TestPaperCostAvailability(t *testing.T) {
 	c := at(t, User).SystemActionsCost()
 	if c['G'] <= c['W'] {
 		t.Errorf("USER: expected C(G) > C(W), got G=%v W=%v", c['G'], c['W'])
+	}
+}
+
+// Regression: the system must be able to take the floor FIRST (boot
+// greeting, battery warning) — broken while the machine initialized in USER
+// with an unmatchable (W,W) action vector.
+func TestSystemInitiatesNarrationAtBoot(t *testing.T) {
+	m := New()
+	if m.State != FreeU {
+		t.Fatalf("boot state = %s, want FREEu (nobody claims the floor)", m.State)
+	}
+	if err := m.SystemAction('G'); err != nil || m.State != System {
+		t.Fatalf("system-initiated grab: %s (%v)", m.State, err)
+	}
+	if err := m.SystemAction('R'); err != nil || m.State != FreeS {
+		t.Fatalf("release after announcement: %s (%v)", m.State, err)
+	}
+	if err := m.UserAction('G'); err != nil || m.State != User {
+		t.Fatalf("user reply after announcement: %s (%v)", m.State, err)
 	}
 }

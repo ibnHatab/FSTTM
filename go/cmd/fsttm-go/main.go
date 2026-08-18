@@ -121,6 +121,18 @@ func main() {
 		WakeWord: cfg.WakeWord, BargeIn: cfg.BargeIn,
 	}, l, s, t)
 
+	// SIGUSR1 → system-initiated announcement (transition 5: the system may
+	// freely take an unclaimed floor). Robot processes use Engine.Announce
+	// directly; the signal gives shells/tests a live trigger:
+	//   kill -USR1 $(pidof fsttm-go)
+	usr1 := make(chan os.Signal, 1)
+	signal.Notify(usr1, syscall.SIGUSR1)
+	go func() {
+		for range usr1 {
+			eng.Announce("System check. All services nominal.")
+		}
+	}()
+
 	// ── sources ──────────────────────────────────────────────────────────
 	var vadEvents chan vad.Event
 	var textIn chan string

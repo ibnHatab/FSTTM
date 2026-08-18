@@ -86,6 +86,9 @@ def test_normal_turn():
     Standard: user speaks, system replies, back to user.
     """
     h = AsyncConversationHarness()
+    assert h.state == 'FREEu'   # boot: nobody claims the floor
+
+    h.vad_speech_started()        # first VAD onset: user takes the floor
     assert h.state == 'USER'
 
     h.vad_utterance_done()        # user releases floor after speaking

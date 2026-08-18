@@ -33,7 +33,7 @@ def test_user_to_system():
     trace()
     # USER: (R,W ) → FREEu: (G,W) → SYSTEM
     m = Model()
-    m.state == 'USER'
+    m.user_action('G')   # boot: FREEu → USER (user takes the floor first)
     m.user_action('R')
     m.system_action('G')
     assert m.state == 'SYSTEM'
@@ -125,7 +125,8 @@ def test_user_to_free_user_and_back():
     trace()
     # USER -> (R,W ) → FREEu -> (W,G) →  USER
     m = Model()
-    assert m.state == 'USER'
+    assert m.state == 'FREEu'   # boot: nobody claims the floor
+    m.user_action('G')
     m.user_action('R')
     assert m.state == 'FREEu'
     m.user_action('G')

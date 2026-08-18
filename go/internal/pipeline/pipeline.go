@@ -70,6 +70,9 @@ type Engine struct {
 	speakingT time.Time
 	speakEndT time.Time
 	speaking  bool
+
+	announceCh chan string // system-initiated narration (warnings, status)
+	pending    []string    // announcements deferred while the floor is busy
 }
 
 func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
@@ -77,9 +80,10 @@ func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
 		cfg: cfg, LLM: l, STT: s, TTS: t,
 		Dsp:      intent.NewLogging(),
 		Turn:     fsm.New(),
-		awake:    cfg.WakeWord == "",
-		speakReq: make(chan string),
-		ttsDone:  make(chan bool),
+		awake:      cfg.WakeWord == "",
+		speakReq:   make(chan string),
+		ttsDone:    make(chan bool),
+		announceCh: make(chan string, 8),
 	}
 }
 
@@ -114,9 +118,15 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 	}()
 
 	for {
+		e.tryAnnounce() // deferred announcements go out once the floor frees
+
 		select {
 		case <-ctx.Done():
 			return
+
+		case text := <-e.announceCh:
+			e.pending = append(e.pending, text)
+			// dispatched by tryAnnounce at the top of the loop
 
 		case ev, open := <-vadEvents:
 			if !open {
@@ -293,4 +303,35 @@ func sanitizeAck(text string) string {
 		return "Okay."
 	}
 	return t
+}
+
+// Announce queues SYSTEM-INITIATED narration — boot greetings, battery
+// warnings, robot status. Per the paper this is transition 5
+// (FREE —(G,W)→ SYSTEM, cost 0 in Table 1): the system may freely take a
+// floor nobody claims, but it never cuts the user — while the user holds
+// the floor the announcement waits. Safe to call from any goroutine.
+func (e *Engine) Announce(text string) {
+	select {
+	case e.announceCh <- text:
+	default: // queue full — drop rather than block a robot control path
+		log.Printf("[announce] queue full, dropped %q", text)
+	}
+}
+
+// tryAnnounce dispatches the oldest pending announcement when the floor is
+// free (FREEu/FREEs) and nothing is playing.
+func (e *Engine) tryAnnounce() {
+	if len(e.pending) == 0 || e.speaking {
+		return
+	}
+	if e.Turn.State != fsm.FreeU && e.Turn.State != fsm.FreeS {
+		return // user holds (or contests) the floor — never cut them
+	}
+	if err := e.Turn.SystemAction('G'); err != nil {
+		return
+	}
+	text := e.pending[0]
+	e.pending = e.pending[1:]
+	log.Printf("[announce] %q", text)
+	e.say(text)
 }

@@ -66,8 +66,14 @@ type Model struct {
 	OnChange func(event string, src, dst State)
 }
 
+// New starts in FREEu: at boot NOBODY claims the floor — precisely a FREE
+// state, making the initial action vector (W,W) consistent. From here both
+// first moves are paper-legal: user grab (transition 6) starts a command;
+// system grab (transition 5, cost 0 in Table 1) lets the system INITIATE
+// narration (boot greeting, warnings) — impossible from a USER start, where
+// (W,W) makes any system grab unmatchable.
 func New() *Model {
-	return &Model{State: User, system: 'W', user: 'W', stateStart: time.Now()}
+	return &Model{State: FreeU, system: 'W', user: 'W', stateStart: time.Now()}
 }
 
 func (m *Model) IsSystem() bool {

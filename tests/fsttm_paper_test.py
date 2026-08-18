@@ -10,18 +10,14 @@ from fsttm.fsttm import Model
 def at(state):
     m = Model()
     m.onchangestate = lambda e: None
-    # The model initializes with action vector (W,W) in USER; the paper's
-    # USER state implies the user KEEPS the floor (vector (W,K)). A first
-    # user grab (self-loop) normalizes it — exactly what the live engine's
-    # first VAD onset does. See deviation E2 in the audit doc.
+    # Boot state is FREEu (nobody claims the floor; vector (W,W) consistent)
+    # — both sides' first grab is paper-legal from there.
     steps = {
+        'FREEu':  [],
         'USER':   [(m.user_action, 'G')],
-        'FREEu':  [(m.user_action, 'G'), (m.user_action, 'R')],
-        'SYSTEM': [(m.user_action, 'R'), (m.system_action, 'G')],
-        'FREEs':  [(m.user_action, 'R'), (m.system_action, 'G'),
-                   (m.system_action, 'R')],
-        'BOTHs':  [(m.user_action, 'R'), (m.system_action, 'G'),
-                   (m.user_action, 'G')],
+        'SYSTEM': [(m.system_action, 'G')],
+        'FREEs':  [(m.system_action, 'G'), (m.system_action, 'R')],
+        'BOTHs':  [(m.system_action, 'G'), (m.user_action, 'G')],
         'BOTHu':  [(m.user_action, 'G'), (m.system_action, 'G')],
     }[state]
     for fn, a in steps:
@@ -83,3 +79,18 @@ def test_cost_availability_matches_table1():
     # §4.1: in USER, grabbing (cut-in) must be far costlier than waiting
     c = at('USER').system_actions_cost()
     assert c['G'] > c['W']
+
+
+def test_system_initiates_narration_at_boot():
+    """Regression: the system must be able to take the floor FIRST (boot
+    greeting, battery warning) — broken while the machine initialized in
+    USER with an unmatchable (W,W) action vector."""
+    m = Model()
+    m.onchangestate = lambda e: None
+    assert m.state == 'FREEu'
+    m.system_action('G')          # transition 5: FREEu -(G,W)-> SYSTEM
+    assert m.state == 'SYSTEM'
+    m.system_action('R')          # transition 1: release when done
+    assert m.state == 'FREEs'
+    m.user_action('G')            # user replies (transition 2)
+    assert m.state == 'USER'

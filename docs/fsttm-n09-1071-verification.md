@@ -43,6 +43,38 @@ Constraints honoured (verified by tests attempting each):
   not all transitions are bidirectional: no SYSTEM→BOTH_U, no USER→BOTH_S,
   no SYSTEM→FREE_U, no USER→FREE_S.
 
+### Why these constraints are not inconsistencies
+
+They all fall out of one design decision (§3.1): the intermediate states
+carry a MEMORY BIT — the subscript names the *previous single floor holder*.
+
+- *Why no intermediate↔intermediate moves?* An intermediate state is defined
+  RELATIVE to the last single-holder state ("FREE_S = free following a
+  SYSTEM state"). Moving FREE→BOTH directly would mean both parties started
+  claiming at the exact same instant; the paper calls these cases "rare
+  enough that they can be approximated using a transition through SYSTEM or
+  USER" — i.e. one party is always modeled as having claimed first, however
+  briefly. FREE_S→FREE_U would mean the floor changed hands while NOBODY
+  held it — a contradiction of the subscript's meaning.
+- *Why no SYSTEM→BOTH_U?* BOTH_U means "overlap following a USER state" —
+  its subscript asserts the user held the floor alone just before the
+  overlap. Starting from SYSTEM that assertion is false; the overlap you
+  can create from SYSTEM is by definition BOTH_S (the user barged in on the
+  system). The two BOTH states are not interchangeable because their EXIT
+  semantics differ: who "wins" a withdrawal depends on who held the floor
+  first (BOTH_S —(K,R)→ SYSTEM restores the system; BOTH_U —(K,R)→ SYSTEM
+  is the user *yielding to a cut-in* — same action pair, different meaning,
+  distinguishable only through the memory bit).
+- *Why do releases land on "their" FREE side?* Same bit: a release from
+  SYSTEM produces "a gap after a system prompt" (FREE_S) and a release from
+  USER "a gap after a user utterance" (FREE_U). The distinction is load-
+  bearing for §4 endpointing: the pause-duration statistics and the
+  P(F|O) estimators are conditioned on WHOSE gap it is — collapsing the two
+  FREE states would destroy the very signal the FSTTM uses to endpoint.
+
+In short: the machine is a first-order model, and the subscripts smuggle in
+exactly one bit of history. Every "asymmetry" is that bit staying truthful.
+
 **Extensions (not in the paper), kept deliberately:**
 
 - **E1 — self-loops** `SYSTEM —(G,W)→ SYSTEM` and `USER —(W,G)→ USER`. The
@@ -50,12 +82,20 @@ Constraints honoured (verified by tests attempting each):
   the floor; narrator re-grabs on resume). The paper's action set in these
   states excludes G/W respectively; the self-loops make those re-issues
   idempotent no-ops instead of faults. They never change the state.
-- **E2 — initialization action vector**: the machine starts in USER with the
-  action pair (W,W), while the paper's USER state implies the user keeps the
-  floor, i.e. (W,K). Consequently transition 10 (system cut-in) is
-  unreachable until the user has grabbed once — the live engine's first VAD
-  onset (a user G self-loop) normalizes the vector immediately, so this is
-  unobservable in operation. The paper tests set up states the same way.
+- **E2 — initial state (RESOLVED)**: the machine historically started in
+  USER with the action pair (W,W) — inconsistent, since the paper's USER
+  state implies the user keeps the floor (W,K). Worse than the cosmetic
+  quirk: with (W,W) no system grab could match any transition, so the
+  system could NOT initiate narration (boot greeting, battery warning)
+  until the user had spoken first. Fixed by initializing in **FREE_U**: at
+  boot nobody claims the floor — precisely a FREE state, where (W,W) is the
+  correct vector and both first moves are paper-legal: user grab
+  (transition 6) and system grab (transition 5, cost 0 in Table 1 —
+  grabbing an unclaimed floor is free). System-initiated narration is now a
+  first-class path: `Engine.Announce()` queues it, dispatches on a free
+  floor (FREE_U/FREE_S), and never cuts the user. Regression tests:
+  `TestSystemInitiatesNarrationAtBoot` (both FSMs),
+  `TestAnnounceFromBootIdle`, `TestAnnounceDeferredWhileUserHoldsFloor`.
 
 ## Cost model (§3.2 Table 1, §3.3, §4.1) — CONFORMANT as EXPECTED cost
 
@@ -100,6 +140,31 @@ value is cutting unfinished output when the floor changes:
    byte-identical JSON regardless of what ran before it.
 3. **Floor release only on completion**: PlaybackDone ≡ audio actually
    finished (or was cut); the FSM releases via transition 1 only then.
+
+### Why `barge_in` defaults to OFF (half-duplex)
+
+Barge-in detection needs one thing the bare pipeline cannot provide: proof
+that a VAD onset during playback is a HUMAN and not the system's own voice
+coming back through the microphone. Without echo cancellation the two are
+acoustically indistinguishable — observed live on this box: the engine
+transcribed its own reply verbatim ("I don't have that in the manual.") and
+fed it back in as a user turn, looping. The paper's transition 7 models the
+*user* claiming the floor; self-echo satisfies the VAD trigger but not the
+semantics, and a model-level fix does not exist — the disambiguation must
+happen in the audio path.
+
+So the default is half-duplex: onsets during playback are ignored and
+utterances whose reconstructed onset overlaps our own playback window are
+dropped as echo. The cost is honest and bounded: the user cannot interrupt
+mid-utterance; they wait it out (checkpointed narration keeps utterances
+short). Flip `barge_in: true` when the capture path carries real echo
+cancellation — the AEC virtual mic (PipeWire module-echo-cancel), a USB
+conference speakerphone with hardware AEC, or, in the Python engine, the
+soft-duck sentinel + speaker-verification filter combination — because then
+an onset during playback IS the user, and the machinery downstream is
+already correct: librhvoice cuts synthesis mid-stream, the exact fraction
+heard is reported, and the FSM walks transitions 7+8
+(SYSTEM→BOTH_S→USER), all covered by e2e tests.
 
 Verified by: `go/internal/fsm/paper_test.go` (table + constraints + the six
 §3.1 phenomena), `go/internal/llm/rollback_test.go` (byte-identical JSON
