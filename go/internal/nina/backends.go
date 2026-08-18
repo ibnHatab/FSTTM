@@ -28,7 +28,7 @@ var voiceSafe = map[string]bool{
 
 // Actions — LOCAL_ACTION → sport api; TURN → bounded /cmd_vel burst.
 type Actions struct {
-	Link *Link
+	Link RobotLink
 }
 
 func (a *Actions) Execute(c *intent.Command) {
@@ -79,7 +79,7 @@ func (a *Actions) Cancel() { a.Stop() }
 // Nav — navigation goals on /nina/nav_goal (map frame). EXPLORE/FOLLOW stay
 // deferred exactly as in the Python reference (UC2 planner / person tracker).
 type Nav struct {
-	Link *Link
+	Link RobotLink
 }
 
 func (n *Nav) Navigate(pos [3]float64, instanceID int) {
@@ -106,7 +106,7 @@ func (n *Nav) Cancel() {
 // NewDispatcher wires the dog-intent dispatcher to the Nina seams. Canvas
 // may be nil (no pack yet) — the memory then reports nothing found, and
 // FIND degrades to the EXPLORE log per the spec fallback.
-func NewDispatcher(link *Link, canvas *Canvas) *intent.Dispatcher {
+func NewDispatcher(link RobotLink, canvas *Canvas) *intent.Dispatcher {
 	d := intent.NewLogging()
 	d.Actions = &Actions{Link: link}
 	d.Nav = &Nav{Link: link}

@@ -76,7 +76,8 @@ type config struct {
 		SleepPhrases []string `yaml:"sleep_phrases"`
 	} `yaml:"attention"`
 	Nina struct {
-		Enabled     bool   `yaml:"enabled"`      // jsonl RobotLink on stdout
+		Enabled     bool   `yaml:"enabled"`
+		Transport   string `yaml:"transport"`    // jsonl (SIL) | ros (rclgo native)
 		CanvasPack  string `yaml:"canvas_pack"`  // canvas_query_pack.npz
 		PhraseCache string `yaml:"phrase_cache"` // phrase_cache.npz
 	} `yaml:"nina"`
@@ -184,7 +185,16 @@ func main() {
 	// jsonl events on stdout → nina_relay → the contracted ROS topics; say
 	// requests arrive on stdin. Motion doctrine: see internal/nina.
 	if cfg.Nina.Enabled {
-		link := nina.NewLink(os.Stdout)
+		var link nina.RobotLink
+		if cfg.Nina.Transport == "ros" {
+			rl, err := nina.NewRosLink(ctx, eng.Announce)
+			if err != nil {
+				log.Fatalf("[nina] %v", err)
+			}
+			link = rl
+		} else {
+			link = nina.NewLink(os.Stdout)
+		}
 		var canvas *nina.Canvas
 		if cfg.Nina.CanvasPack != "" {
 			c, err := nina.LoadCanvas(cfg.Nina.CanvasPack, cfg.Nina.PhraseCache)
@@ -208,12 +218,14 @@ func main() {
 				}
 			}
 		}
-		if !*headless {
-			// The relay owns our stdin (say requests). In -headless the
-			// terminal owns stdin for typed turns — no say channel then.
-			go link.ReadSay(os.Stdin, eng.Announce)
+		if jl, ok := link.(*nina.Link); ok && !*headless {
+			// jsonl transport: the relay owns our stdin (say requests). In
+			// -headless the terminal owns stdin — no say channel then.
+			// (ros transport gets /nina/say via its own subscription.)
+			go jl.ReadSay(os.Stdin, eng.Announce)
 		}
-		log.Print("[nina] robot link active (jsonl on stdout)")
+		log.Printf("[nina] robot link active (transport=%s)",
+			map[bool]string{true: "ros", false: "jsonl"}[cfg.Nina.Transport == "ros"])
 	}
 
 	// SIGUSR1 → system-initiated announcement (transition 5: the system may

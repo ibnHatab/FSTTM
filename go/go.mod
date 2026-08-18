@@ -1,6 +1,6 @@
 module github.com/ibnHatab/fsttm/go
 
-go 1.23
+go 1.24.0
 
 require (
 	github.com/gen2brain/malgo v0.11.26
@@ -8,6 +8,8 @@ require (
 	github.com/maxhawkins/go-webrtcvad v0.0.0-20210121163624-be60036f3083
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require github.com/merlindrones/rclgo v0.5.1 // indirect
 
 require (
 	github.com/k2-fsa/sherpa-onnx-go v1.13.6

@@ -48,7 +48,10 @@ attention:
 # rclpy relay; canvas pack = the robot's semantic-map RAG (load-once v0,
 # /nina/instance_events increments later).
 nina:
-    enabled: false            # true under the nina_speak relay
+    enabled: false            # true on the robot / under SIL
+    transport: ros            # ros (rclgo NATIVE — the engine IS the nina_speak
+                              #   node; build with ROS=1 ./build.sh on a sourced
+                              #   Humble host) | jsonl (SIL pipe, no ROS needed)
     canvas_pack: ""           # canvas_query_pack.npz (dgx featloc / palace bundles)
     phrase_cache: ""          # phrase_cache.npz until the SigLIP text tower lands
 

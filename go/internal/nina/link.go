@@ -26,10 +26,31 @@ import (
 	"sync"
 )
 
+// RobotLink is the transport seam: the engine's only mouth toward the
+// robot. Two implementations:
+//   - Link (this file): jsonl on stdout — laptop/SIL transport, consumed by
+//     any relay or test harness;
+//   - RosLink (roslink.go, build tag `ros`): rclgo-native — the engine IS
+//     the nina_speak ROS node, publishing the contracted topics directly
+//     (MerlinDrones/rclgo v0.5.x, Humble).
+//
+// Whatever the transport, the topic set is fixed by the contract table —
+// the arbiter doctrine holds: no publisher beyond the contracted topics
+// exists in either implementation.
+type RobotLink interface {
+	Sport(apiID int, name string, params map[string]any)
+	NavGoal(x, y, z, yaw float64)
+	CmdVel(wz float64)
+	Intent(intentJSON any, voice string)
+	DialogState(state string)
+}
+
 type Link struct {
 	mu  sync.Mutex
 	out io.Writer
 }
+
+var _ RobotLink = (*Link)(nil)
 
 // NewLink emits events on w (production: os.Stdout — the relay's pipe).
 func NewLink(w io.Writer) *Link {

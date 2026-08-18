@@ -114,6 +114,30 @@ CPU, no torch) scores every gated utterance against the enrolled profile:
   replaces the old; nothing else changes. Proven by e2e tests that enroll
   one RHVoice voice as owner, reject another, then transfer between them.
 
+## Native ROS 2 transport (nina_speak)
+
+`nina.transport: ros` makes the engine the `/nina_speak` node itself —
+rclgo-native (MerlinDrones/rclgo v0.5.x, Humble), **no Python anywhere**:
+
+```bash
+# on a ROS-sourced host (dalek / Orin):
+source /opt/ros/humble/setup.bash && source ~/nina_ws/install/setup.bash
+go run github.com/merlindrones/rclgo/cmd/rclgo-gen@v0.5.1 generate \
+    -d internal/rosmsgs --message-module-prefix \
+    github.com/ibnHatab/fsttm/go/internal/rosmsgs \
+    --include-package '^unitree_api$' --include-package '^unitree_go$' \
+    --cgo-flags-path ros-cgo-flags.env      # regen only when interfaces change
+ROS=1 ./build.sh fsttm-go
+```
+
+The node's complete interface is five publishers + one subscription
+(`roslink.go` — the arbiter doctrine in one screen): `/api/sport/request`,
+`/nina/nav_goal`, `/cmd_vel` (bounded bursts only), `/nina/intent`,
+`/nina/dialog_state`, and `/nina/say` ← announce. `transport: jsonl` keeps
+the pipe protocol for SIL/laptop runs without ROS. Interop verified on
+dalek: `ros2 topic echo` shows typed Request/PoseStamped traffic and
+`ros2 topic pub /nina/say` reaches Engine.Announce.
+
 ## Semantic verification
 
 The FSM is machine-checked against the N09-1071 paper (canonical 12-
