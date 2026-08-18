@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ibnHatab/fsttm/go/internal/attention"
 	"github.com/ibnHatab/fsttm/go/internal/fsm"
 	"github.com/ibnHatab/fsttm/go/internal/intent"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
@@ -40,6 +41,12 @@ type IntentGen interface {
 	TwoPass(systemPrompt, userText, gbnf string) (*llm.Result, error)
 }
 
+// OwnerVerifier gates utterances on the imprinted owner's voice
+// (voiceid.SpeakerVerifier satisfies this; nil → open to everyone).
+type OwnerVerifier interface {
+	IsOwner(pcm []byte) (bool, float64)
+}
+
 // bargeGrace suppresses barge-in for the first moments of playback (TTS
 // onset transient / leftover VAD frames from the user's own utterance).
 const bargeGrace = 600 * time.Millisecond
@@ -47,23 +54,41 @@ const bargeGrace = 600 * time.Millisecond
 type Config struct {
 	SystemPrompt string
 	GBNF         string
-	WakeWord     string // "" → always awake
-	// BargeIn allows a VAD onset to cut TTS. Enable ONLY with echo
-	// cancellation in the audio path (AEC virtual mic / USB conference
-	// speakerphone); without it the mic hears the TTS and self-triggers.
-	// Off = half-duplex: mic events are ignored while the system speaks.
-	BargeIn bool
+
+	// Attention layer (wake word / sleep) — see internal/attention.
+	Attention    bool     // false → always awake
+	WakeWords    []string // "hello nina", "hey nina", "nina", …
+	SleepPhrases []string // "go to sleep", "voice off", … (wake-prefixed only)
+
+	// BargeIn mode — how a user may cut running narration:
+	//   "off"     half-duplex (default): mic events ignored while speaking,
+	//             overlapping utterances dropped as echo. No AEC needed.
+	//   "vad"     a bare VAD onset after the grace window cuts TTS. Needs
+	//             clean echo cancellation (AEC virtual mic / hardware AEC),
+	//             else the robot's own voice self-triggers.
+	//   "confirm" soft-duck (the Python engine's design): narration keeps
+	//             playing; the overlapping utterance is transcribed and —
+	//             when an owner is imprinted — voice-verified. Only a real,
+	//             owner-confirmed transcript cuts TTS. Works with imperfect
+	//             AEC: residue rarely survives STT noise filters, and the
+	//             robot's own TTS voice can never match the owner imprint.
+	BargeIn string
+
+	// OwnerGate — which utterances require the imprinted owner's voice:
+	//   "off" | "wake" (imprinting: only the owner can wake it) | "always".
+	// Barge-in confirmation ALWAYS verifies when a verifier is present.
+	OwnerGate string
 }
 
 type Engine struct {
-	cfg  Config
-	LLM  IntentGen
-	STT  Transcriber
-	TTS  tts.Speaker
-	Dsp  *intent.Dispatcher
-	Turn *fsm.Model
-
-	awake bool
+	cfg   Config
+	LLM   IntentGen
+	STT   Transcriber
+	TTS   tts.Speaker
+	Dsp   *intent.Dispatcher
+	Turn  *fsm.Model
+	Attn  *attention.Attention
+	Owner OwnerVerifier // nil → open to everyone
 
 	speakReq  chan string
 	ttsDone   chan bool
@@ -76,11 +101,15 @@ type Engine struct {
 }
 
 func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
+	if cfg.BargeIn == "" {
+		cfg.BargeIn = "off"
+	}
 	return &Engine{
 		cfg: cfg, LLM: l, STT: s, TTS: t,
-		Dsp:      intent.NewLogging(),
-		Turn:     fsm.New(),
-		awake:      cfg.WakeWord == "",
+		Dsp:  intent.NewLogging(),
+		Turn: fsm.New(),
+		Attn: attention.New(cfg.Attention, cfg.WakeWords,
+			cfg.SleepPhrases, true),
 		speakReq:   make(chan string),
 		ttsDone:    make(chan bool),
 		announceCh: make(chan string, 8),
@@ -172,7 +201,7 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 			// Simulate the user turn (grab + release).
 			_ = e.Turn.UserAction('G')
 			_ = e.Turn.UserAction('R')
-			e.handleUtterance(text)
+			e.processUtterance(text, nil)
 		}
 	}
 }
@@ -180,13 +209,16 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 func (e *Engine) onVadEvent(ev vad.Event) {
 	if ev.SpeechStart {
 		if e.speaking {
-			if e.cfg.BargeIn && time.Since(e.speakingT) > bargeGrace {
-				log.Print("[barge-in] cutting TTS")
+			if e.cfg.BargeIn == "vad" && time.Since(e.speakingT) > bargeGrace {
+				log.Print("[barge-in] VAD onset — cutting TTS")
 				e.TTS.Cancel()
-				_ = e.Turn.UserAction('G')   // SYSTEM → BOTHs
-				_ = e.Turn.SystemAction('R') // BOTHs → USER
+				_ = e.Turn.UserAction('G')   // SYSTEM → BOTHs (transition 7)
+				_ = e.Turn.SystemAction('R') // BOTHs → USER  (transition 8)
 			}
-			return // half-duplex: mic is the system's own voice
+			// "off": half-duplex — mic is the system's own voice.
+			// "confirm": tentative — narration keeps playing until the
+			// utterance closes and a real transcript confirms.
+			return
 		}
 		_ = e.Turn.UserAction('G')
 		return
@@ -194,16 +226,22 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 	if ev.Utterance == nil {
 		return
 	}
-	if e.speaking && !e.cfg.BargeIn {
-		return // utterance captured during playback = self-echo; drop
-	}
-	// Echo tail: an utterance whose AUDIO STARTED while the system was still
-	// speaking is the system's own voice — the VAD only closes it ~padding ms
-	// after the reply ends, when `speaking` is already false. Reconstruct the
-	// onset from the utterance length and drop it if it overlaps playback.
 	uttDur := time.Duration(len(ev.Utterance)/2) * time.Second / vad.SampleRate
-	if !e.cfg.BargeIn && time.Since(e.speakEndT)-uttDur < 200*time.Millisecond {
-		log.Printf("[echo] dropped %.1fs utterance overlapping own speech", uttDur.Seconds())
+
+	if e.speaking {
+		if e.cfg.BargeIn == "confirm" {
+			e.confirmBargeIn(ev.Utterance)
+		}
+		return // "off"/"vad": utterance during playback is self-echo
+	}
+	// Echo tail (half-duplex only): an utterance whose AUDIO STARTED while
+	// the system was still speaking is the system's own voice — the VAD only
+	// closes it ~padding ms after the reply ends, when `speaking` is already
+	// false. Reconstruct the onset and drop it if it overlaps playback.
+	if e.cfg.BargeIn == "off" &&
+		time.Since(e.speakEndT)-uttDur < 200*time.Millisecond {
+		log.Printf("[echo] dropped %.1fs utterance overlapping own speech",
+			uttDur.Seconds())
 		return
 	}
 	_ = e.Turn.UserAction('R')
@@ -215,28 +253,110 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 		return
 	}
 	log.Printf("[user] %q  [FSM:%s]", res.Text, e.Turn.State)
-	e.handleUtterance(res.Text)
+	e.processUtterance(res.Text, ev.Utterance)
 }
 
-func (e *Engine) handleUtterance(text string) {
-	// attention layer (lite): asleep until the wake word; stays awake.
-	if !e.awake {
-		norm := strings.ToLower(text)
-		if !strings.Contains(norm, strings.ToLower(e.cfg.WakeWord)) {
-			log.Printf("[asleep] ignored (say %q first): %q", e.cfg.WakeWord, text)
-			return
-		}
-		e.awake = true
-		log.Printf("[attention] awake")
-		// strip everything up to and including the wake word
-		i := strings.Index(norm, strings.ToLower(e.cfg.WakeWord))
-		text = strings.TrimLeft(text[i+len(e.cfg.WakeWord):], " ,.!?")
-		if text == "" {
-			e.say("Yes?")
+// confirmBargeIn is the soft-duck design ported from the Python engine: the
+// VAD blip alone is only TENTATIVE (narration keeps playing); a real
+// transcript — noise-filtered AND owner-verified when an imprint exists —
+// CONFIRMS the barge-in. Only then is the output of the unfinished
+// utterance cut (librhvoice mid-stream abort, exact fraction logged) and
+// the floor walked SYSTEM →(K,G) BOTHs →(R,K) USER (transitions 7+8). The
+// robot's own TTS voice cannot confirm: whisper's noise filters eat AEC
+// residue, and the voice imprint rejects what survives.
+func (e *Engine) confirmBargeIn(pcm []byte) {
+	res, ok := e.STT.Transcribe(pcm)
+	if !ok || res.Parasite {
+		log.Print("[barge-in] tentative blip was noise — narration continues")
+		return
+	}
+	if e.Owner != nil {
+		if ok, score := e.Owner.IsOwner(pcm); !ok {
+			log.Printf("[barge-in] voice not the owner (%.2f) — "+
+				"narration continues", score)
 			return
 		}
 	}
+	log.Printf("[barge-in] CONFIRMED by %q — cutting TTS", res.Text)
+	e.TTS.Cancel()
+	// drain the speaker's completion so floor accounting stays single-owner
+	select {
+	case <-e.ttsDone:
+	case <-time.After(2 * time.Second):
+	}
+	e.speaking = false
+	e.speakEndT = time.Now()
+	_ = e.Turn.UserAction('G')   // SYSTEM → BOTHs (transition 7)
+	_ = e.Turn.SystemAction('R') // BOTHs → USER  (transition 8)
+	e.processUtterance(res.Text, pcm)
+}
 
+// processUtterance runs the attention + owner gates, then the intent turn.
+// pcm may be nil (headless) — voice verification is then skipped.
+func (e *Engine) processUtterance(text string, pcm []byte) {
+	if !e.Attn.Awake() {
+		// ASLEEP: only the wake word acts — and when an owner is imprinted,
+		// only in the OWNER's voice (the robot imprints; ownership transfer
+		// = replace the profile file).
+		if matched, _ := e.Attn.MatchWake(text); !matched {
+			log.Printf("[asleep] ignored: %q", text)
+			return
+		}
+		if e.ownerGated("wake") && pcm != nil && e.Owner != nil {
+			if ok, score := e.Owner.IsOwner(pcm); !ok {
+				log.Printf("[asleep] wake word in a stranger's voice "+
+					"(%.2f) — staying asleep", score)
+				return
+			}
+		}
+		d := e.Attn.OnUtterance(text) // wakes
+		log.Print("[attention] awake")
+		if d.Text == "" {
+			e.grabAndSay("Yes?")
+			return
+		}
+		text = d.Text
+	} else {
+		if e.ownerGated("always") && pcm != nil && e.Owner != nil {
+			if ok, score := e.Owner.IsOwner(pcm); !ok {
+				log.Printf("[owner] utterance rejected (%.2f): %q", score, text)
+				return
+			}
+		}
+		d := e.Attn.OnUtterance(text)
+		switch d.Action {
+		case "sleep":
+			log.Print("[attention] → ASLEEP")
+			e.grabAndSay("Voice controls disabled.")
+			return
+		case "ignore":
+			return
+		}
+		text = d.Text
+	}
+	e.handleUtterance(text)
+}
+
+// ownerGated reports whether `stage` requires the owner's voice.
+func (e *Engine) ownerGated(stage string) bool {
+	switch e.cfg.OwnerGate {
+	case "always":
+		return true
+	case "wake":
+		return stage == "wake"
+	}
+	return false
+}
+
+// grabAndSay speaks a short system phrase with proper floor handling.
+func (e *Engine) grabAndSay(text string) {
+	if err := e.Turn.SystemAction('G'); err != nil {
+		return
+	}
+	e.say(text)
+}
+
+func (e *Engine) handleUtterance(text string) {
 	if !e.Turn.IsUser() {
 		return
 	}

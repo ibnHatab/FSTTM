@@ -140,7 +140,7 @@ func TestFullTurnFSMTrace(t *testing.T) {
 // 7+8 — the paper's successful barge-in).
 func TestBargeInCutsSpeakerAndYieldsFloor(t *testing.T) {
 	spk := newFakeSpeaker(5 * time.Second) // long narration to interrupt
-	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: true},
+	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: "vad"},
 		fakeLLM{json: `{"intent":"LOCAL_ACTION","action":"STAND_UP"}`,
 			voice: "Standing up now, this takes a while."},
 		fakeSTT{}, spk)
@@ -167,7 +167,7 @@ func TestBargeInCutsSpeakerAndYieldsFloor(t *testing.T) {
 // (TTS onset transient / leftover frames from the user's own utterance).
 func TestBargeInGraceSuppresssesEarlyBlip(t *testing.T) {
 	spk := newFakeSpeaker(900 * time.Millisecond)
-	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: true},
+	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: "vad"},
 		fakeLLM{json: `{"intent":"STOP"}`, voice: "Stopping."},
 		fakeSTT{}, spk)
 	events, cancel, wg := run(t, e)
@@ -254,7 +254,8 @@ func TestJSONParrotNeverSpoken(t *testing.T) {
 // Wake word: asleep engine ignores commands, wakes on the word, strips it.
 func TestWakeWord(t *testing.T) {
 	spk := newFakeSpeaker(10 * time.Millisecond)
-	e := New(Config{SystemPrompt: "p", GBNF: "g", WakeWord: "rex"},
+	e := New(Config{SystemPrompt: "p", GBNF: "g", Attention: true,
+		WakeWords: []string{"rex", "hey rex"}},
 		fakeLLM{json: `{"intent":"LOCAL_ACTION","action":"SIT_DOWN"}`,
 			voice: "Sitting."},
 		fakeSTT{}, spk)
@@ -322,4 +323,114 @@ func TestAnnounceDeferredWhileUserHoldsFloor(t *testing.T) {
 	if said := spk.said(); said[0] != "Sitting." || said[1] != "Obstacle ahead." {
 		t.Fatalf("order wrong: %v", said)
 	}
+}
+
+// ── confirm-mode barge-in (soft-duck) + owner imprinting ─────────────────────
+
+// fakeOwner accepts only utterances whose PCM starts with "owner:".
+type fakeOwner struct{}
+
+func (fakeOwner) IsOwner(pcm []byte) (bool, float64) {
+	if strings.HasPrefix(string(pcm), "owner:") {
+		return true, 0.83
+	}
+	return false, 0.21
+}
+
+// ownerSTT strips the speaker tag so the transcript is clean text.
+type ownerSTT struct{}
+
+func (ownerSTT) Transcribe(pcm []byte) (stt.Result, bool) {
+	s := string(pcm)
+	s = strings.TrimPrefix(s, "owner:")
+	s = strings.TrimPrefix(s, "stranger:")
+	if s == "" {
+		return stt.Result{}, false // noise
+	}
+	return stt.Result{Text: s}, true
+}
+
+// In confirm mode a stranger's interjection (or surviving echo of the
+// robot's own voice — same thing to the verifier) must NOT cut narration.
+func TestConfirmBargeInRejectsStranger(t *testing.T) {
+	spk := newFakeSpeaker(800 * time.Millisecond)
+	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: "confirm"},
+		fakeLLM{json: `{"intent":"STOP"}`, voice: "Working on it."},
+		ownerSTT{}, spk)
+	e.Owner = fakeOwner{}
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	events <- utter("owner:stand up")
+	waitFor(t, func() bool { return e.Turn.State == fsm.System }, "narrating")
+	events <- utter("stranger:stop right now") // overlapping utterance
+	waitFor(t, func() bool { return e.Turn.State == fsm.FreeS }, "narration completed")
+	if said := spk.said(); len(said) != 1 {
+		t.Fatalf("stranger cut the narration: %v", said)
+	}
+}
+
+// The imprinted OWNER's overlapping utterance confirms: TTS is cut, the
+// floor walks transitions 7+8, and the interrupting command is handled.
+func TestConfirmBargeInOwnerCutsAndHandles(t *testing.T) {
+	spk := newFakeSpeaker(5 * time.Second) // long narration to interrupt
+	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: "confirm"},
+		fakeLLM{json: `{"intent":"STOP"}`, voice: "Okay."},
+		ownerSTT{}, spk)
+	e.Owner = fakeOwner{}
+	tr := trace(e)
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	events <- utter("owner:stand up")
+	waitFor(t, func() bool { return e.Turn.State == fsm.System }, "narrating")
+	events <- utter("owner:stop") // the confirmed barge-in
+	waitFor(t, func() bool { return len(spk.said()) == 2 }, "interrupt handled")
+
+	got := strings.Join(*tr, " ")
+	if !strings.Contains(got, "SYSTEM-(K_G)->BOTHs") ||
+		!strings.Contains(got, "BOTHs-(R_K)->USER") {
+		t.Fatalf("confirmed barge-in must walk SYSTEM→BOTHs→USER: %s", got)
+	}
+}
+
+// Noise during narration (STT rejects it) never confirms.
+func TestConfirmBargeInIgnoresNoise(t *testing.T) {
+	spk := newFakeSpeaker(600 * time.Millisecond)
+	e := New(Config{SystemPrompt: "p", GBNF: "g", BargeIn: "confirm"},
+		fakeLLM{json: `{"intent":"STOP"}`, voice: "Okay then."},
+		ownerSTT{}, spk)
+	e.Owner = fakeOwner{}
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	events <- utter("owner:sit down")
+	waitFor(t, func() bool { return e.Turn.State == fsm.System }, "narrating")
+	events <- utter("owner:") // cough — STT returns nothing
+	waitFor(t, func() bool { return e.Turn.State == fsm.FreeS }, "completed")
+	if len(spk.said()) != 1 {
+		t.Fatal("noise must not interrupt")
+	}
+}
+
+// Imprinting: with gate=wake, the wake word in a stranger's voice leaves the
+// robot asleep; the owner's voice wakes it.
+func TestImprintedWakeGate(t *testing.T) {
+	spk := newFakeSpeaker(10 * time.Millisecond)
+	e := New(Config{SystemPrompt: "p", GBNF: "g",
+		Attention: true, WakeWords: []string{"rex"}, OwnerGate: "wake"},
+		fakeLLM{json: `{"intent":"LOCAL_ACTION","action":"SIT_DOWN"}`,
+			voice: "Sitting."},
+		ownerSTT{}, spk)
+	e.Owner = fakeOwner{}
+	events, cancel, wg := run(t, e)
+	defer func() { cancel(); wg.Wait() }()
+
+	events <- utter("stranger:hey rex sit down")
+	time.Sleep(120 * time.Millisecond)
+	if len(spk.said()) != 0 || e.Attn.Awake() {
+		t.Fatal("stranger's wake word must leave the robot asleep")
+	}
+	events <- utter("owner:hey rex sit down")
+	waitFor(t, func() bool { return len(spk.said()) == 1 }, "owner wake+command")
 }

@@ -19,7 +19,33 @@ tts:
 vad:
     aggressiveness: 3
     padding_ms: 700
+# Echo cancellation + noise suppression (port of the Python EchoCancelSession):
+# module-echo-cancel with webrtc gives AEC + built-in NS; rnnoise chains the
+# LADSPA suppressor on the AEC output — the recipe for a mic strapped to
+# twelve motors. PulseAudio defaults are routed so capture/playback just work.
+aec:
+    enabled: false            # true on the robot (needs PulseAudio/PipeWire)
+    rnnoise: false            # true when librnnoise_ladspa.so is installed
+    method: auto              # auto | webrtc | speex
+    source_master: ""         # raw mic; "" = current default source
+
+# Owner voice imprint — the robot listens to ONE person. Enroll:
+#   ./bin/fsttm-imprint -model models/speaker/wespeaker_en_voxceleb_CAM++.onnx \
+#       -profile models/speaker/owner.json -owner you -record 3
+# Ownership transfer = re-run enrollment (replaces the profile).
+voice_id:
+    model: "/home/axadmin/repo/vox/FSTTM/models/speaker/wespeaker_en_voxceleb_CAM++.onnx"
+    profile: "/home/axadmin/repo/vox/FSTTM/models/speaker/owner.json"
+    threshold: 0.40           # cosine acceptance (human voices)
+    gate: wake                # off | wake (imprinting) | always
+
+attention:
+    enabled: false            # true → asleep until the wake word (owner-gated)
+    wake_words: ["rex", "hey rex", "hello rex"]
+    sleep_phrases: ["go to sleep", "voice off", "stop listening", "that's all"]
+
 prompt:  grammar/dog-prompt.txt
 grammar: grammar/dog.gbnf
-wake_word: ""             # e.g. "rex" — asleep until heard, then stays awake
-barge_in: false           # enable only with AEC in the audio path
+barge_in: "off"           # off (half-duplex) | vad (needs clean AEC) |
+                          # confirm (soft-duck: transcript + owner voice must
+                          # confirm before narration is cut — the robot setup)

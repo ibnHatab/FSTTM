@@ -72,6 +72,48 @@ PY
   the announcement is deferred, never cutting them. Works from cold boot:
   the FSM initializes in FREEu (nobody claims the floor at start).
 
+## Barge-in: the full solution
+
+`barge_in: "confirm"` is the production mode for the robot — the Python
+engine's soft-duck design completed with voice imprinting:
+
+1. **AEC + noise suppression** (`aec:` block, port of the Python
+   EchoCancelSession): PulseAudio `module-echo-cancel` with webrtc — echo
+   cancellation AND built-in noise suppression — plus an optional **RNNoise
+   LADSPA chain** on the AEC output for the twelve-motor noise floor. The EC
+   source/sink become the PulseAudio defaults; restored on exit.
+2. **Tentative, not trigger-happy**: a VAD onset during narration cuts
+   nothing — the overlapping utterance is captured and transcribed while
+   the robot keeps talking.
+3. **Confirmation**: only a real transcript (whisper noise/parasite filters)
+   **in the imprinted owner's voice** cuts the narration — librhvoice aborts
+   synthesis mid-stream, the exact fraction heard is logged, and the floor
+   walks SYSTEM→BOTHs→USER (paper transitions 7+8). AEC residue rarely
+   survives STT; whatever does can never match the owner imprint, because
+   the robot's own TTS voice is not the owner.
+
+`"vad"` (cut on bare onset) remains for setups with hardware AEC;
+`"off"` (half-duplex) for no echo control at all.
+
+## Owner imprinting (voice_id)
+
+The robot listens to ONE person. A speaker-embedding model (sherpa-onnx,
+CPU, no torch) scores every gated utterance against the enrolled profile:
+
+```bash
+./bin/fsttm-imprint -model models/speaker/wespeaker_en_voxceleb_CAM++.onnx \
+    -profile models/speaker/owner.json -owner you -record 3
+```
+
+- `voice_id.gate: wake` — imprinting: the wake word ("hello rex", "hey
+  rex", … — the attention layer ports the Python wake/sleep machine, incl.
+  the rule that only a wake-prefixed utterance can put the robot to sleep)
+  only works in the owner's voice; `always` gates every command.
+- Barge-in confirmation always requires the owner when a profile exists.
+- **Ownership transfer = re-run enrollment** — the new profile atomically
+  replaces the old; nothing else changes. Proven by e2e tests that enroll
+  one RHVoice voice as owner, reject another, then transfer between them.
+
 ## Semantic verification
 
 The FSM is machine-checked against the N09-1071 paper (canonical 12-

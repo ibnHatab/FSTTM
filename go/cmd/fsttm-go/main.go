@@ -22,12 +22,14 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/pipeline"
 	"github.com/ibnHatab/fsttm/go/internal/stt"
 	"github.com/ibnHatab/fsttm/go/internal/tts"
 	"github.com/ibnHatab/fsttm/go/internal/vad"
+	"github.com/ibnHatab/fsttm/go/internal/voiceid"
 )
 
 type config struct {
@@ -54,10 +56,26 @@ type config struct {
 		Aggressiveness int `yaml:"aggressiveness"`
 		PaddingMs      int `yaml:"padding_ms"`
 	} `yaml:"vad"`
-	Prompt   string `yaml:"prompt"`    // system prompt file
-	Grammar  string `yaml:"grammar"`   // GBNF file
-	WakeWord string `yaml:"wake_word"` // "" → always awake
-	BargeIn  bool   `yaml:"barge_in"`  // needs AEC in the audio path
+	AEC struct {
+		Enabled      bool   `yaml:"enabled"`
+		RNNoise      bool   `yaml:"rnnoise"`
+		Method       string `yaml:"method"`
+		SourceMaster string `yaml:"source_master"`
+	} `yaml:"aec"`
+	VoiceID struct {
+		Model     string  `yaml:"model"`     // speaker-embedding ONNX
+		Profile   string  `yaml:"profile"`   // owner imprint (fsttm-imprint)
+		Threshold float64 `yaml:"threshold"` // cosine acceptance (0.40)
+		Gate      string  `yaml:"gate"`      // off | wake | always
+	} `yaml:"voice_id"`
+	Attention struct {
+		Enabled      bool     `yaml:"enabled"`
+		WakeWords    []string `yaml:"wake_words"`
+		SleepPhrases []string `yaml:"sleep_phrases"`
+	} `yaml:"attention"`
+	Prompt  string `yaml:"prompt"`   // system prompt file
+	Grammar string `yaml:"grammar"`  // GBNF file
+	BargeIn string `yaml:"barge_in"` // off | vad | confirm
 }
 
 func main() {
@@ -86,6 +104,35 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(),
 		os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	// ── echo cancellation + noise suppression ────────────────────────────
+	// module-echo-cancel (webrtc AEC + NS, optional RNNoise chain for motor
+	// noise); routes the PulseAudio defaults so capture/playback pick up the
+	// EC devices automatically. Restored on exit.
+	if !*headless {
+		ec, err := aec.Start(aec.Config{Enabled: cfg.AEC.Enabled,
+			RNNoise: cfg.AEC.RNNoise, Method: cfg.AEC.Method,
+			SourceMaster: cfg.AEC.SourceMaster})
+		if err != nil {
+			log.Printf("[aec] %v — continuing on the raw mic", err)
+		} else {
+			defer ec.Close()
+		}
+	}
+
+	// ── owner voice imprint ──────────────────────────────────────────────
+	var owner pipeline.OwnerVerifier
+	if cfg.VoiceID.Model != "" && cfg.VoiceID.Profile != "" {
+		v, err := voiceid.New(voiceid.Config{Model: cfg.VoiceID.Model,
+			Profile: cfg.VoiceID.Profile, Threshold: cfg.VoiceID.Threshold})
+		if err != nil {
+			log.Printf("[voiceid] %v — running unimprinted", err)
+		} else {
+			owner = v
+			log.Printf("[voiceid] imprinted to %q (gate=%s)",
+				v.Owner(), cfg.VoiceID.Gate)
+		}
+	}
 
 	// ── drivers ──────────────────────────────────────────────────────────
 	l, err := llm.Load(llm.Config{ModelPath: cfg.LLM.Model, NCtx: cfg.LLM.NCtx,
@@ -118,8 +165,13 @@ func main() {
 
 	eng := pipeline.New(pipeline.Config{
 		SystemPrompt: string(prompt), GBNF: string(gbnf),
-		WakeWord: cfg.WakeWord, BargeIn: cfg.BargeIn,
+		Attention:    cfg.Attention.Enabled,
+		WakeWords:    cfg.Attention.WakeWords,
+		SleepPhrases: cfg.Attention.SleepPhrases,
+		BargeIn:      cfg.BargeIn,
+		OwnerGate:    cfg.VoiceID.Gate,
 	}, l, s, t)
+	eng.Owner = owner
 
 	// SIGUSR1 → system-initiated announcement (transition 5: the system may
 	// freely take an unclaimed floor). Robot processes use Engine.Announce
