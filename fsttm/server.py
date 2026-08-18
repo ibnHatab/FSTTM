@@ -417,6 +417,17 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
                         prompt = prompt + "\n\n" + f.read().strip()
                 except OSError as e:
                     _emit(f"[intent] WARNING: cannot load prompt file: {e}", "warn")
+            # Headroom guard: the pre-warmed prefix must leave room for the
+            # tail eval + TWO generation passes (JSON + spoken ack). A prefix
+            # crowding n_ctx degenerates into garbage JSON fields and
+            # gibberish acks (observed live at ~3.9k/4096).
+            est_tok = len(prompt) // 3          # conservative chars/token
+            n_ctx = getattr(g, 'n_ctx', 2048)
+            if est_tok > n_ctx * 0.75:
+                _emit(f"[intent] WARNING: prompt ≈{est_tok} tok crowds "
+                      f"n_ctx {n_ctx} — expect degenerate output. Drop the "
+                      f"intent_prompt overlay or use a leaner prompt_variant.",
+                      "warn")
             events.append(llama.AddSystem(prompt=prompt))
             doms = _intent_domains[0] or provider.sub_domains
             _emit(f"[intent] domain: {provider.name} "

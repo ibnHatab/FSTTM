@@ -90,7 +90,13 @@ system:
     intent_mode: true
     domain: "hvac"         # fsttm.domains entry-point (pip install fsttm-hvac)
     prompt_variant: "few-shot-extra"
-    intent_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
+    # intent_prompt: optional EXTRA prompt file appended to the assembled
+    # domain prompt. LEAVE OFF with few-shot-extra: the overlay duplicates the
+    # in-code teaching and pushed the pre-warmed prefix to ~3.9k tokens —
+    # inside n_ctx 4096 that leaves <200 tokens for the two generation passes
+    # and the model degenerates (observed live: garbage JSON fields + gibberish
+    # spoken ack). The assembled prompt alone is ~2.4k tokens.
+    # intent_prompt: "/home/axadmin/repo/vox/FSTTM/contrib/hvac/fsttm_hvac/prompts/hvac-intentions-phi3.txt"
     intent_domains: ["climate", "lights", "body", "manual"]
     attention: true
                            # keeps transcribing but commands are ignored until a

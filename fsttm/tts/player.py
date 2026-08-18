@@ -12,6 +12,7 @@ handles rate/channel conversion.
 from __future__ import annotations
 
 import os
+import time
 
 import numpy as np
 
@@ -86,10 +87,21 @@ class PcmPlayer:
         """Write PCM in chunks, bailing out as soon as cancel_event is set
         (barge-in). Runs in an executor thread. The whole buffer is converted
         to the output channel layout ONCE up front so each write is a plain
-        slice with no per-chunk numpy work."""
+        slice with no per-chunk numpy work.
+
+        Returns only when the audio has actually FINISHED PLAYING (or was
+        cancelled): stream.write merely queues frames, and the PulseAudio
+        plugin can absorb seconds of audio into its own buffer, so the chunk
+        loop may complete almost instantly. Without the drain wait below,
+        PlaybackDone fires while the speaker is still talking — the narrator
+        un-ducks, the open mic transcribes the assistant's own voice, and the
+        pipeline feeds itself (observed live with AEC off)."""
         stream = self._stream
         if stream is None:
             return
+        # Wall-clock duration of the MONO payload (before channel conversion).
+        duration = len(pcm) / (2.0 * self._sample_rate)
+        t0 = time.monotonic()
         if self._channels == 2:
             # mono → interleaved stereo, once
             a = np.frombuffer(pcm, dtype=np.int16)
@@ -105,9 +117,19 @@ class PcmPlayer:
                 stream.write(pcm[off:off + step])
             except Exception:
                 break
+        if not cancelled:
+            # Drain wait: hold until the playback clock catches up with the
+            # queued audio, still honouring barge-in cancel every 50 ms.
+            while not cancel_event.is_set():
+                remaining = duration - (time.monotonic() - t0)
+                if remaining <= 0:
+                    break
+                time.sleep(min(0.05, remaining))
+            cancelled = cancel_event.is_set() and \
+                (time.monotonic() - t0) < duration
         if cancelled:
             # Flush audio already queued in the device buffer so playback
-            # stops now instead of draining the remaining ~340 ms.
+            # stops now instead of draining the remainder.
             try:
                 stream.stop_stream()
                 stream.start_stream()

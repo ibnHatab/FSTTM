@@ -178,3 +178,60 @@ def test_rhvoice_probe_and_synthesize():
     pcm = b.synthesize("hello from fsttm")
     assert len(pcm) > 8000                 # non-trivial audio
     assert len(pcm) % 2 == 0               # s16le
+
+
+# ── player drain semantics ───────────────────────────────────────────────────
+
+class _InstantStream:
+    """Mimics the PulseAudio plugin: write() queues instantly, never blocks."""
+    def __init__(self):
+        self.flushed = False
+
+    def write(self, data):
+        pass
+
+    def stop_stream(self):
+        self.flushed = True
+
+    def start_stream(self):
+        pass
+
+
+def _mk_player(rate=16000):
+    from fsttm.tts.player import PcmPlayer
+    p = PcmPlayer()
+    p._stream = _InstantStream()
+    p._channels = 1
+    p._sample_rate = rate
+    return p
+
+
+def test_write_drains_for_real_duration():
+    """PulseAudio buffers whole clips without blocking; write() must still
+    hold until the audio has actually played, or PlaybackDone un-ducks the
+    mic mid-speech and the pipeline hears itself (observed live)."""
+    import threading
+    import time as _t
+    p = _mk_player(rate=16000)
+    pcm = b"\x00" * (2 * 8000)              # 0.5 s of mono s16le
+    t0 = _t.monotonic()
+    p.write(pcm, threading.Event())
+    elapsed = _t.monotonic() - t0
+    assert 0.45 <= elapsed <= 1.0
+    assert not p._stream.flushed             # clean finish, no flush
+
+
+def test_write_cancel_interrupts_drain():
+    import threading
+    import time as _t
+    p = _mk_player(rate=16000)
+    pcm = b"\x00" * (2 * 32000)             # 2 s
+    cancel = threading.Event()
+    t = threading.Timer(0.15, cancel.set)
+    t.start()
+    t0 = _t.monotonic()
+    p.write(pcm, cancel)
+    elapsed = _t.monotonic() - t0
+    t.cancel()
+    assert elapsed < 0.5                     # bailed on cancel, not 2 s
+    assert p._stream.flushed                 # device buffer flushed
