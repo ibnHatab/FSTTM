@@ -138,6 +138,33 @@ the pipe protocol for SIL/laptop runs without ROS. Interop verified on
 dalek: `ros2 topic echo` shows typed Request/PoseStamped traffic and
 `ros2 topic pub /nina/say` reaches Engine.Announce.
 
+## Go2 speaker over WebRTC (streaming TTS)
+
+`tts.engine: go2` streams synthesized speech straight to the Unitree Go2's
+speaker over WebRTC — the LIVE audio transceiver, so a reply is heard the
+moment it's synthesized (no file upload, no MP3 round-trip like the audiohub
+path). A Go port of the audio path in
+[legion1581/unitree_webrtc_connect](https://github.com/legion1581/unitree_webrtc_connect)
+(Python/aiortc → Go/pion + libopus), `internal/go2audio`:
+
+- **LAN signaling** (`con_notify`/`con_ing` on :9991, legacy `/offer` on
+  :8081) with the full crypto — MD5 validation key, AES-ECB(PKCS7) SDP
+  wrap, RSA-PKCS1v15 key exchange, AES-GCM `data1` decrypt — **pinned to the
+  Python reference vectors** (`crypto_vectors_test.go`).
+- **pion driver**: peer connection, the `data` control channel (validation
+  challenge + 2 s heartbeat), the audio sender track, and `switchAudioChannel`.
+- **speaker**: RHVoice 24 kHz → ×2 upsample → Opus 20 ms frames → track;
+  Cancel stops mid-utterance (barge-in) and reports the exact fraction heard.
+
+```bash
+go2say -ip 192.168.123.161 -aes <32hex> "Hello from Nina."   # standalone probe
+```
+
+Newer firmware (Go2 ≥ 1.1.15) needs the per-device AES-128 key (`data2=3`);
+fetch it once via the Unitree cloud. Offline-verified here (crypto vectors,
+Opus round-trip, upsample ratios); the on-robot audio test is operator-run —
+no Go2 was on the LAN at build time.
+
 ## Semantic verification
 
 The FSM is machine-checked against the N09-1071 paper (canonical 12-

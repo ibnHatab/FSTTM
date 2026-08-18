@@ -25,6 +25,7 @@ import (
 
 	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
+	"github.com/ibnHatab/fsttm/go/internal/go2audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/nina"
 	"github.com/ibnHatab/fsttm/go/internal/pipeline"
@@ -48,12 +49,16 @@ type config struct {
 		Parasites []string `yaml:"parasites"`
 	} `yaml:"stt"`
 	TTS struct {
-		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess
+		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess | go2
 		Voice  string  `yaml:"voice"`
 		Rate   float64 `yaml:"rate"`
 		Volume float64 `yaml:"volume"`
 		Player string  `yaml:"player"`
 	} `yaml:"tts"`
+	Go2 struct { // tts.engine: go2 — stream TTS to the robot speaker (WebRTC)
+		IP     string `yaml:"ip"`
+		AES128 string `yaml:"aes_128_key"`
+	} `yaml:"go2_speaker"`
 	VAD struct {
 		Aggressiveness int `yaml:"aggressiveness"`
 		PaddingMs      int `yaml:"padding_ms"`
@@ -163,13 +168,24 @@ func main() {
 	defer s.Close()
 	log.Print("[stt] whisper ready (warmed)")
 
-	t, err := tts.NewSpeaker(tts.Config{Engine: cfg.TTS.Engine,
-		Voice: cfg.TTS.Voice, Rate: cfg.TTS.Rate,
-		Volume: cfg.TTS.Volume, Player: cfg.TTS.Player})
-	if err != nil {
-		log.Fatal(err)
+	tcfg := tts.Config{Engine: cfg.TTS.Engine, Voice: cfg.TTS.Voice,
+		Rate: cfg.TTS.Rate, Volume: cfg.TTS.Volume, Player: cfg.TTS.Player}
+	var t tts.Speaker
+	if cfg.TTS.Engine == "go2" {
+		// Stream TTS to the Go2 speaker over WebRTC (no local audio device).
+		gs, err := go2audio.NewGo2Speaker(ctx,
+			go2audio.Config{IP: cfg.Go2.IP, AES128: cfg.Go2.AES128}, tcfg)
+		if err != nil {
+			log.Fatalf("[tts] go2 speaker: %v", err)
+		}
+		t = gs
+	} else {
+		var err error
+		if t, err = tts.NewSpeaker(tcfg); err != nil {
+			log.Fatal(err)
+		}
 	}
-	log.Printf("[tts] rhvoice ready (engine=%T)", t)
+	log.Printf("[tts] speaker ready (engine=%T)", t)
 
 	eng := pipeline.New(pipeline.Config{
 		SystemPrompt: string(prompt), GBNF: string(gbnf),
