@@ -142,8 +142,11 @@ func gcmDecryptLegacy(b64 string, staticKey []byte) (string, error) {
 	return gcmDecrypt(b64, staticKey)
 }
 
-// gcmDecrypt — AESGCM(key).decrypt(nonce, ciphertext+tag): first 12 bytes
-// nonce, remainder ciphertext‖tag.
+// gcmDecrypt — the Unitree blob layout is [ciphertext ‖ nonce(12) ‖ tag(16)]:
+// the 12-byte nonce is a SUFFIX, appended after the ciphertext, with the GCM
+// tag last. (The apk/aiortc reference builds it this way; the field truth on
+// fw 1.1.9 confirmed it — a nonce-PREFIX guess fails GCM auth. Python:
+// tag=raw[-16:], nonce=raw[-28:-16], ct=raw[:-28].)
 func gcmDecrypt(b64 string, key []byte) (string, error) {
 	raw, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
@@ -160,7 +163,10 @@ func gcmDecrypt(b64 string, key []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	out, err := g.Open(nil, raw[:12], raw[12:], nil)
+	n := len(raw)
+	nonce := raw[n-28 : n-16]
+	ctAndTag := append(append([]byte{}, raw[:n-28]...), raw[n-16:]...)
+	out, err := g.Open(nil, nonce, ctAndTag, nil)
 	if err != nil {
 		return "", fmt.Errorf("go2audio: gcm auth failed (wrong AES-128 key?): %w", err)
 	}

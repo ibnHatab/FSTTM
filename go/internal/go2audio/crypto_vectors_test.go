@@ -33,10 +33,11 @@ func TestAesEcbVector(t *testing.T) {
 }
 
 func TestGcmLegacyDecryptVector(t *testing.T) {
-	// AESGCM(static apk key).encrypt(nonce=0..11, "session-public-key-body")
+	// AESGCM(static apk key), SUFFIX layout [ct‖nonce(0..11)‖tag] — the
+	// robot's real wire format (fw 1.1.9 field-confirmed), not nonce-prefix
 	staticKey := []byte{232, 86, 130, 189, 22, 84, 155, 0, 142, 4, 166,
 		104, 43, 179, 235, 227}
-	blob := "AAECAwQFBgcICQoL2cfMwkss8E69OWXgzOvtnS544227M1Q4Fu4F3ttBDxwWQZJVgueN"
+	blob := "2cfMwkss8E69OWXgzOvtnS544227M1QAAQIDBAUGBwgJCgs4Fu4F3ttBDxwWQZJVgueN"
 	got, err := gcmDecryptLegacy(blob, staticKey)
 	if err != nil || got != "session-public-key-body" {
 		t.Fatalf("gcmDecryptLegacy = %q (%v)", got, err)
