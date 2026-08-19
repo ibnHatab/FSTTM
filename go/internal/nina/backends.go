@@ -11,16 +11,13 @@ import (
 	"github.com/ibnHatab/fsttm/go/internal/intent"
 )
 
-// H2 firmware contract (h2-command-contract.md; confirmed by the nina_ws
-// agent 2026-08-18). ClassicWalk 2049 {data:true} exists in the table but is
-// mode control, not a voice action.
-var sportAPI = map[string]int{
-	"STAND_UP": 1004, "SIT_DOWN": 1009, "LIE_DOWN": 1005,
-	"STRETCH": 1017, "SHAKE": 1016, "STOP": 1003, "BALANCE": 1002,
-}
+// The api-id table lives in ONE place: cmd_arbiter (nina_bt). This engine
+// speaks action NAMES on /nina/action; the arbiter maps, gates on armed
+// state, and refuses anything outside its voice-safe table.
 
-// Voice-safe subset: the LLM's enum is wider than what a spoken command may
-// trigger — no JUMP/POUNCE from speech.
+// Voice-safe subset (defense in depth — the arbiter re-validates): the
+// LLM's enum is wider than what a spoken command may trigger — no
+// JUMP/POUNCE from speech.
 var voiceSafe = map[string]bool{
 	"STAND_UP": true, "SIT_DOWN": true, "LIE_DOWN": true,
 	"STRETCH": true, "SHAKE": true,
@@ -40,8 +37,8 @@ func (a *Actions) Execute(c *intent.Command) {
 		log.Printf("[nina] action %s refused (voice-safe set only)", c.Action)
 		return
 	}
-	a.Link.Sport(sportAPI[c.Action], c.Action, nil)
-	log.Printf("[nina] sport %s sent", c.Action)
+	a.Link.Action(c.Action)
+	log.Printf("[nina] action %s → /nina/action (arbiter owns sport)", c.Action)
 }
 
 // turn: bounded in-place rotation through /cmd_vel — the cmd_arbiter owns
@@ -69,9 +66,9 @@ func (a *Actions) Velocity(v *intent.Command) {
 	log.Print("[nina] VELOCITY intents are planner territory (spec §3) — ignored")
 }
 
-func (a *Actions) Stop() { // spec §14: immediate, bypasses planning
-	a.Link.Sport(sportAPI["STOP"], "STOP", nil)
-	log.Print("[nina] STOP → StopMove")
+func (a *Actions) Stop() { // spec §14: immediate — arbiter honors STOP even disarmed
+	a.Link.Action("STOP")
+	log.Print("[nina] STOP → /nina/action")
 }
 
 func (a *Actions) Cancel() { a.Stop() }
@@ -99,8 +96,8 @@ func (n *Nav) Follow(t intent.SemanticTarget) {
 }
 
 func (n *Nav) Cancel() {
-	n.Link.Sport(sportAPI["STOP"], "STOP", nil)
-	log.Print("[nina] nav cancel → StopMove")
+	n.Link.Action("STOP")
+	log.Print("[nina] nav cancel → /nina/action STOP")
 }
 
 // NewDispatcher wires the dog-intent dispatcher to the Nina seams. Canvas

@@ -94,17 +94,24 @@ func TestLinkEmitsContractedEventsOnly(t *testing.T) {
 		}
 		events = append(events, ev)
 	}
-	// SIT_DOWN sport, then STOP twice (actions.Stop + nav.Cancel — both
-	// StopMove per spec §14)
+	// SIT_DOWN action name, then STOP twice (actions.Stop + nav.Cancel —
+	// both immediate per spec §14). The engine speaks NAMES on
+	// /nina/action; api-ids live only in the cmd_arbiter (single motion
+	// author — stand-up incident 2026-08-19).
 	if len(events) != 3 {
 		t.Fatalf("expected 3 events, got %v", events)
 	}
-	if events[0]["ev"] != "sport" || events[0]["api_id"].(float64) != 1009 {
-		t.Fatalf("SIT_DOWN → api 1009, got %v", events[0])
+	if events[0]["ev"] != "action" || events[0]["name"] != "SIT_DOWN" {
+		t.Fatalf(`SIT_DOWN → {ev:action name:SIT_DOWN}, got %v`, events[0])
 	}
 	for _, ev := range events[1:] {
-		if ev["ev"] != "sport" || ev["api_id"].(float64) != 1003 {
-			t.Fatalf("STOP → StopMove 1003, got %v", ev)
+		if ev["ev"] != "action" || ev["name"] != "STOP" {
+			t.Fatalf("STOP → action STOP, got %v", ev)
+		}
+	}
+	for _, ev := range events {
+		if ev["ev"] == "sport" {
+			t.Fatalf("voice stack must NEVER emit a sport event: %v", ev)
 		}
 	}
 }

@@ -1,0 +1,24 @@
+llm:
+    model: /home/applied/repo/vox/FSTTM/models/Phi-3-mini-4k-instruct-Q4_K_M.gguf
+    n_ctx: 2048
+    n_batch: 2048
+    n_threads: 8
+    n_gpu_layers: 0
+stt:
+    model: /home/applied/repo/vox/FSTTM/models/ggml-base.en-q5_1.bin
+    language: en
+tts:
+    engine: subprocess
+    voice: SLT
+    rate: 0.3
+    volume: -0.1
+    player: "aplay -q"
+vad: {aggressiveness: 3, padding_ms: 700}
+nina:
+    enabled: true
+    transport: ros
+    canvas_pack: /home/applied/repo/vox/FSTTM/go/internal/nina/testdata/pack.npz
+    phrase_cache: /home/applied/repo/vox/FSTTM/go/internal/nina/testdata/phrases.npz
+prompt:  /home/applied/repo/vox/FSTTM/go/grammar/dog-prompt.txt
+grammar: /home/applied/repo/vox/FSTTM/go/grammar/dog.gbnf
+barge_in: "off"

@@ -3,7 +3,7 @@
 //
 // OUT (our stdout, one JSON object per line, everything else goes to stderr):
 //
-//	{"ev":"sport","api_id":1004,"name":"STAND_UP","params":{}}   → /api/sport/request
+//	{"ev":"action","name":"STAND_UP"}                            → /nina/action (String)
 //	{"ev":"nav_goal","x":4.2,"y":1.7,"z":0.0,"yaw":1.57}         → /nina/nav_goal (map)
 //	{"ev":"cmd_vel","wz":0.4}                                    → /cmd_vel (Twist)
 //	{"ev":"intent","intent":{...},"voice":"..."}                 → /nina/intent
@@ -38,7 +38,12 @@ import (
 // the arbiter doctrine holds: no publisher beyond the contracted topics
 // exists in either implementation.
 type RobotLink interface {
-	Sport(apiID int, name string, params map[string]any)
+	// Action publishes a voice-action NAME on /nina/action. The
+	// cmd_arbiter is the ONLY author on /api/sport/request — it maps the
+	// name to an api-id, gates on armed state, and refuses anything
+	// outside its voice-safe table (stand-up incident 2026-08-19: this
+	// seam must never carry a sport request, only a word).
+	Action(name string)
 	NavGoal(x, y, z, yaw float64)
 	CmdVel(wz float64)
 	Intent(intentJSON any, voice string)
@@ -46,23 +51,18 @@ type RobotLink interface {
 }
 
 type Link struct {
-	mu            sync.Mutex
-	out           io.Writer
-	motionInhibit bool // gate sport/cmd_vel/nav_goal (see RosLink)
+	mu  sync.Mutex
+	out io.Writer
 }
 
 var _ RobotLink = (*Link)(nil)
 
 // NewLink emits events on w (production: os.Stdout — the relay's pipe).
-// armMotion=false (the default via NewLinkSafe) inhibits actuator events.
-func NewLink(w io.Writer) *Link { return NewLinkArmed(w, true) }
-
-// NewLinkArmed lets the caller choose whether actuator events are emitted.
-func NewLinkArmed(w io.Writer, armMotion bool) *Link {
+func NewLink(w io.Writer) *Link {
 	if w == nil {
 		w = os.Stdout
 	}
-	return &Link{out: w, motionInhibit: !armMotion}
+	return &Link{out: w}
 }
 
 func (l *Link) emit(v map[string]any) {
@@ -75,31 +75,15 @@ func (l *Link) emit(v map[string]any) {
 	_, _ = l.out.Write(append(b, '\n'))
 }
 
-func (l *Link) Sport(apiID int, name string, params map[string]any) {
-	if l.motionInhibit {
-		log.Printf("[nina] (inhibited) sport %s api_id=%d", name, apiID)
-		return
-	}
-	ev := map[string]any{"ev": "sport", "api_id": apiID, "name": name}
-	if params != nil {
-		ev["params"] = params
-	}
-	l.emit(ev)
+func (l *Link) Action(name string) {
+	l.emit(map[string]any{"ev": "action", "name": name})
 }
 
 func (l *Link) NavGoal(x, y, z, yaw float64) {
-	if l.motionInhibit {
-		log.Printf("[nina] (inhibited) nav_goal (%.2f, %.2f)", x, y)
-		return
-	}
 	l.emit(map[string]any{"ev": "nav_goal", "x": x, "y": y, "z": z, "yaw": yaw})
 }
 
 func (l *Link) CmdVel(wz float64) {
-	if l.motionInhibit {
-		log.Printf("[nina] (inhibited) cmd_vel wz=%.2f", wz)
-		return
-	}
 	l.emit(map[string]any{"ev": "cmd_vel", "wz": wz})
 }
 
