@@ -41,7 +41,7 @@ func readWav(path string) ([]byte, int) {
 }
 
 func main() {
-	ip := flag.String("ip", "", "robot LAN IP")
+	ip := flag.String("ip", "192.168.123.161", "robot LAN IP (Go2 default on the robot subnet)")
 	aes := flag.String("aes", "", "per-device AES-128 key (32 hex)")
 	wav := flag.String("wav", "", "WAV file instead of TTS")
 	flag.Parse()

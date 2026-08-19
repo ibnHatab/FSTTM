@@ -67,6 +67,15 @@ func Connect(ctx context.Context, cfg Config) (*Conn, error) {
 		return nil, err
 	}
 
+	// video recvonly transceiver: we never consume it, but the PROVEN
+	// uc11 offer (aiortc reference, fw 1.1.9 field test 2026-08-19)
+	// carried audio sendrecv + video recvonly + data — keep the offer
+	// shape identical so the robot's answerer sees what it expects.
+	if _, err = pc.AddTransceiverFromKind(webrtc.RTPCodecTypeVideo,
+		webrtc.RTPTransceiverInit{Direction: webrtc.RTPTransceiverDirectionRecvonly}); err != nil {
+		return nil, err
+	}
+
 	// control data channel
 	c.data, err = pc.CreateDataChannel("data", nil)
 	if err != nil {
