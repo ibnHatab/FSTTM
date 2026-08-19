@@ -26,6 +26,7 @@ type Conn struct {
 	validated chan struct{}
 	valOnce   sync.Once
 	hbStop    chan struct{}
+	closeOnce sync.Once
 }
 
 type Config struct {
@@ -190,9 +191,14 @@ func (c *Conn) WriteOpus(frame []byte, dur time.Duration) error {
 }
 
 func (c *Conn) Close() {
-	close(c.hbStop)
-	c.switchAudio(false)
-	_ = c.pc.Close()
+	c.closeOnce.Do(func() {
+		close(c.hbStop)
+		c.switchAudio(false)
+		_ = c.pc.Close()
+		// give the DTLS/ICE close a moment to reach the robot so it frees
+		// its single WebRTC slot immediately instead of waiting to time out.
+		time.Sleep(300 * time.Millisecond)
+	})
 }
 
 func mustJSON(v any) json.RawMessage {

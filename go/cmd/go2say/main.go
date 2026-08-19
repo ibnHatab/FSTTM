@@ -13,7 +13,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/ibnHatab/fsttm/go/internal/go2audio"
@@ -55,6 +57,18 @@ func main() {
 		log.Fatal(err)
 	}
 	defer p.Close()
+	// The Go2 WebRTC slot is single-owner: a slot left open blocks the next
+	// connection until the robot times it out. defer does NOT run on Ctrl-C,
+	// so tear the peer down explicitly on a signal before exiting (the whole
+	// reason the morning's Ctrl-C'd probes wedged the slot).
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-sig
+		log.Print("interrupted — closing WebRTC slot cleanly")
+		p.Close()
+		os.Exit(0)
+	}()
 
 	var pcm []byte
 	var rate int
