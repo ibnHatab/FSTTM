@@ -19,6 +19,10 @@ export CGO_LDFLAGS="-L$LLIBS -Wl,-rpath,$LLIBS -L${WLIBS//:/ -L} -Wl,-rpath,${WL
 export LIBRARY_PATH="$LLIBS:$WLIBS"
 export C_INCLUDE_PATH="$WHISPER_DIR/include:$WHISPER_DIR/ggml/include:$LLAMA_DIR/include:$LLAMA_DIR/ggml/include"
 
+# pin the whisper bindings replace to WHISPER_DIR (the committed go.mod
+# carries a relative fallback that only works in the vox/ sibling layout)
+go mod edit -replace github.com/ggerganov/whisper.cpp/bindings/go="$WHISPER_DIR/bindings/go"
+
 if [ "${1:-}" = "test" ]; then
   shift
   export LD_LIBRARY_PATH="$LLIBS:$WLIBS"
