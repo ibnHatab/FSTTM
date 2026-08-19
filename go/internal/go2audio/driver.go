@@ -27,6 +27,8 @@ type Conn struct {
 	valOnce   sync.Once
 	hbStop    chan struct{}
 	closeOnce sync.Once
+	dead      chan struct{} // closed when the peer connection drops
+	deadOnce  sync.Once
 }
 
 type Config struct {
@@ -53,7 +55,20 @@ func Connect(ctx context.Context, cfg Config) (*Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Conn{pc: pc, validated: make(chan struct{}), hbStop: make(chan struct{})}
+	c := &Conn{pc: pc, validated: make(chan struct{}),
+		hbStop: make(chan struct{}), dead: make(chan struct{})}
+
+	// mark the connection dead on any terminal peer state so the sink can
+	// redial — WriteSample never errors on a dropped peer, so this is the
+	// only signal we get that the robot went away (reboot, wifi, slot loss).
+	pc.OnConnectionStateChange(func(st webrtc.PeerConnectionState) {
+		switch st {
+		case webrtc.PeerConnectionStateFailed,
+			webrtc.PeerConnectionStateDisconnected,
+			webrtc.PeerConnectionStateClosed:
+			c.deadOnce.Do(func() { close(c.dead) })
+		}
+	})
 
 	// audio sender track (Opus, the WebRTC-mandatory codec) — sendrecv so we
 	// match the robot's transceiver even though we only send.
@@ -190,8 +205,21 @@ func (c *Conn) WriteOpus(frame []byte, dur time.Duration) error {
 	return c.track.WriteSample(media.Sample{Data: frame, Duration: dur})
 }
 
+// Dead is closed when the peer connection drops (or on Close). Alive is a
+// non-blocking check of the same.
+func (c *Conn) Dead() <-chan struct{} { return c.dead }
+func (c *Conn) Alive() bool {
+	select {
+	case <-c.dead:
+		return false
+	default:
+		return true
+	}
+}
+
 func (c *Conn) Close() {
 	c.closeOnce.Do(func() {
+		c.deadOnce.Do(func() { close(c.dead) })
 		close(c.hbStop)
 		c.switchAudio(false)
 		_ = c.pc.Close()

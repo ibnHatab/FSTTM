@@ -10,6 +10,7 @@ package go2audio
 
 import (
 	"context"
+	"log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -22,12 +23,15 @@ import (
 var _ tts.Speaker = (*Go2Speaker)(nil)
 
 type Go2Speaker struct {
+	ctx    context.Context
+	cfg    Config
 	player *Player
 	client string // RHVoice-client
 	voice  string
 	rate   float64
 	volume float64
-	mu     sync.Mutex
+	mu     sync.Mutex // guards player across reconnects
+	closed bool
 }
 
 // NewGo2Speaker dials the robot and returns a ready sink.
@@ -44,8 +48,73 @@ func NewGo2Speaker(ctx context.Context, cfg Config, tcfg tts.Config) (*Go2Speake
 	if voice == "" {
 		voice = "SLT"
 	}
-	return &Go2Speaker{player: p, client: client, voice: voice,
-		rate: tcfg.Rate, volume: tcfg.Volume}, nil
+	g := &Go2Speaker{ctx: ctx, cfg: cfg, player: p, client: client,
+		voice: voice, rate: tcfg.Rate, volume: tcfg.Volume}
+	go g.monitor() // heal the connection even while idle
+	return g, nil
+}
+
+// monitor watches the live connection and redials with capped backoff the
+// moment it drops — recovery must not wait for the next utterance (robot
+// reboot / wifi blip / slot loss). Runs until Close.
+func (g *Go2Speaker) monitor() {
+	for {
+		g.mu.Lock()
+		p, closed := g.player, g.closed
+		g.mu.Unlock()
+		if closed {
+			return
+		}
+		select {
+		case <-g.ctx.Done():
+			return
+		case <-p.conn.Dead():
+			log.Printf("[go2audio] connection dropped — reconnecting")
+			g.reconnect()
+		}
+	}
+}
+
+// reconnect dials a fresh Player and swaps it in under the lock. Backoff is
+// capped; it loops until success, Close, or ctx cancellation. Safe to call
+// from Speak or the monitor — a redundant call just re-dials a healthy link
+// once and returns.
+func (g *Go2Speaker) reconnect() {
+	backoff := 500 * time.Millisecond
+	for {
+		g.mu.Lock()
+		if g.closed {
+			g.mu.Unlock()
+			return
+		}
+		if g.player.conn.Alive() {
+			g.mu.Unlock()
+			return // someone already healed it
+		}
+		g.mu.Unlock()
+
+		select {
+		case <-g.ctx.Done():
+			return
+		case <-time.After(backoff):
+		}
+		np, err := NewPlayer(g.ctx, g.cfg)
+		if err != nil {
+			log.Printf("[go2audio] reconnect failed (%v) — retry in %s",
+				err, backoff)
+			if backoff < 8*time.Second {
+				backoff *= 2
+			}
+			continue
+		}
+		g.mu.Lock()
+		old := g.player
+		g.player = np
+		g.mu.Unlock()
+		old.Close() // free the old (already-dead) slot cleanly
+		log.Printf("[go2audio] reconnected: %s", g.cfg.IP)
+		return
+	}
 }
 
 func (g *Go2Speaker) synth(text string) ([]byte, int, error) {
@@ -73,7 +142,18 @@ func (g *Go2Speaker) Speak(ctx context.Context, text string) (tts.SpeakResult, e
 		return tts.SpeakResult{}, err
 	}
 	total := time.Duration(len(pcm)/2) * time.Second / time.Duration(rate)
-	played, err := g.player.Play(pcm, rate)
+
+	g.mu.Lock()
+	p := g.player
+	alive := p.conn.Alive()
+	g.mu.Unlock()
+	if !alive {
+		g.reconnect() // block this utterance until the link is back
+		g.mu.Lock()
+		p = g.player
+		g.mu.Unlock()
+	}
+	played, err := p.Play(pcm, rate)
 	if err != nil {
 		return tts.SpeakResult{}, err
 	}
@@ -84,8 +164,19 @@ func (g *Go2Speaker) Speak(ctx context.Context, text string) (tts.SpeakResult, e
 	}, nil
 }
 
-func (g *Go2Speaker) Cancel() { g.player.Cancel() }
+func (g *Go2Speaker) Cancel() {
+	g.mu.Lock()
+	p := g.player
+	g.mu.Unlock()
+	p.Cancel()
+}
 
-func (g *Go2Speaker) Close() { g.player.Close() }
+func (g *Go2Speaker) Close() {
+	g.mu.Lock()
+	g.closed = true
+	p := g.player
+	g.mu.Unlock()
+	p.Close()
+}
 
 func ftoa(f float64) string { return strconv.FormatFloat(f, 'g', -1, 64) }
