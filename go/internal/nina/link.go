@@ -46,18 +46,23 @@ type RobotLink interface {
 }
 
 type Link struct {
-	mu  sync.Mutex
-	out io.Writer
+	mu            sync.Mutex
+	out           io.Writer
+	motionInhibit bool // gate sport/cmd_vel/nav_goal (see RosLink)
 }
 
 var _ RobotLink = (*Link)(nil)
 
 // NewLink emits events on w (production: os.Stdout — the relay's pipe).
-func NewLink(w io.Writer) *Link {
+// armMotion=false (the default via NewLinkSafe) inhibits actuator events.
+func NewLink(w io.Writer) *Link { return NewLinkArmed(w, true) }
+
+// NewLinkArmed lets the caller choose whether actuator events are emitted.
+func NewLinkArmed(w io.Writer, armMotion bool) *Link {
 	if w == nil {
 		w = os.Stdout
 	}
-	return &Link{out: w}
+	return &Link{out: w, motionInhibit: !armMotion}
 }
 
 func (l *Link) emit(v map[string]any) {
@@ -71,6 +76,10 @@ func (l *Link) emit(v map[string]any) {
 }
 
 func (l *Link) Sport(apiID int, name string, params map[string]any) {
+	if l.motionInhibit {
+		log.Printf("[nina] (inhibited) sport %s api_id=%d", name, apiID)
+		return
+	}
 	ev := map[string]any{"ev": "sport", "api_id": apiID, "name": name}
 	if params != nil {
 		ev["params"] = params
@@ -79,10 +88,18 @@ func (l *Link) Sport(apiID int, name string, params map[string]any) {
 }
 
 func (l *Link) NavGoal(x, y, z, yaw float64) {
+	if l.motionInhibit {
+		log.Printf("[nina] (inhibited) nav_goal (%.2f, %.2f)", x, y)
+		return
+	}
 	l.emit(map[string]any{"ev": "nav_goal", "x": x, "y": y, "z": z, "yaw": yaw})
 }
 
 func (l *Link) CmdVel(wz float64) {
+	if l.motionInhibit {
+		log.Printf("[nina] (inhibited) cmd_vel wz=%.2f", wz)
+		return
+	}
 	l.emit(map[string]any{"ev": "cmd_vel", "wz": wz})
 }
 

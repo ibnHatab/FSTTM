@@ -157,3 +157,43 @@ func TestNavigateEmitsMapGoal(t *testing.T) {
 		t.Fatalf("bad nav_goal event: %v", ev)
 	}
 }
+
+// ── motion-inhibit safety gate ───────────────────────────────────────────────
+
+func TestMotionInhibitedByDefault(t *testing.T) {
+	var buf bytes.Buffer
+	link := NewLinkArmed(&buf, false) // inhibited (the default)
+	link.Sport(1004, "STAND_UP", nil) // must NOT emit
+	link.CmdVel(0.4)                  // must NOT emit
+	link.NavGoal(1, 2, 0, 0)          // must NOT emit
+	if buf.Len() != 0 {
+		t.Fatalf("inhibited link emitted actuator events: %s", buf.String())
+	}
+	// observation topics stay live even when motion is inhibited
+	link.Intent(map[string]string{"intent": "STOP"}, "ok")
+	link.DialogState("AWAKE")
+	if buf.Len() == 0 {
+		t.Fatal("inhibited link must still emit intent/dialog_state")
+	}
+	var kinds []string
+	dec := json.NewDecoder(&buf)
+	for dec.More() {
+		var ev map[string]any
+		_ = dec.Decode(&ev)
+		kinds = append(kinds, ev["ev"].(string))
+	}
+	for _, k := range kinds {
+		if k == "sport" || k == "cmd_vel" || k == "nav_goal" {
+			t.Fatalf("actuator event %q leaked while inhibited", k)
+		}
+	}
+}
+
+func TestMotionArmedEmitsActuators(t *testing.T) {
+	var buf bytes.Buffer
+	link := NewLinkArmed(&buf, true) // armed
+	link.Sport(1004, "STAND_UP", nil)
+	if buf.Len() == 0 {
+		t.Fatal("armed link must emit sport")
+	}
+}

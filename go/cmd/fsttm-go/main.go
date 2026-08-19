@@ -81,8 +81,11 @@ type config struct {
 		SleepPhrases []string `yaml:"sleep_phrases"`
 	} `yaml:"attention"`
 	Nina struct {
-		Enabled     bool   `yaml:"enabled"`
-		Transport   string `yaml:"transport"`    // jsonl (SIL) | ros (rclgo native)
+		Enabled   bool   `yaml:"enabled"`
+		Transport string `yaml:"transport"`  // jsonl (SIL) | ros (rclgo native)
+		ArmMotion bool   `yaml:"arm_motion"` // DEFAULT false: sport/cmd_vel/
+		//                                          nav_goal are logged, not sent,
+		//                                          so testing never drives the legs
 		CanvasPack  string `yaml:"canvas_pack"`  // canvas_query_pack.npz
 		PhraseCache string `yaml:"phrase_cache"` // phrase_cache.npz
 	} `yaml:"nina"`
@@ -203,13 +206,13 @@ func main() {
 	if cfg.Nina.Enabled {
 		var link nina.RobotLink
 		if cfg.Nina.Transport == "ros" {
-			rl, err := nina.NewRosLink(ctx, eng.Announce)
+			rl, err := nina.NewRosLink(ctx, eng.Announce, cfg.Nina.ArmMotion)
 			if err != nil {
 				log.Fatalf("[nina] %v", err)
 			}
 			link = rl
 		} else {
-			link = nina.NewLink(os.Stdout)
+			link = nina.NewLinkArmed(os.Stdout, cfg.Nina.ArmMotion)
 		}
 		var canvas *nina.Canvas
 		if cfg.Nina.CanvasPack != "" {
