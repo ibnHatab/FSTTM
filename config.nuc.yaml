@@ -54,8 +54,18 @@ gpt:
     trim_on_barge_in: false
     request_extra: {reasoning_effort: none}
     n_threads: 4
+    tools_port: 8768            # the home's tools: the Metis sidecar (fsttm-metis)
 streams:
     port: 8766              # env + reasoning in (fsttm.streams): the HA bridge and the Metis sidecar write here
 hass:                           # fsttm-hass: Home Assistant → the env stream (its own process)
     url: ws://127.0.0.1:8123/api/websocket
     token_file: ~/.config/fsttm/hass.token
+metis:                          # fsttm-metis: the home's rule engine (metis-worlds home) beside the conversation
+    python: ~/metis/metis-agent/py/.venv/bin/python
+    cwd: ~/metis/metis-agent/py
+    catalog: ~/metis/metis-worlds/home
+    domains: [lights, air, media, scenes, comfort]
+    env: {METISC: ~/metis/metis-lang/src/metisc, METIS_HOME_HA: "http://127.0.0.1:8123"}
+    tool_port: 8768
+    beat_s: 1.0
+    call_timeout_s: 6

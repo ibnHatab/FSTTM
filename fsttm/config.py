@@ -102,6 +102,7 @@ class GptParams(BaseModel):
     trim_on_barge_in: bool = False      # rewrite the cut reply to the heard text (the local KV rollback)
     request_extra: Dict[str, Any] = {}  # merged into every request body (e.g. reasoning_effort)
     timeout: Optional[float] = None     # seconds per request (default 30)
+    tools_port: Optional[int] = None    # the Metis sidecar's tool port (fsttm-metis): the home's tools
 
 
 class System(BaseModel):
@@ -237,7 +238,7 @@ def parse_arguments(argv):
 
 
 _CLOUD_KEYS = ("backend", "base_url", "api_key_env", "api_key_file", "max_tokens",
-               "trim_on_barge_in", "request_extra", "timeout")
+               "trim_on_barge_in", "request_extra", "timeout", "tools_port")
 
 
 def llama_cloud_fields(g) -> dict:

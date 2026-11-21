@@ -23,6 +23,7 @@ class Fake:
         self.reply = ["Hello", " there", "."]
         self.json = {"intent": "CHITCHAT", "spoken": "Hi."}
         self.delay = 0.0
+        self.tool_call = None      # (name, args): the first streamed answer is this call
 
 
 def serve(fake):
@@ -46,6 +47,13 @@ def serve(fake):
             self.send_header("Content-Type", "text/event-stream")
             self.end_headers()
             import time
+            if fake.tool_call and body.get("tools") and not any(m["role"] == "tool" for m in body["messages"]):
+                ev = {"choices": [{"delta": {"tool_calls": [{"index": 0, "id": "c1", "function": {
+                    "name": fake.tool_call[0], "arguments": json.dumps(fake.tool_call[1])}}],
+                    "extra_content": None}}]}
+                self.wfile.write(("data: %s\n\n" % json.dumps(ev)).encode())
+                self.wfile.write(b"data: [DONE]\n\n")
+                return
             try:
                 for piece in fake.reply:
                     ev = {"choices": [{"delta": {"content": piece}}]}
@@ -259,3 +267,49 @@ def test_stream_panel_snapshot_and_live_events():
         r.close()
     finally:
         p.close()
+
+
+@pytest.mark.asyncio
+async def test_tool_call_goes_to_the_rule_engine_and_its_outcome_back(endpoint):
+    """A home request: the model calls home_air, the sidecar's port answers with the rules'
+    outcome, the model's second answer is spoken; the outcome is in the tool message."""
+    import socketserver
+    fake, base = endpoint
+    fake.tool_call = ("home_air", {"intent": "NIGHT", "device": "lab ventilation"})
+    fake.reply = ["The lab ventilation is stopped, so no night mode."]
+    seen = []
+
+    class T(socketserver.StreamRequestHandler):
+        def handle(self):
+            for raw in self.rfile:
+                req = json.loads(raw)
+                seen.append(req)
+                out = ({"tools": [{"type": "function", "function": {"name": "home_air", "description": "air",
+                                                                     "parameters": {"type": "object"}}}]}
+                       if req["op"] == "tools" else
+                       {"status": "refused", "text": "I can't set night mode: the lab ventilation is stopped."})
+                self.wfile.write((json.dumps(out) + "\n").encode())
+    srv = socketserver.ThreadingTCPServer(("127.0.0.1", 0), T)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        _, evs = await run([init(base, tools_port=srv.server_address[1]),
+                            Generate(text="night mode in the lab", context=1)], lambda e: bool(dones(e)))
+    finally:
+        srv.shutdown()
+    assert dones(evs)[0].full_text == "The lab ventilation is stopped, so no night mode."
+    first, second = fake.bodies
+    assert first["tools"][0]["function"]["name"] == "home_air"
+    assert "home_lights" in first["messages"][0]["content"]          # the tools paragraph is in the prompt
+    assert [r["op"] for r in seen] == ["tools", "call"]
+    assert seen[1]["domain"] == "home_air" and seen[1]["args"] == {"intent": "NIGHT", "device": "lab ventilation"}
+    tool_msg = second["messages"][-1]
+    assert tool_msg["role"] == "tool" and "refused" in tool_msg["content"]
+    assert second["messages"][-2]["tool_calls"][0]["function"]["name"] == "home_air"
+
+
+def test_sidecar_reasoning_lines():
+    from fsttm.feeds.metis import reasoning_line
+    assert reasoning_line({"domain": "air", "kind": "result", "status": "accepted", "text": "Accepted."}) is None
+    assert reasoning_line({"domain": "air", "kind": "result", "status": "refused", "text": "stopped."}) == "air refused: stopped."
+    assert reasoning_line({"domain": "scenes", "kind": "event", "text": "Nobody is home: shall I set away?"}).startswith("scenes noticed:")
+    assert reasoning_line({"domain": "x", "kind": "error", "id": "p0", "error": "x"}) is None

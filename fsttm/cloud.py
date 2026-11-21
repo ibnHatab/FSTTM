@@ -82,6 +82,16 @@ that you are on it ("Turning off the TV.", "One moment.") — never that it is d
 invent a refusal. When the outcome arrives it tells you what happened; say so if asked, or
 on your own when it was refused."""
 
+# Added when the rule engine's tools are there (the Metis sidecar's port).
+TOOLS_PROMPT = """\
+You reach the home through its tools, one per part of the home (home_lights, home_air,
+home_media, home_scenes, home_comfort): when the person wants something done in the home or
+asks about a room's air, call the tool with the intent and the device or room in the person's
+words. The tool's answer is the rule engine's outcome — done, or refused with the reason —
+and is final: say it in your own short words, a refusal with its reason and what the person
+can do. Never claim an outcome the tool did not give. Do not call a tool for small talk or
+for what ENVIRONMENT already answers (a device's state)."""
+
 
 def render_streams(env, reasoning, now=None):
     """The ENVIRONMENT and REASONING sections of the system prompt, or "" when both are empty."""
@@ -146,11 +156,14 @@ class Chat:
             raise CloudError(THINKING_HINT)
         return text
 
-    def stream(self, messages, stop_event, **kw):
+    def stream(self, messages, stop_event, calls=None, **kw):
         """The reply's text pieces as they arrive (server-sent events); ends early,
-        closing the connection, once stop_event is set."""
+        closing the connection, once stop_event is set. Tool calls in the stream are
+        gathered into `calls` (a list: {id, type, function {name, arguments}}, plus
+        whatever else the provider attached, kept to be sent back as it came)."""
         r = self._open(self.body(messages, stream=True, **kw))
         said, thought, finish = False, False, None
+        byidx = {}
         try:
             for raw in r:
                 if stop_event.is_set():
@@ -171,13 +184,25 @@ class Chat:
                     delta = ch.get("delta") or {}
                     thought = thought or bool(delta.get("reasoning_content") or delta.get("reasoning"))
                     finish = ch.get("finish_reason") or finish
+                    for tc in delta.get("tool_calls") or ():
+                        cur = byidx.setdefault(tc.get("index", len(byidx)),
+                                               {"type": "function", "function": {"name": "", "arguments": ""}})
+                        for k, v in tc.items():
+                            if k == "function":
+                                fn = cur["function"]
+                                fn["name"] = fn["name"] or v.get("name") or ""
+                                fn["arguments"] += v.get("arguments") or ""
+                            elif k != "index":
+                                cur[k] = v
                     piece = delta.get("content")
                     if piece:
                         said = True
                         yield piece
         finally:
             r.close()
-        if not said and (thought or finish == "length"):
+        if calls is not None:
+            calls.extend(byidx[i] for i in sorted(byidx))
+        if not said and not byidx and (thought or finish == "length"):
             raise CloudError(THINKING_HINT)
 
 
@@ -232,10 +257,42 @@ def make_driver(loop=None):
         def emit(ev):
             loop.call_soon_threadsafe(observer[0].on_next, ev)
 
+        tools = {"port": None, "list": None, "at": 0.0}
+
+        def home_tools():
+            """The rule engine's tools from the sidecar (asked again every 30 s while absent)."""
+            if not tools["port"]:
+                return None
+            if tools["list"] is None and time.time() - tools["at"] > 30:
+                tools["at"] = time.time()
+                try:
+                    from fsttm.feeds.metis import list_tools
+                    tools["list"] = list_tools(tools["port"]) or None
+                    if tools["list"]:
+                        _log.info("home tools: %s", ", ".join(t["function"]["name"] for t in tools["list"]))
+                except OSError as e:
+                    _log.info("no home tools yet (%s)", e)
+            return tools["list"]
+
+        def run_tool(call):
+            from fsttm.feeds.metis import call_tool
+            fn = call.get("function") or {}
+            try:
+                args = json.loads(fn.get("arguments") or "{}")
+            except ValueError:
+                return {"status": "error", "text": "the arguments are not JSON"}
+            try:
+                return call_tool(tools["port"], fn.get("name", ""), args)
+            except OSError as e:
+                tools["list"] = None          # the sidecar went away: ask again later
+                return {"status": "error", "text": "the rule engine is not reachable: %s" % e}
+
         def with_streams(base):
             """The base prompt with the streams' explanation and their current entries."""
             parts = [base] if base else []
             parts.append(STREAMS_PROMPT)
+            if home_tools():
+                parts.append(TOOLS_PROMPT)
             st = render_streams(env, list(reasoning))
             if st:
                 parts.append(st)
@@ -250,10 +307,26 @@ def make_driver(loop=None):
             stop_event.clear()
             acc, t0 = [], time.monotonic()
             try:
-                for piece in chat[0].stream(_messages(chat_system(), history, item.text), stop_event,
-                                            temperature=cfg["temp"], max_tokens=cfg["max_tokens"]):
-                    acc.append(piece)
-                    emit(Response(text=piece, context=item.context))
+                msgs = _messages(chat_system(), history, item.text)
+                for _round in range(3):           # a reply, or tool calls and then the reply
+                    calls, tl = [], home_tools()
+                    for piece in chat[0].stream(msgs, stop_event, calls=calls if tl else None,
+                                                temperature=cfg["temp"], max_tokens=cfg["max_tokens"],
+                                                tools=tl):
+                        acc.append(piece)
+                        emit(Response(text=piece, context=item.context))
+                    if not calls or stop_event.is_set():
+                        break
+                    for i, c in enumerate(calls):
+                        c.setdefault("id", "call_%d_%d" % (_round, i))
+                    msgs = msgs + [{"role": "assistant", "content": "".join(acc) or None, "tool_calls": calls}]
+                    for c in calls:
+                        out = run_tool(c)
+                        _log.info("tool %s(%s) -> %s", c["function"].get("name"), c["function"].get("arguments"), out)
+                        msgs.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(out)})
+                    if acc and not acc[-1].endswith((" ", "\n")):
+                        acc.append(" ")
+                        emit(Response(text=" ", context=item.context))
             except Exception as exc:
                 _log.warning("chat failed: %s", exc)
                 emit(LlamaError(error=exc, context=item.context))
@@ -352,6 +425,7 @@ def make_driver(loop=None):
                     cfg["temp"] = float(getattr(item, "temperature", None) or cfg["temp"])
                     cfg["max_tokens"] = int(getattr(item, "max_tokens", None) or cfg["max_tokens"])
                     cfg["trim"] = bool(getattr(item, "trim_on_barge_in", False))
+                    tools["port"] = getattr(item, "tools_port", None)
                     print("Cloud LLM: %s at %s (barge-in trim %s)"
                           % (item.model_path, base, "on" if cfg["trim"] else "off"))
                     _log.info("cloud llm: model=%s base=%s trim=%s", item.model_path, base, cfg["trim"])

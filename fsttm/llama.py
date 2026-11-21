@@ -42,12 +42,12 @@ Initialize      = namedtuple('Initialize',
                               # llama-server; fsttm.cloud) and that backend's settings
                               'backend', 'base_url', 'api_key_env', 'api_key_file',
                               'temperature', 'max_tokens', 'trim_on_barge_in',
-                              'request_extra', 'timeout'])
+                              'request_extra', 'timeout', 'tools_port'])
 # n_ctx/n_batch from config — the intent base prompt (system + domain prompt +
 # few-shot) easily exceeds the old hardcoded 2048; too-small n_ctx made the very
 # first model.eval() fail with `llama_decode returned 1`.
 Initialize.__new__.__defaults__ = (None, 2048, 512, 6, 99,
-                                  'llama', None, None, None, None, None, False, None, None)
+                                  'llama', None, None, None, None, None, False, None, None, None)
 Generate        = namedtuple('Generate',        ['text', 'context'])
 Generate.__new__.__defaults__ = (None, None)
 IntentGenerate  = namedtuple('IntentGenerate',  ['text', 'context', 'domains'])

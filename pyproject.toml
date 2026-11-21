@@ -73,6 +73,7 @@ fsttm = "fsttm.server:main"
 fsttm-headless = "fsttm.headless:main"
 fsttm-enroll = "fsttm.voicefilter.enroll:main"
 fsttm-hass = "fsttm.feeds.hass:main"
+fsttm-metis = "fsttm.feeds.metis:main"
 
 # Voice-filter providers (config voice_filter.provider selects one).
 [project.entry-points."fsttm.voice_filters"]
