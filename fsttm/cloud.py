@@ -110,6 +110,12 @@ class CloudError(RuntimeError):
     pass
 
 
+# A provider under load answers 429 / 500 / 503 ("high demand"); a short wait usually gets
+# through. Two more tries, within a voice turn's patience.
+RETRY_CODES = (429, 500, 502, 503)
+RETRY_WAITS = (0.6, 1.5)
+
+
 THINKING_HINT = ("the model spent its whole reply on thinking (finish_reason length, no text): "
                  "turn thinking off with gpt.request_extra, e.g. {reasoning_effort: none} "
                  "(OpenAI-style APIs; Gemini: the lowest effort the model accepts) or, for a "
@@ -129,13 +135,18 @@ class Chat:
             self.url, data=json.dumps(body).encode(), method="POST",
             headers={"Content-Type": "application/json",
                      **({"Authorization": "Bearer " + self.key} if self.key else {})})
-        try:
-            return urllib.request.urlopen(req, timeout=self.timeout)
-        except urllib.error.HTTPError as e:
-            detail = e.read().decode(errors="replace")[:400]
-            raise CloudError("HTTP %d from %s: %s" % (e.code, self.url, detail)) from None
-        except (urllib.error.URLError, OSError) as e:
-            raise CloudError("%s: %s" % (self.url, e)) from None
+        for attempt, wait in enumerate(RETRY_WAITS + (None,)):
+            try:
+                return urllib.request.urlopen(req, timeout=self.timeout)
+            except urllib.error.HTTPError as e:
+                detail = e.read().decode(errors="replace")[:400]
+                if e.code in RETRY_CODES and wait is not None:
+                    _log.info("HTTP %d (%s): again in %.1f s", e.code, detail[:80].replace("\n", " "), wait)
+                    time.sleep(wait)
+                    continue
+                raise CloudError("HTTP %d from %s: %s" % (e.code, self.url, detail)) from None
+            except (urllib.error.URLError, OSError) as e:
+                raise CloudError("%s: %s" % (self.url, e)) from None
 
     def body(self, messages, **kw):
         b = {"model": self.model, "messages": messages}

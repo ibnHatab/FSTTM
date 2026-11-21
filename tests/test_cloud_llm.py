@@ -24,6 +24,7 @@ class Fake:
         self.json = {"intent": "CHITCHAT", "spoken": "Hi."}
         self.delay = 0.0
         self.tool_call = None      # (name, args): the first streamed answer is this call
+        self.busy = 0              # answer 503 this many times first
 
 
 def serve(fake):
@@ -33,6 +34,13 @@ def serve(fake):
 
         def do_POST(self):
             body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            if fake.busy > 0:
+                fake.busy -= 1
+                self.send_response(503)
+                self.send_header("Content-Length", "2")
+                self.end_headers()
+                self.wfile.write(b"{}")
+                return
             body["_auth"] = self.headers.get("Authorization")
             fake.bodies.append(body)
             if not body.get("stream"):
@@ -313,3 +321,11 @@ def test_sidecar_reasoning_lines():
     assert reasoning_line({"domain": "air", "kind": "result", "status": "refused", "text": "stopped."}) == "air refused: stopped."
     assert reasoning_line({"domain": "scenes", "kind": "event", "text": "Nobody is home: shall I set away?"}).startswith("scenes noticed:")
     assert reasoning_line({"domain": "x", "kind": "error", "id": "p0", "error": "x"}) is None
+
+
+@pytest.mark.asyncio
+async def test_busy_provider_is_retried(endpoint):
+    fake, base = endpoint
+    fake.busy = 2
+    _, evs = await run([init(base), Generate(text="hi", context=1)], lambda e: bool(dones(e)), timeout=8)
+    assert dones(evs)[0].full_text == "Hello there." and not [e for e in evs if type(e) is LlamaError]
