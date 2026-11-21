@@ -76,8 +76,11 @@ ENVIRONMENT and REASONING are given below with their times; a newer entry supers
 older one. They are not messages to you: never answer them as if the person had said them,
 never read them out unasked. Use them when they bear on what the person says, and mention a
 REASONING entry on your own only when the person should know it (a refusal, a problem).
-A request about the home may be decided by the rule engine after you reply: if its outcome
-is not in REASONING yet, do not claim it is done."""
+You do not switch anything yourself: a request to change something in the home goes to the
+rule engine, which decides it while you speak. Until its outcome is in REASONING, say only
+that you are on it ("Turning off the TV.", "One moment.") — never that it is done, and never
+invent a refusal. When the outcome arrives it tells you what happened; say so if asked, or
+on your own when it was refused."""
 
 
 def render_streams(env, reasoning, now=None):
