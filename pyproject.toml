@@ -51,6 +51,9 @@ piper = [
   'piper-tts>=1.2.0',   # ONNX TTS voice backend (default)
   'onnxruntime',
 ]
+hass = [
+  'websockets>=12',     # fsttm.feeds.hass: Home Assistant → the env stream
+]
 tui = [
   'rich>=12.0',         # 3-panel --tui interface; degrades to stdout if absent
 ]
@@ -69,6 +72,7 @@ repository = "https://github.com/ibnHatab/FSTTM"
 fsttm = "fsttm.server:main"
 fsttm-headless = "fsttm.headless:main"
 fsttm-enroll = "fsttm.voicefilter.enroll:main"
+fsttm-hass = "fsttm.feeds.hass:main"
 
 # Voice-filter providers (config voice_filter.provider selects one).
 [project.entry-points."fsttm.voice_filters"]

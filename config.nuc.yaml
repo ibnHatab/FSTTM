@@ -54,3 +54,8 @@ gpt:
     trim_on_barge_in: false
     request_extra: {reasoning_effort: none}
     n_threads: 4
+streams:
+    port: 8766              # env + reasoning in (fsttm.streams): the HA bridge and the Metis sidecar write here
+hass:                           # fsttm-hass: Home Assistant → the env stream (its own process)
+    url: ws://127.0.0.1:8123/api/websocket
+    token_file: ~/.config/fsttm/hass.token
