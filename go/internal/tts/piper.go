@@ -8,11 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
-	"sync"
-	"syscall"
 	"time"
 )
 
@@ -22,22 +18,16 @@ import (
 // its echo canceller hears). Cancel kills the player; the fraction heard is the time
 // played over the WAV's length.
 type Piper struct {
-	URL    string   // http://127.0.0.1:5150
-	Player []string // the playback command, a WAV file appended (default paplay [--device=Sink])
-	HTTP   *http.Client
-	mu     sync.Mutex
-	cur    *exec.Cmd
+	URL  string // http://127.0.0.1:5150
+	HTTP *http.Client
+	wavPlayer
 }
 
 func NewPiper(url, sink string) *Piper {
 	if url == "" {
 		url = "http://127.0.0.1:5150"
 	}
-	player := []string{"paplay"}
-	if sink != "" {
-		player = append(player, "--device="+sink)
-	}
-	return &Piper{URL: strings.TrimRight(url, "/"), Player: player, HTTP: &http.Client{Timeout: 20 * time.Second}}
+	return &Piper{URL: strings.TrimRight(url, "/"), HTTP: &http.Client{Timeout: 20 * time.Second}, wavPlayer: newWavPlayer(sink)}
 }
 
 // Synthesize is one WAV for the text.
@@ -90,54 +80,10 @@ func (p *Piper) Speak(ctx context.Context, text string) (SpeakResult, error) {
 	if text == "" {
 		return SpeakResult{Completed: true}, nil
 	}
+	gen := p.begin()
 	wav, err := p.Synthesize(ctx, text)
 	if err != nil {
 		return SpeakResult{}, err
 	}
-	total := WavDuration(wav)
-	f, err := os.CreateTemp("", "fsttm-*.wav")
-	if err != nil {
-		return SpeakResult{}, err
-	}
-	defer os.Remove(f.Name())
-	if _, err := f.Write(wav); err != nil {
-		f.Close()
-		return SpeakResult{}, err
-	}
-	f.Close()
-
-	cmd := exec.CommandContext(ctx, p.Player[0], append(p.Player[1:], f.Name())...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	p.mu.Lock()
-	if err := cmd.Start(); err != nil {
-		p.mu.Unlock()
-		return SpeakResult{}, err
-	}
-	p.cur = cmd
-	p.mu.Unlock()
-	t0 := time.Now()
-	err = cmd.Wait()
-	played := time.Since(t0)
-
-	p.mu.Lock()
-	cancelled := p.cur == nil
-	p.cur = nil
-	p.mu.Unlock()
-	if total > 0 && played > total {
-		played = total
-	}
-	res := SpeakResult{Completed: !cancelled && err == nil, Played: played, Synthesized: total}
-	if cancelled {
-		return res, nil
-	}
-	return res, err
-}
-
-func (p *Piper) Cancel() {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	if p.cur != nil && p.cur.Process != nil {
-		_ = syscall.Kill(-p.cur.Process.Pid, syscall.SIGKILL)
-		p.cur = nil
-	}
+	return p.play(ctx, wav, gen)
 }

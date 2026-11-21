@@ -1,0 +1,17226 @@
+[
+{
+"text": "I boost the lab ventilation for a while.",
+"ps": "ˌI bˈust ðə lˈæb vˌɛntəlˈAʃən fɔɹ ɐ wˌIl.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"boost",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"while",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I boost the lab ventilation out of night mode.",
+"ps": "ˌI bˈust ðə lˈæb vˌɛntəlˈAʃən ˈWt ʌv nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"boost",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"out",
+"IN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't boost: the lab ventilation is stopped. Start it first.",
+"ps": "ˌI kˈænt bˈust: ðə lˈæb vˌɛntəlˈAʃən ɪz stˈɑpt. stˈɑɹt ɪt fˈɜɹst.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Start",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"first",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't heat with the lab ventilation stopped: the heater only runs with the fans. Start it first.",
+"ps": "ˌI kˈænt hˈit wɪð ðə lˈæb vˌɛntəlˈAʃən stˈɑpt: ðə hˈiTəɹ ˈOnli ɹˈʌnz wɪð ðə fˈænz. stˈɑɹt ɪt fˈɜɹst.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"heat",
+"VB",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"stopped",
+"VBD",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"only",
+"RB",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"fans",
+"NNS",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Start",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"first",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't: no device I know answers to that remote.",
+"ps": "ˌI kˈænt: nˈO dəvˈIs ˌI nˈO ˈænsəɹz tə ðˈæt ɹəmˈOt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"device",
+"NN",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"know",
+"VBP",
+" "
+],
+[
+"answers",
+"NNS",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"that",
+"DT",
+" "
+],
+[
+"remote",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't reach the lab: the infrared remote is not connected yet.",
+"ps": "ˌI kˈænt ɹˈiʧ ðə lˈæb: ði ˌɪnfɹəɹˈɛd ɹəmˈOt ɪz nˌɑt kənˈɛktᵻd jˈɛt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"reach",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"infrared",
+"JJ",
+" "
+],
+[
+"remote",
+"NNP",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"connected",
+"VBN",
+" "
+],
+[
+"yet",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't set night mode: the lab ventilation is stopped. Start it first.",
+"ps": "ˌI kˈænt sˈɛt nˈIt mˈOd: ðə lˈæb vˌɛntəlˈAʃən ɪz stˈɑpt. stˈɑɹt ɪt fˈɜɹst.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"set",
+"VB",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Start",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"first",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't start the lab ventilation: it does not answer.",
+"ps": "ˌI kˈænt stˈɑɹt ðə lˈæb vˌɛntəlˈAʃən: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"start",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't stop the lab ventilation: it does not answer.",
+"ps": "ˌI kˈænt stˈɑp ðə lˈæb vˌɛntəlˈAʃən: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't tell: the bedroom has no thermometer yet.",
+"ps": "ˌI kˈænt tˈɛl: ðə bˈɛdɹˌum hæz nˈO θəɹmˈɑməTəɹ jˈɛt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"tell",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"has",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"thermometer",
+"NN",
+" "
+],
+[
+"yet",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't tell: there is no such room in this home.",
+"ps": "ˌI kˈænt tˈɛl: ðɛɹ ɪz nˈO sˈʌʧ ɹˈum ɪn ðɪs hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"tell",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"such",
+"JJ",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"this",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't: there is no such light in this home.",
+"ps": "ˌI kˈænt: ðɛɹ ɪz nˈO sˈʌʧ lˈIt ɪn ðɪs hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"such",
+"JJ",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"this",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't: there is no such TV in this home.",
+"ps": "ˌI kˈænt: ðɛɹ ɪz nˈO sˈʌʧ tˌivˈi ɪn ðɪs hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"such",
+"JJ",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"this",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't: there is no such ventilation unit in this home.",
+"ps": "ˌI kˈænt: ðɛɹ ɪz nˈO sˈʌʧ vˌɛntəlˈAʃən jˈunət ɪn ðɪs hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"such",
+"JJ",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"unit",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"this",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't turn the living room light off: it does not answer.",
+"ps": "ˌI kˈænt tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˈɔf: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"VBP",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't turn the living room light on: it does not answer.",
+"ps": "ˌI kˈænt tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˌɔn: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't turn the tv off: it does not answer.",
+"ps": "ˌI kˈænt tˈɜɹn ðə tˌivˈi ˈɔf: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"off",
+"IN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't turn the tv on: it does not answer.",
+"ps": "ˌI kˈænt tˈɜɹn ðə tˌivˈi ˌɔn: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I could not stop the lab ventilation: it does not answer.",
+"ps": "ˌI kʊd nˌɑt stˈɑp ðə lˈæb vˌɛntəlˈAʃən: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"could",
+"MD",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I could not turn the living room light off: it does not answer.",
+"ps": "ˌI kʊd nˌɑt tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˈɔf: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"could",
+"MD",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"VBP",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I could not turn the tv off: it does not answer.",
+"ps": "ˌI kʊd nˌɑt tˈɜɹn ðə tˌivˈi ˈɔf: ɪt dˈʌz nˌɑt ˈænsəɹ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"could",
+"MD",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"off",
+"IN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I press the lab on the remote of the lab.",
+"ps": "ˌI pɹˈɛs ðə lˈæb ˌɔn ðə ɹəmˈOt ʌv ðə lˈæb.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"press",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"remote",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I put the lab ventilation in winter mode.",
+"ps": "ˌI pˌʊt ðə lˈæb vˌɛntəlˈAʃən ɪn wˈɪntəɹ mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"put",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation from boost to night mode.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən fɹʌm bˈust tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"from",
+"IN",
+" "
+],
+[
+"boost",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation from boost to night mode for the night.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən fɹʌm bˈust tə nˈIt mˈOd fɔɹ ðə nˈIt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"from",
+"IN",
+" "
+],
+[
+"boost",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation to night mode for the night.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən tə nˈIt mˈOd fɔɹ ðə nˈIt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation to night mode: quiet and slow.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən tə nˈIt mˈOd: kwˈIət ænd slˈO.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NNP",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"quiet",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"slow",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I start the lab ventilation.",
+"ps": "ˌI stˈɑɹt ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"start",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stop the lab ventilation.",
+"ps": "ˌI stˈɑp ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stop",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stop the lab ventilation and its heater for the scene.",
+"ps": "ˌI stˈɑp ðə lˈæb vˌɛntəlˈAʃən ænd ɪts hˈiTəɹ fɔɹ ðə sˈin.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stop",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"scene",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stop the lab ventilation for the scene.",
+"ps": "ˌI stˈɑp ðə lˈæb vˌɛntəlˈAʃən fɔɹ ðə sˈin.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stop",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"scene",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stop the lab ventilation; its heater goes off with it.",
+"ps": "ˌI stˈɑp ðə lˈæb vˌɛntəlˈAʃən; ɪts hˈiTəɹ ɡˈOz ˈɔf wɪð ɪt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stop",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"goes",
+"VBZ",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switch the home to its the lab mode.",
+"ps": "ˌI swˈɪʧ ðə hˈOm tʊ ɪts ðə lˈæb mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switch",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I take the lab ventilation off boost.",
+"ps": "ˌI tˈAk ðə lˈæb vˌɛntəlˈAʃən ˈɔf bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"take",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"off",
+"IN",
+" "
+],
+[
+"boost",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I take the lab ventilation out of night mode.",
+"ps": "ˌI tˈAk ðə lˈæb vˌɛntəlˈAʃən ˈWt ʌv nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"take",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"out",
+"IN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I take the lab ventilation out of winter mode.",
+"ps": "ˌI tˈAk ðə lˈæb vˌɛntəlˈAʃən ˈWt ʌv wˈɪntəɹ mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"take",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"out",
+"IN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It turned cold outside and the lab ventilation is bringing it in without winter mode: shall I switch winter mode on?",
+"ps": "ˌɪt tˈɜɹnd kˈOld ˌWtsˈId ænd ðə lˈæb vˌɛntəlˈAʃən ɪz bɹˈɪŋɪŋ ɪt ˈɪn wɪðˈWt wˈɪntəɹ mˈOd: ʃˌæl ˌI swˈɪʧ wˈɪntəɹ mˈOd ˌɔn?",
+"spacy": [
+[
+"It",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"cold",
+"JJ",
+" "
+],
+[
+"outside",
+"RB",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"bringing",
+"VBG",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"in",
+"RP",
+" "
+],
+[
+"without",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"switch",
+"VB",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "It turned cold outside; the lab ventilation is already in winter mode.",
+"ps": "ˌɪt tˈɜɹnd kˈOld ˌWtsˈId; ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɪn wˈɪntəɹ mˈOd.",
+"spacy": [
+[
+"It",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"cold",
+"JJ",
+" "
+],
+[
+"outside",
+"RB",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It turned cold outside; the lab ventilation is stopped, so nothing comes in.",
+"ps": "ˌɪt tˈɜɹnd kˈOld ˌWtsˈId; ðə lˈæb vˌɛntəlˈAʃən ɪz stˈɑpt, sˌO nˈʌθɪŋ kˈʌmz ˈɪn.",
+"spacy": [
+[
+"It",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"cold",
+"JJ",
+" "
+],
+[
+"outside",
+"RB",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"so",
+"IN",
+" "
+],
+[
+"nothing",
+"NN",
+" "
+],
+[
+"comes",
+"VBZ",
+" "
+],
+[
+"in",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the living room light off.",
+"ps": "ˌI tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"VBP",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the living room light off for the scene.",
+"ps": "ˌI tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˈɔf fɔɹ ðə sˈin.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"scene",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the living room light on.",
+"ps": "ˌI tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn off the heater of the lab ventilation.",
+"ps": "ˌI tˈɜɹn ˈɔf ðə hˈiTəɹ ʌv ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn on the heater of the lab ventilation.",
+"ps": "ˌI tˈɜɹn ˌɔn ðə hˈiTəɹ ʌv ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the tv down.",
+"ps": "ˌI tˈɜɹn ðə tˌivˈi dˌWn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"down",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the tv off.",
+"ps": "ˌI tˈɜɹn ðə tˌivˈi ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the tv off for the scene.",
+"ps": "ˌI tˈɜɹn ðə tˌivˈi ˈɔf fɔɹ ðə sˈin.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"scene",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the tv on.",
+"ps": "ˌI tˈɜɹn ðə tˌivˈi ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turn the tv up.",
+"ps": "ˌI tˈɜɹn ðə tˌivˈi ˌʌp.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"up",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the living room light is already off.",
+"ps": "ðə lˈɪvɪŋ ɹˈum lˈIt ɪz ˌɔlɹˈɛdi ˈɔf.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the living room light is already on.",
+"ps": "ðə lˈɪvɪŋ ɹˈum lˈIt ɪz ˌɔlɹˈɛdi ˌɔn.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the living room light was already off.",
+"ps": "ðə lˈɪvɪŋ ɹˈum lˈIt wʌz ˌɔlɹˈɛdi ˈɔf.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"was",
+"VBD",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Nobody has been in the bedroom for a while: I turn the living room light off.",
+"ps": "nˈObˌɑdi hæz bɪn ɪn ðə bˈɛdɹˌum fɔɹ ɐ wˌIl: ˌI tˈɜɹn ðə lˈɪvɪŋ ɹˈum lˈIt ˈɔf.",
+"spacy": [
+[
+"Nobody",
+"NN",
+" "
+],
+[
+"has",
+"VBZ",
+" "
+],
+[
+"been",
+"VBN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"while",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"VBP",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Nobody is home, and the home is already set for it.",
+"ps": "nˈObˌɑdi ɪz hˈOm, ænd ðə hˈOm ɪz ˌɔlɹˈɛdi sˈɛt fɔɹ ɪt.",
+"spacy": [
+[
+"Nobody",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"set",
+"VBN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Nobody seems to be home, at night: shall I set the home to away?",
+"ps": "nˈObˌɑdi sˈimz tə bi hˈOm, æt nˈIt: ʃˌæl ˌI sˈɛt ðə hˈOm tʊ əwˈA?",
+"spacy": [
+[
+"Nobody",
+"NN",
+" "
+],
+[
+"seems",
+"VBZ",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"be",
+"VB",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"away",
+"RB",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "Nobody seems to be home: shall I set the home to away?",
+"ps": "nˈObˌɑdi sˈimz tə bi hˈOm: ʃˌæl ˌI sˈɛt ðə hˈOm tʊ əwˈA?",
+"spacy": [
+[
+"Nobody",
+"NN",
+" "
+],
+[
+"seems",
+"VBZ",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"be",
+"VB",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"away",
+"RB",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is cold.",
+"ps": "ðə bˈɛdɹˌum ɪz kˈOld.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"cold",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is comfortable.",
+"ps": "ðə bˈɛdɹˌum ɪz kˈʌmfəɹTəbᵊl.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"comfortable",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting cold and has no ventilation unit.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ kˈOld ænd hæz nˈO vˌɛntəlˈAʃən jˈunət.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"cold",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"has",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"unit",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting cold and its ventilation runs without the heater: shall I turn the heater on?",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ kˈOld ænd ɪts vˌɛntəlˈAʃən ɹˈʌnz wɪðˈWt ðə hˈiTəɹ: ʃˌæl ˌI tˈɜɹn ðə hˈiTəɹ ˌɔn?",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"cold",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"without",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting cold; its ventilation is stopped.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ kˈOld; ɪts vˌɛntəlˈAʃən ɪz stˈɑpt.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"cold",
+"JJ",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting cold; the heater is already on.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ kˈOld; ðə hˈiTəɹ ɪz ˌɔlɹˈɛdi ˌɔn.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"cold",
+"JJ",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting humid and has no ventilation unit: opening a window would help.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ hjˈuməd ænd hæz nˈO vˌɛntəlˈAʃən jˈunət: ˈOpᵊnɪŋ ɐ wˈɪndO wʊd hˈɛlp.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"humid",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"has",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"unit",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"opening",
+"VBG",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"window",
+"NN",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"help",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting humid and its ventilation is stopped: shall I start it?",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ hjˈuməd ænd ɪts vˌɛntəlˈAʃən ɪz stˈɑpt: ʃˌæl ˌI stˈɑɹt ɪt?",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"humid",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"start",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting humid; its ventilation is already running.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ hjˈuməd; ɪts vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɹˈʌnɪŋ.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"humid",
+"JJ",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"running",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting warm and has no ventilation unit: opening a window would help.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ wˈɔɹm ænd hæz nˈO vˌɛntəlˈAʃən jˈunət: ˈOpᵊnɪŋ ɐ wˈɪndO wʊd hˈɛlp.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"warm",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"has",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"unit",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"opening",
+"VBG",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"window",
+"NN",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"help",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting warm and its ventilation is stopped: shall I start it?",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ wˈɔɹm ænd ɪts vˌɛntəlˈAʃən ɪz stˈɑpt: ʃˌæl ˌI stˈɑɹt ɪt?",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"warm",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"start",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is getting warm; its ventilation is already running.",
+"ps": "ðə bˈɛdɹˌum ɪz ɡˈɛTɪŋ wˈɔɹm; ɪts vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɹˈʌnɪŋ.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"getting",
+"VBG",
+" "
+],
+[
+"warm",
+"JJ",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"running",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the bedroom is warm.",
+"ps": "ðə bˈɛdɹˌum ɪz wˈɔɹm.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"warm",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Someone came home.",
+"ps": "sˈʌmwˌʌn kˈAm hˈOm.",
+"spacy": [
+[
+"Someone",
+"NN",
+" "
+],
+[
+"came",
+"VBD",
+" "
+],
+[
+"home",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Someone came home at night.",
+"ps": "sˈʌmwˌʌn kˈAm hˈOm æt nˈIt.",
+"spacy": [
+[
+"Someone",
+"NN",
+" "
+],
+[
+"came",
+"VBD",
+" "
+],
+[
+"home",
+"RB",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The heater of the lab ventilation is already off.",
+"ps": "ðə hˈiTəɹ ʌv ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ˈɔf.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The heater of the lab ventilation is already on.",
+"ps": "ðə hˈiTəɹ ʌv ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ˌɔn.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The home is already in its the lab mode.",
+"ps": "ðə hˈOm ɪz ˌɔlɹˈɛdi ɪn ɪts ðə lˈæb mˈOd.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The sun is up.",
+"ps": "ðə sˈʌn ɪz ˌʌp.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"sun",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"up",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The sun is up: shall I end the night?",
+"ps": "ðə sˈʌn ɪz ˌʌp: ʃˌæl ˌI ˈɛnd ðə nˈIt?",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"sun",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"up",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"end",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "The sun is up; the home is away.",
+"ps": "ðə sˈʌn ɪz ˌʌp; ðə hˈOm ɪz əwˈA.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"sun",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"up",
+"RB",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"away",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the tv is already off.",
+"ps": "ðə tˌivˈi ɪz ˌɔlɹˈɛdi ˈɔf.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the tv is already on.",
+"ps": "ðə tˌivˈi ɪz ˌɔlɹˈɛdi ˌɔn.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the tv is off: there is no sound to change.",
+"ps": "ðə tˌivˈi ɪz ˈɔf: ðɛɹ ɪz nˈO sˈWnd tə ʧˈAnʤ.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"no",
+"DT",
+" "
+],
+[
+"sound",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"change",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the tv was already off.",
+"ps": "ðə tˌivˈi wʌz ˌɔlɹˈɛdi ˈɔf.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"was",
+"VBD",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"off",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already at its normal speed.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi æt ɪts nˈɔɹmᵊl spˈid.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"normal",
+"JJ",
+" "
+],
+[
+"speed",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already in night mode.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɪn nˈIt mˈOd.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already in winter mode.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɪn wˈɪntəɹ mˈOd.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already on boost.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ˌɔn bˈust.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"boost",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already quiet for the night.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi kwˈIət fɔɹ ðə nˈIt.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"quiet",
+"JJ",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already running.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɹˈʌnɪŋ.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"running",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is already stopped.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi stˈɑpt.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is not in winter mode.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz nˌɑt ɪn wˈɪntəɹ mˈOd.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"winter",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation is stopped: nothing to quiet for the night.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz stˈɑpt: nˈʌθɪŋ tə kwˈIət fɔɹ ðə nˈIt.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"nothing",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"quiet",
+"VB",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "the lab ventilation was already stopped.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən wʌz ˌɔlɹˈɛdi stˈɑpt.",
+"spacy": [
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"was",
+"VBD",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"stopped",
+"VBN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Welcome home: I set the home back from away.",
+"ps": "wˈɛlkəm hˈOm: ˌI sˈɛt ðə hˈOm bˈæk fɹʌm əwˈA.",
+"spacy": [
+[
+"Welcome",
+"VBP",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"back",
+"RB",
+" "
+],
+[
+"from",
+"IN",
+" "
+],
+[
+"away",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "% with its %% sentence); a fired rule that switches a light changes the belief at once and the",
+"ps": "pəɹsˈɛnt wɪð ɪts pəɹsˈɛntpəɹsˌɛnt sˈɛntᵊns); ɐ fˈIəɹd ɹˈul ðæt swˈɪʧᵻz ɐ lˈIt ʧˈAnʤᵻz ðə bəlˈif æt wˈʌns ænd ðə",
+"spacy": [
+[
+"%",
+"NN",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"%",
+"NN",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"sentence",
+"NN",
+""
+],
+[
+")",
+"-RRB-",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"fired",
+"VBN",
+" "
+],
+[
+"rule",
+"NN",
+" "
+],
+[
+"that",
+"WDT",
+" "
+],
+[
+"switches",
+"VBZ",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"changes",
+"VBZ",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"belief",
+"NN",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"once",
+"RB",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+""
+]
+]
+},
+{
+"text": "You came into the bedroom and it is dark: shall I turn the light on?",
+"ps": "jˌu kˈAm ˈɪntu ðə bˈɛdɹˌum ænd ɪt ɪz dˈɑɹk: ʃˌæl ˌI tˈɜɹn ðə lˈIt ˌɔn?",
+"spacy": [
+[
+"You",
+"PRP",
+" "
+],
+[
+"came",
+"VBD",
+" "
+],
+[
+"into",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"dark",
+"JJ",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"shall",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "Hello. How can I help you today?",
+"ps": "həlˈO. hˌW kæn ˌI hˈɛlp ju tədˈA?",
+"spacy": [
+[
+"Hello",
+"UH",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"How",
+"WRB",
+" "
+],
+[
+"can",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"today",
+"NN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "How can I help you?",
+"ps": "hˌW kæn ˌI hˈɛlp ju?",
+"spacy": [
+[
+"How",
+"WRB",
+" "
+],
+[
+"can",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "I acknowledge your statement. How can I help you with your home today?",
+"ps": "ˌI əknˈɑləʤ jʊɹ stˈAtmənt. hˌW kæn ˌI hˈɛlp ju wɪð jʊɹ hˈOm tədˈA?",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"acknowledge",
+"VBP",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"statement",
+"NN",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"How",
+"WRB",
+" "
+],
+[
+"can",
+"MD",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"today",
+"NN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "I am a home automation assistant. I am here to help you manage your home's lighting, ventilation, and media.",
+"ps": "ˌI ɐm ɐ hˈOm ˌɔTəmˈAʃən əsˈɪstᵊnt. ˌI ɐm hˈɪɹ tə hˈɛlp ju mˈænɪʤ jʊɹ hˈOmz lˈITɪŋ, vˌɛntəlˈAʃən, ænd mˈidiə.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"automation",
+"NN",
+" "
+],
+[
+"assistant",
+"NN",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"here",
+"RB",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"manage",
+"VB",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+"'s",
+"POS",
+" "
+],
+[
+"lighting",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"media",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am here if you need anything else.",
+"ps": "ˌI ɐm hˈɪɹ ɪf ju nˈid ˈɛniθˌɪŋ ˈɛls.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"here",
+"RB",
+" "
+],
+[
+"if",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"need",
+"VBP",
+" "
+],
+[
+"anything",
+"NN",
+" "
+],
+[
+"else",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am listening. Please go ahead and share your thoughts on those mistakes.",
+"ps": "ˌI ɐm lˈɪsənɪŋ. plˈiz ɡˌO əhˈɛd ænd ʃˈɛɹ jʊɹ θˈɔts ˌɔn ðOz məstˈAks.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"listening",
+"VBG",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Please",
+"UH",
+" "
+],
+[
+"go",
+"VB",
+" "
+],
+[
+"ahead",
+"RB",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"share",
+"VB",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"thoughts",
+"NNS",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"those",
+"DT",
+" "
+],
+[
+"mistakes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am not familiar with that term, but I am here to help you manage your home systems. Please let me know if you would li",
+"ps": "ˌI ɐm nˌɑt fəmˈɪljəɹ wɪð ðˈæt tˈɜɹm, bˌʌt ˌI ɐm hˈɪɹ tə hˈɛlp ju mˈænɪʤ jʊɹ hˈOm sˈɪstəmz. plˈiz lˈɛt mˌi nˈO ɪf ju wʊd lˈi",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"familiar",
+"JJ",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"that",
+"DT",
+" "
+],
+[
+"term",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"but",
+"CC",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"here",
+"RB",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"manage",
+"VB",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"home",
+"NN",
+" "
+],
+[
+"systems",
+"NNS",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Please",
+"UH",
+" "
+],
+[
+"let",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"know",
+"VB",
+" "
+],
+[
+"if",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"li",
+"VB",
+""
+]
+]
+},
+{
+"text": "I am not sure what you mean by that. Could you please clarify what you would like me to do?",
+"ps": "ˌI ɐm nˌɑt ʃˈʊɹ wˌʌt ju mˈin bI ðˈæt. kˌʊd ju plˈiz klˈɛɹəfˌI wˌʌt ju wʊd lˈIk mˌi tə dˈu?",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"sure",
+"JJ",
+" "
+],
+[
+"what",
+"WP",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"mean",
+"VBP",
+" "
+],
+[
+"by",
+"IN",
+" "
+],
+[
+"that",
+"DT",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Could",
+"MD",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"please",
+"UH",
+" "
+],
+[
+"clarify",
+"VB",
+" "
+],
+[
+"what",
+"WP",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"like",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"do",
+"VB",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "I am sorry, but I do not understand that request. Please let me know if there is something specific you would like me to",
+"ps": "ˌI ɐm sˈɔɹi, bˌʌt ˌI dˈu nˌɑt ˌʌndəɹstˈænd ðˈæt ɹəkwˈɛst. plˈiz lˈɛt mˌi nˈO ɪf ðɛɹ ɪz sˈʌmθˌɪŋ spəsˈɪfɪk ju wʊd lˈIk mˌi tu",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"sorry",
+"JJ",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"but",
+"CC",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"do",
+"VBP",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"understand",
+"VB",
+" "
+],
+[
+"that",
+"DT",
+" "
+],
+[
+"request",
+"NN",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Please",
+"UH",
+" "
+],
+[
+"let",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"know",
+"VB",
+" "
+],
+[
+"if",
+"IN",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"something",
+"NN",
+" "
+],
+[
+"specific",
+"JJ",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"like",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"to",
+"TO",
+""
+]
+]
+},
+{
+"text": "I am sorry, I could not turn on the lab light because it is not responding.",
+"ps": "ˌI ɐm sˈɔɹi, ˌI kʊd nˌɑt tˈɜɹn ˌɔn ðə lˈæb lˈIt bəkˈʌz ɪt ɪz nˌɑt ɹᵻspˈɑndɪŋ.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"sorry",
+"JJ",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"could",
+"MD",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"on",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"because",
+"IN",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"responding",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am sorry, the lab ventilation is already on.",
+"ps": "ˌI ɐm sˈɔɹi, ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"sorry",
+"JJ",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"on",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am turning off the lab ventilation now.",
+"ps": "ˌI ɐm tˈɜɹnɪŋ ˈɔf ðə lˈæb vˌɛntəlˈAʃən nˈW.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"turning",
+"VBG",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"now",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I am turning on the bedroom ventilation.",
+"ps": "ˌI ɐm tˈɜɹnɪŋ ˌɔn ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"turning",
+"VBG",
+" "
+],
+[
+"on",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I cannot check the air because the bedroom does not have a thermometer yet.",
+"ps": "ˌI kənˈɑt ʧˈɛk ði ˈɛɹ bəkˈʌz ðə bˈɛdɹˌum dˈʌz nˌɑt hæv ɐ θəɹmˈɑməTəɹ jˈɛt.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"can",
+"MD",
+""
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"because",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+" "
+],
+[
+"not",
+"RB",
+" "
+],
+[
+"have",
+"VB",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"thermometer",
+"NN",
+" "
+],
+[
+"yet",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I have started the lab ventilation.",
+"ps": "ˌI hæv stˈɑɹTᵻd ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"have",
+"VBP",
+" "
+],
+[
+"started",
+"VBN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I have stopped the bedroom ventilation.",
+"ps": "ˌI hæv stˈɑpt ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"have",
+"VBP",
+" "
+],
+[
+"stopped",
+"VBN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I have stopped the lab ventilation.",
+"ps": "ˌI hæv stˈɑpt ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"have",
+"VBP",
+" "
+],
+[
+"stopped",
+"VBN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I have turned off the ventilation in the lab.",
+"ps": "ˌI hæv tˈɜɹnd ˈɔf ðə vˌɛntəlˈAʃən ɪn ðə lˈæb.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"have",
+"VBP",
+" "
+],
+[
+"turned",
+"VBN",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I'm starting the ventilation in the lab for you.",
+"ps": "ˌIm stˈɑɹTɪŋ ðə vˌɛntəlˈAʃən ɪn ðə lˈæb fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+""
+],
+[
+"'m",
+"VBP",
+" "
+],
+[
+"starting",
+"VBG",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I understand. Is there anything else you would like me to do for you today?",
+"ps": "ˌI ˌʌndəɹstˈænd. ˌɪz ðɛɹ ˈɛniθˌɪŋ ˈɛls ju wʊd lˈIk mˌi tə dˈu fɔɹ ju tədˈA?",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"understand",
+"VBP",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Is",
+"VBZ",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"anything",
+"NN",
+" "
+],
+[
+"else",
+"RB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"like",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"do",
+"VB",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"today",
+"NN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "I understand. Please continue with your points about the design.",
+"ps": "ˌI ˌʌndəɹstˈænd. plˈiz kəntˈɪnju wɪð jʊɹ pˈYnts əbˈWt ðə dəzˈIn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"understand",
+"VBP",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Please",
+"UH",
+" "
+],
+[
+"continue",
+"VB",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"points",
+"NNS",
+" "
+],
+[
+"about",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"design",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I understand. Please let me know if there is anything specific you would like me to help you with or change in the home.",
+"ps": "ˌI ˌʌndəɹstˈænd. plˈiz lˈɛt mˌi nˈO ɪf ðɛɹ ɪz ˈɛniθˌɪŋ spəsˈɪfɪk ju wʊd lˈIk mˌi tə hˈɛlp ju wɪð ɔɹ ʧˈAnʤ ɪn ðə hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"understand",
+"VBP",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Please",
+"UH",
+" "
+],
+[
+"let",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"know",
+"VB",
+" "
+],
+[
+"if",
+"IN",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"anything",
+"NN",
+" "
+],
+[
+"specific",
+"JJ",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"would",
+"MD",
+" "
+],
+[
+"like",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"or",
+"CC",
+" "
+],
+[
+"change",
+"VB",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I understand your goal of identifying these design flaws to help companies improve. I am ready to hear your analysis of",
+"ps": "ˌI ˌʌndəɹstˈænd jʊɹ ɡˈOl ʌv IdˈɛntᵻfˌIɪŋ ðiz dəzˈIn flˈɔz tə hˈɛlp kˈʌmpᵊniz ɪmpɹˈuv. ˌI ɐm ɹˈɛdi tə hˈɪɹ jʊɹ ənˈæləsɪs ʌv",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"understand",
+"VBP",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"goal",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+" "
+],
+[
+"identifying",
+"VBG",
+" "
+],
+[
+"these",
+"DT",
+" "
+],
+[
+"design",
+"NN",
+" "
+],
+[
+"flaws",
+"NNS",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"companies",
+"NNS",
+" "
+],
+[
+"improve",
+"VB",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"ready",
+"JJ",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"hear",
+"VB",
+" "
+],
+[
+"your",
+"PRP$",
+" "
+],
+[
+"analysis",
+"NN",
+" "
+],
+[
+"of",
+"IN",
+""
+]
+]
+},
+{
+"text": "I've turned on the lab ventilation for you.",
+"ps": "ˌIv tˈɜɹnd ˌɔn ðə lˈæb vˌɛntəlˈAʃən fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+""
+],
+[
+"'ve",
+"VBP",
+" "
+],
+[
+"turned",
+"VBN",
+" "
+],
+[
+"on",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Sure, let me know when you're ready.",
+"ps": "ʃˈʊɹ, lˈɛt mˌi nˈO wˌɛn jʊɹ ɹˈɛdi.",
+"spacy": [
+[
+"Sure",
+"UH",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"let",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"know",
+"VB",
+" "
+],
+[
+"when",
+"WRB",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+"'re",
+"VBP",
+" "
+],
+[
+"ready",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab ventilation is already running.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən ɪz ˌɔlɹˈɛdi ɹˈʌnɪŋ.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"already",
+"RB",
+" "
+],
+[
+"running",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "What do you call a fake noodle? An impasta.",
+"ps": "wˌʌt dˈu ju kˈɔl ɐ fˈAk nˈudᵊl? ɐn ɪmpˈæstə.",
+"spacy": [
+[
+"What",
+"WP",
+" "
+],
+[
+"do",
+"VBP",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"call",
+"VB",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"fake",
+"JJ",
+" "
+],
+[
+"noodle",
+"NN",
+""
+],
+[
+"?",
+".",
+" "
+],
+[
+"An",
+"DT",
+" "
+],
+[
+"impasta",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Why don't scientists trust atoms? Because they make up everything.",
+"ps": "wˌI dˈOnt sˈIəntɪsts tɹˈʌst ˈæTəmz? bəkˈʌz ðA mˌAk ˌʌp ˈɛvəɹiθˌɪŋ.",
+"spacy": [
+[
+"Why",
+"WRB",
+" "
+],
+[
+"do",
+"VBP",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"scientists",
+"NNS",
+" "
+],
+[
+"trust",
+"NN",
+" "
+],
+[
+"atoms",
+"NNS",
+""
+],
+[
+"?",
+".",
+" "
+],
+[
+"Because",
+"IN",
+" "
+],
+[
+"they",
+"PRP",
+" "
+],
+[
+"make",
+"VBP",
+" "
+],
+[
+"up",
+"RP",
+" "
+],
+[
+"everything",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "You are very welcome. I am glad I could help you today.",
+"ps": "jˌu ɑɹ vˈɛɹi wˈɛlkəm. ˌI ɐm ɡlˈæd ˌI kʊd hˈɛlp ju tədˈA.",
+"spacy": [
+[
+"You",
+"PRP",
+" "
+],
+[
+"are",
+"VBP",
+" "
+],
+[
+"very",
+"RB",
+" "
+],
+[
+"welcome",
+"JJ",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"am",
+"VBP",
+" "
+],
+[
+"glad",
+"JJ",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"could",
+"MD",
+" "
+],
+[
+"help",
+"VB",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"today",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Hey Nina, turn on the lab ventilation.",
+"ps": "hˈA nˈinə, tˈɜɹn ˌɔn ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Hey",
+"UH",
+" "
+],
+[
+"Nina",
+"NNP",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 7:45 in the morning, and the outside temperature is 3.5 degrees.",
+"ps": "ˌɪts sˈɛvən:fˈɔɹTi fˈIv ɪn ðə mˈɔɹnɪŋ, ænd ði ˌWtsˈId tˈɛmpɹəʧəɹ ɪz θɹˈi pYnt fˈIv dəɡɹˈiz.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"7:45",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"outside",
+"JJ",
+" "
+],
+[
+"temperature",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"3.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 21 degrees and the humidity is 48 percent.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti wˈʌn dəɡɹˈiz ænd ðə hjumˈɪdəTi ɪz fˈɔɹTi ˈAt pəɹsˈɛnt.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"21",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"humidity",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"48",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the ventilation to 33% for you.",
+"ps": "ˌI sˈɛt ðə vˌɛntəlˈAʃən tə θˈɜɹTi θɹˈi pəɹsˈɛnt fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"33",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Good night! I've turned off the lights, the TV, and the lab ventilation.",
+"ps": "ɡˈʊd nˈIt! ˌIv tˈɜɹnd ˈɔf ðə lˈIts, ðə tˌivˈi, ænd ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Good",
+"JJ",
+" "
+],
+[
+"night",
+"NN",
+""
+],
+[
+"!",
+".",
+" "
+],
+[
+"I",
+"PRP",
+""
+],
+[
+"'ve",
+"VBP",
+" "
+],
+[
+"turned",
+"VBN",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lights",
+"NNS",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Today is Saturday, November 22nd, 2026.",
+"ps": "tədˈA ɪz sˈæTəɹdˌA, nOvˈɛmbəɹ twˈɛnti sˈɛkənd, twˈɛnti twˈɛnti sˈɪks.",
+"spacy": [
+[
+"Today",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"Saturday",
+"NNP",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"November",
+"NNP",
+" "
+],
+[
+"22nd",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"2026",
+"CD",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The timer is set for 10 minutes.",
+"ps": "ðə tˈIməɹ ɪz sˈɛt fɔɹ tˈɛn mˈɪnəts.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"timer",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"set",
+"VBN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"10",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I can't do that: the heater only runs with the fans on.",
+"ps": "ˌI kˈænt dˈu ðˈæt: ðə hˈiTəɹ ˈOnli ɹˈʌnz wɪð ðə fˈænz ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"ca",
+"MD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"do",
+"VB",
+" "
+],
+[
+"that",
+"DT",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"heater",
+"NN",
+" "
+],
+[
+"only",
+"RB",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"with",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"fans",
+"NNS",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Would you like me to start the bedroom ventilation in night mode?",
+"ps": "wˌʊd ju lˈIk mˌi tə stˈɑɹt ðə bˈɛdɹˌum vˌɛntəlˈAʃən ɪn nˈIt mˈOd?",
+"spacy": [
+[
+"Would",
+"MD",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"like",
+"VB",
+" "
+],
+[
+"me",
+"PRP",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"start",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "You have 3 lights on: the kitchen, the hallway and the living room.",
+"ps": "jˌu hæv θɹˈi lˈIts ˌɔn: ðə kˈɪʧᵊn, ðə hˈɔlwˌA ænd ðə lˈɪvɪŋ ɹˈum.",
+"spacy": [
+[
+"You",
+"PRP",
+" "
+],
+[
+"have",
+"VBP",
+" "
+],
+[
+"3",
+"CD",
+" "
+],
+[
+"lights",
+"NNS",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Your meeting starts at 2:30 PM.",
+"ps": "jˌʊɹ mˈiTɪŋ stˈɑɹts æt tˈu:θˈɜɹTi pˌiˈɛm.",
+"spacy": [
+[
+"Your",
+"PRP$",
+" "
+],
+[
+"meeting",
+"NN",
+" "
+],
+[
+"starts",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"2:30",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The TV doesn't answer. Check that it's plugged in and on the Wi-Fi.",
+"ps": "ðə tˌivˈi dˈʌzᵊnt ˈænsəɹ. ʧˈɛk ðæt ɪts plˈʌɡd ˈɪn ænd ˌɔn ðə wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Check",
+"VB",
+" "
+],
+[
+"that",
+"IN",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"plugged",
+"VBN",
+" "
+],
+[
+"in",
+"RP",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I read the book yesterday, and I will read it again tomorrow.",
+"ps": "ˌI ɹˈɛd ðə bˈʊk jˈɛstəɹdˌA, ænd ˌI wɪl ɹˈid ɪt əɡˈɛn təmˈɑɹO.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"read",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"book",
+"NN",
+" "
+],
+[
+"yesterday",
+"NN",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"will",
+"MD",
+" "
+],
+[
+"read",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"again",
+"RB",
+" "
+],
+[
+"tomorrow",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Please close the door; it's close to midnight.",
+"ps": "plˈiz klˈOz ðə dˈɔɹ; ɪts klˈOs tə mˈɪdnˌIt.",
+"spacy": [
+[
+"Please",
+"UH",
+" "
+],
+[
+"close",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"door",
+"NN",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"close",
+"JJ",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"midnight",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I live here, and the concert was live.",
+"ps": "ˌI lˈɪv hˈɪɹ, ænd ðə kˈɑnsəɹt wʌz lˈIv.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"live",
+"VBP",
+" "
+],
+[
+"here",
+"RB",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"concert",
+"NN",
+" "
+],
+[
+"was",
+"VBD",
+" "
+],
+[
+"live",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "We used to record music; the record player is broken.",
+"ps": "wˌi jˈust tə ɹəkˈɔɹd mjˈuzɪk; ðə ɹˈɛkəɹd plˈAəɹ ɪz bɹˈOkən.",
+"spacy": [
+[
+"We",
+"PRP",
+" "
+],
+[
+"used",
+"VBD",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"record",
+"VB",
+" "
+],
+[
+"music",
+"NN",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"record",
+"NN",
+" "
+],
+[
+"player",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"broken",
+"VBN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "That costs $25.99, or about €24.",
+"ps": "ðˈæt kˈɔsts twˈɛnti fˈIv dˈɑləɹz ænd nˈIndi nˈIn sˈɛnts, ɔɹ əbˈWt twˈɛnti fˈɔɹ jˈʊɹOz.",
+"spacy": [
+[
+"That",
+"DT",
+" "
+],
+[
+"costs",
+"VBZ",
+" "
+],
+[
+"$",
+"$",
+""
+],
+[
+"25.99",
+"CD",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"or",
+"CC",
+" "
+],
+[
+"about",
+"RB",
+" "
+],
+[
+"€",
+"$",
+""
+],
+[
+"24",
+"CD",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn the volume up to 40, then down to 20.",
+"ps": "tˈɜɹn ðə vˈɑljˌum ˌʌp tə fˈɔɹTi, ðˈɛn dˌWn tə twˈɛnti.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"volume",
+"NN",
+" "
+],
+[
+"up",
+"IN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"40",
+"CD",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"then",
+"RB",
+" "
+],
+[
+"down",
+"RB",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"20",
+"CD",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The 1st, 2nd and 3rd floors are dark.",
+"ps": "ðə fˈɜɹst, sˈɛkənd ænd θˈɜɹd flˈɔɹz ɑɹ dˈɑɹk.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"1st",
+"JJ",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"2nd",
+"JJ",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"3rd",
+"JJ",
+" "
+],
+[
+"floors",
+"NNS",
+" "
+],
+[
+"are",
+"VBP",
+" "
+],
+[
+"dark",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "In 1999 there were 2 million people; in 2005, 3.2 million.",
+"ps": "ɪn nˌIntˈin nˈIndi nˈIn ðɛɹ wɜɹ tˈu mˈɪljᵊn pˈipᵊl; ɪn tˈu θˈWzᵊnd fˈIv, θɹˈi pYnt tˈu mˈɪljᵊn.",
+"spacy": [
+[
+"In",
+"IN",
+" "
+],
+[
+"1999",
+"CD",
+" "
+],
+[
+"there",
+"EX",
+" "
+],
+[
+"were",
+"VBD",
+" "
+],
+[
+"2",
+"CD",
+" "
+],
+[
+"million",
+"CD",
+" "
+],
+[
+"people",
+"NNS",
+""
+],
+[
+";",
+":",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"2005",
+"CD",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"3.2",
+"CD",
+" "
+],
+[
+"million",
+"CD",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "OK, I'm on it.",
+"ps": "ˌOkˈA, ˌIm ˌɔn ɪt.",
+"spacy": [
+[
+"OK",
+"UH",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"I",
+"PRP",
+""
+],
+[
+"'m",
+"VBP",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"it",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Sorry, I didn't catch that. Could you say it again?",
+"ps": "sˈɔɹi, ˌI dˈɪdᵊnt kˈɛʧ ðˈæt. kˌʊd ju sˈA ɪt əɡˈɛn?",
+"spacy": [
+[
+"Sorry",
+"UH",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"I",
+"PRP",
+" "
+],
+[
+"did",
+"VBD",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"catch",
+"VB",
+" "
+],
+[
+"that",
+"DT",
+""
+],
+[
+".",
+".",
+" "
+],
+[
+"Could",
+"MD",
+" "
+],
+[
+"you",
+"PRP",
+" "
+],
+[
+"say",
+"VB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"again",
+"RB",
+""
+],
+[
+"?",
+".",
+""
+]
+]
+},
+{
+"text": "The air quality is good: CO2 is at 650 ppm.",
+"ps": "ði ˈɛɹ kwˈɑləTi ɪz ɡˈʊd: kˈO tˈu ɪz æt sˈɪks hˈʌndɹəd fˈɪfti pˌipˌiˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"quality",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"good",
+"JJ",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"CO2",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"650",
+"CD",
+" "
+],
+[
+"ppm",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I don't know a device called \"heating\" in this home.",
+"ps": "ˌI dˈOnt nˈO ɐ dəvˈIs kˈɔld “hˈiTɪŋ” ɪn ðɪs hˈOm.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"do",
+"VBP",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"know",
+"VB",
+" "
+],
+[
+"a",
+"DT",
+" "
+],
+[
+"device",
+"NN",
+" "
+],
+[
+"called",
+"VBN",
+" "
+],
+[
+"\"",
+"``",
+""
+],
+[
+"heating",
+"NN",
+""
+],
+[
+"\"",
+"''",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"this",
+"DT",
+" "
+],
+[
+"home",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The Prana units are quiet now, in night mode.",
+"ps": "ðə pɹˈɑnə jˈunəts ɑɹ kwˈIət nˈW, ɪn nˈIt mˈOd.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"Prana",
+"NNP",
+" "
+],
+[
+"units",
+"NNS",
+" "
+],
+[
+"are",
+"VBP",
+" "
+],
+[
+"quiet",
+"JJ",
+" "
+],
+[
+"now",
+"RB",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost mode runs for 20 minutes, then it goes back to normal.",
+"ps": "bˈust mˈOd ɹˈʌnz fɔɹ twˈɛnti mˈɪnəts, ðˈɛn ɪt ɡˈOz bˈæk tə nˈɔɹmᵊl.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"mode",
+"NN",
+" "
+],
+[
+"runs",
+"NNS",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"20",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"then",
+"RB",
+" "
+],
+[
+"it",
+"PRP",
+" "
+],
+[
+"goes",
+"VBZ",
+" "
+],
+[
+"back",
+"RB",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"normal",
+"JJ",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Hmm, the living-room lamp isn't responding.",
+"ps": "hmm, ðə lˈɪvɪŋɹˌum lˈæmp ˈɪzᵊnt ɹᵻspˈɑndɪŋ.",
+"spacy": [
+[
+"Hmm",
+"NNP",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"responding",
+"VBG",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "A, B, C. The U.S.A. and the U.K.",
+"ps": "ɐ, bˈi, sˈi ðə jˌuˌɛsˈA ænd ðə jˌukˈA",
+"spacy": [
+[
+"A",
+"DT",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"B",
+"NNP",
+""
+],
+[
+",",
+",",
+" "
+],
+[
+"C.",
+"NNP",
+" "
+],
+[
+"The",
+"DT",
+" "
+],
+[
+"U.S.A.",
+"NNP",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"U.K.",
+"NNP",
+""
+]
+]
+},
+{
+"text": "Mr. Smith's appointment is at 9 a.m. on Monday.",
+"ps": "mˈɪstəɹ smˈɪθs əpˈYntmənt ɪz æt nˈIn ˌAˈɛm ˌɔn mˈʌndˌA.",
+"spacy": [
+[
+"Mr.",
+"NNP",
+" "
+],
+[
+"Smith",
+"NNP",
+""
+],
+[
+"'s",
+"POS",
+" "
+],
+[
+"appointment",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"9",
+"CD",
+" "
+],
+[
+"a.m.",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"Monday",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Stop the living room light.",
+"ps": "stˈɑp ðə lˈɪvɪŋ ɹˈum lˈIt.",
+"spacy": [
+[
+"Stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the lab ventilation.",
+"ps": "dˈɪm ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the hallway lamp.",
+"ps": "tˈɜɹn ˈɔf ðə hˈɔlwˌA lˈæmp.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the TV.",
+"ps": "tˈɜɹn ˈɔf ðə tˌivˈi.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the hallway lamp.",
+"ps": "tˈɜɹn ˌɔn ðə hˈɔlwˌA lˈæmp.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the lab ventilation.",
+"ps": "swˈɪʧ ˈɔf ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the air conditioner.",
+"ps": "tˈɜɹn ˈɔf ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the bedroom ventilation.",
+"ps": "dˈɪm ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the bedroom ventilation.",
+"ps": "swˈɪʧ ˈɔf ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the bedroom light.",
+"ps": "tˈɜɹn ˈɔf ðə bˈɛdɹˌum lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the air conditioner.",
+"ps": "tˈɜɹn ˌɔn ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the bedroom light.",
+"ps": "tˈɜɹn ˌɔn ðə bˈɛdɹˌum lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch on the lab light.",
+"ps": "swˈɪʧ ˌɔn ðə lˈæb lˈIt.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the living room light.",
+"ps": "dˈɪm ðə lˈɪvɪŋ ɹˈum lˈIt.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the lab light.",
+"ps": "tˈɜɹn ˈɔf ðə lˈæb lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch on the bedroom ventilation.",
+"ps": "swˈɪʧ ˌɔn ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the TV.",
+"ps": "swˈɪʧ ˈɔf ðə tˌivˈi.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the lab ventilation.",
+"ps": "tˈɜɹn ˈɔf ðə lˈæb vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the kitchen light.",
+"ps": "swˈɪʧ ˈɔf ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the TV.",
+"ps": "dˈɪm ðə tˌivˈi.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost the kitchen light.",
+"ps": "bˈust ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Stop the lab light.",
+"ps": "stˈɑp ðə lˈæb lˈIt.",
+"spacy": [
+[
+"Stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the living room light.",
+"ps": "swˈɪʧ ˈɔf ðə lˈɪvɪŋ ɹˈum lˈIt.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Start the hallway lamp.",
+"ps": "stˈɑɹt ðə hˈɔlwˌA lˈæmp.",
+"spacy": [
+[
+"Start",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost the TV.",
+"ps": "bˈust ðə tˌivˈi.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost the lab light.",
+"ps": "bˈust ðə lˈæb lˈIt.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the bedroom ventilation.",
+"ps": "tˈɜɹn ˈɔf ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost the air conditioner.",
+"ps": "bˈust ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the bedroom ventilation.",
+"ps": "tˈɜɹn ˌɔn ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Stop the TV.",
+"ps": "stˈɑp ðə tˌivˈi.",
+"spacy": [
+[
+"Stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Stop the kitchen light.",
+"ps": "stˈɑp ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Boost the bedroom ventilation.",
+"ps": "bˈust ðə bˈɛdɹˌum vˌɛntəlˈAʃən.",
+"spacy": [
+[
+"Boost",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the lab light.",
+"ps": "tˈɜɹn ˌɔn ðə lˈæb lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn on the kitchen light.",
+"ps": "tˈɜɹn ˌɔn ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the kitchen light.",
+"ps": "tˈɜɹn ˈɔf ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Start the living room light.",
+"ps": "stˈɑɹt ðə lˈɪvɪŋ ɹˈum lˈIt.",
+"spacy": [
+[
+"Start",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch off the air conditioner.",
+"ps": "swˈɪʧ ˈɔf ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the kitchen light.",
+"ps": "dˈɪm ðə kˈɪʧᵊn lˈIt.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Turn off the living room light.",
+"ps": "tˈɜɹn ˈɔf ðə lˈɪvɪŋ ɹˈum lˈIt.",
+"spacy": [
+[
+"Turn",
+"VB",
+" "
+],
+[
+"off",
+"RP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Dim the hallway lamp.",
+"ps": "dˈɪm ðə hˈɔlwˌA lˈæmp.",
+"spacy": [
+[
+"Dim",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Start the air conditioner.",
+"ps": "stˈɑɹt ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Start",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Stop the air conditioner.",
+"ps": "stˈɑp ði ˈɛɹ kəndˈɪʃᵊnəɹ.",
+"spacy": [
+[
+"Stop",
+"VB",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "Switch on the bedroom light.",
+"ps": "swˈɪʧ ˌɔn ðə bˈɛdɹˌum lˈIt.",
+"spacy": [
+[
+"Switch",
+"VB",
+" "
+],
+[
+"on",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the living room light to night mode.",
+"ps": "ˌI stˈɑɹTᵻd ðə lˈɪvɪŋ ɹˈum lˈIt tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation off.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the hallway lamp to night mode.",
+"ps": "ˌI stˈɑɹTᵻd ðə hˈɔlwˌA lˈæmp tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the TV off.",
+"ps": "ˌI stˈɑpt ðə tˌivˈi ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the lab ventilation to boost.",
+"ps": "ˌI stˈɑpt ðə lˈæb vˌɛntəlˈAʃən tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the air conditioner to boost.",
+"ps": "ˌI stˈɑpt ði ˈɛɹ kəndˈɪʃᵊnəɹ tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the air conditioner on.",
+"ps": "ˌI stˈɑɹTᵻd ði ˈɛɹ kəndˈɪʃᵊnəɹ ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the bedroom ventilation off.",
+"ps": "ˌI swˈɪʧt ðə bˈɛdɹˌum vˌɛntəlˈAʃən ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the living room light on.",
+"ps": "ˌI stˈɑɹTᵻd ðə lˈɪvɪŋ ɹˈum lˈIt ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab ventilation on.",
+"ps": "ˌI sˈɛt ðə lˈæb vˌɛntəlˈAʃən ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the living room light for you.",
+"ps": "ˌI tˈɜɹnd ðə lˈɪvɪŋ ɹˈum lˈIt fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the TV for you.",
+"ps": "ˌI tˈɜɹnd ðə tˌivˈi fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the bedroom ventilation off.",
+"ps": "ˌI tˈɜɹnd ðə bˈɛdɹˌum vˌɛntəlˈAʃən ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the air conditioner off.",
+"ps": "ˌI stˈɑpt ði ˈɛɹ kəndˈɪʃᵊnəɹ ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the TV for you.",
+"ps": "ˌI sˈɛt ðə tˌivˈi fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the kitchen light on.",
+"ps": "ˌI sˈɛt ðə kˈɪʧᵊn lˈIt ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the kitchen light to boost.",
+"ps": "ˌI tˈɜɹnd ðə kˈɪʧᵊn lˈIt tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the kitchen light to night mode.",
+"ps": "ˌI stˈɑɹTᵻd ðə kˈɪʧᵊn lˈIt tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the living room light on.",
+"ps": "ˌI tˈɜɹnd ðə lˈɪvɪŋ ɹˈum lˈIt ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the lab light to boost.",
+"ps": "ˌI sˈɛt ðə lˈæb lˈIt tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the hallway lamp on.",
+"ps": "ˌI swˈɪʧt ðə hˈɔlwˌA lˈæmp ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the hallway lamp to night mode.",
+"ps": "ˌI swˈɪʧt ðə hˈɔlwˌA lˈæmp tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the lab light on.",
+"ps": "ˌI stˈɑpt ðə lˈæb lˈIt ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"on",
+"IN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the hallway lamp to night mode.",
+"ps": "ˌI sˈɛt ðə hˈɔlwˌA lˈæmp tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the TV off.",
+"ps": "ˌI swˈɪʧt ðə tˌivˈi ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I stopped the hallway lamp for you.",
+"ps": "ˌI stˈɑpt ðə hˈɔlwˌA lˈæmp fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"stopped",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the bedroom light for you.",
+"ps": "ˌI sˈɛt ðə bˈɛdɹˌum lˈIt fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the bedroom light to boost.",
+"ps": "ˌI swˈɪʧt ðə bˈɛdɹˌum lˈIt tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I switched the bedroom light for you.",
+"ps": "ˌI swˈɪʧt ðə bˈɛdɹˌum lˈIt fɔɹ ju.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"switched",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"you",
+"PRP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the TV on.",
+"ps": "ˌI stˈɑɹTᵻd ðə tˌivˈi ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"TV",
+"NN",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the lab light to boost.",
+"ps": "ˌI tˈɜɹnd ðə lˈæb lˈIt tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the kitchen light to night mode.",
+"ps": "ˌI sˈɛt ðə kˈɪʧᵊn lˈIt tə nˈIt mˈOd.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"IN",
+" "
+],
+[
+"night",
+"NN",
+" "
+],
+[
+"mode",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the bedroom ventilation off.",
+"ps": "ˌI sˈɛt ðə bˈɛdɹˌum vˌɛntəlˈAʃən ˈɔf.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"off",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I turned the bedroom light to boost.",
+"ps": "ˌI tˈɜɹnd ðə bˈɛdɹˌum lˈIt tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"turned",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I started the lab ventilation to boost.",
+"ps": "ˌI stˈɑɹTᵻd ðə lˈæb vˌɛntəlˈAʃən tə bˈust.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"started",
+"VBD",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"to",
+"TO",
+" "
+],
+[
+"boost",
+"VB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "I set the bedroom ventilation on.",
+"ps": "ˌI sˈɛt ðə bˈɛdɹˌum vˌɛntəlˈAʃən ˌɔn.",
+"spacy": [
+[
+"I",
+"PRP",
+" "
+],
+[
+"set",
+"VBP",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"on",
+"RP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 7:15 in the evening.",
+"ps": "ˌɪts sˈɛvən:fˈɪftin ɪn ði ˈivnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"7:15",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"evening",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 3:45 in the morning.",
+"ps": "ˌɪts θɹˈi:fˈɔɹTi fˈIv ɪn ðə mˈɔɹnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"3:45",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 2:45 in the evening.",
+"ps": "ˌɪts tˈu:fˈɔɹTi fˈIv ɪn ði ˈivnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"2:45",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"evening",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 7:05 PM.",
+"ps": "ˌɪts sˈɛvən:zˈiəɹO fˈIv pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"7:05",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 3:10 AM.",
+"ps": "ˌɪts θɹˈi:tˈɛn ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"3:10",
+"CD",
+" "
+],
+[
+"AM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 3:50 PM.",
+"ps": "ˌɪts θɹˈi:fˈɪfti pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"3:50",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 10:50 in the morning.",
+"ps": "ˌɪts tˈɛn:fˈɪfti ɪn ðə mˈɔɹnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"10:50",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 1:05 PM.",
+"ps": "ˌɪts wˈʌn:zˈiəɹO fˈIv pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"1:05",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 7:15 PM.",
+"ps": "ˌɪts sˈɛvən:fˈɪftin pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"7:15",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 1:20 PM.",
+"ps": "ˌɪts wˈʌn:twˈɛnti pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"1:20",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 5:15 in the morning.",
+"ps": "ˌɪts fˈIv:fˈɪftin ɪn ðə mˈɔɹnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"5:15",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 5:45 PM.",
+"ps": "ˌɪts fˈIv:fˈɔɹTi fˈIv pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"5:45",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 1:30 in the evening.",
+"ps": "ˌɪts wˈʌn:θˈɜɹTi ɪn ði ˈivnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"1:30",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"evening",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 11:45 PM.",
+"ps": "ˌɪts ɪlˈɛvən:fˈɔɹTi fˈIv pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"11:45",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 9:10 AM.",
+"ps": "ˌɪts nˈIn:tˈɛn ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"9:10",
+"CD",
+" "
+],
+[
+"AM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 8:10 AM.",
+"ps": "ˌɪts ˈAt:tˈɛn ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"8:10",
+"CD",
+" "
+],
+[
+"AM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 3:10 PM.",
+"ps": "ˌɪts θɹˈi:tˈɛn pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"3:10",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 8:05 AM.",
+"ps": "ˌɪts ˈAt:zˈiəɹO fˈIv ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"8:05",
+"CD",
+" "
+],
+[
+"AM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 6:50 AM.",
+"ps": "ˌɪts sˈɪks:fˈɪfti ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"6:50",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 9:00 PM.",
+"ps": "ˌɪts nˈIn:zˈiəɹO zˈiəɹO pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"9:00",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 4:20 AM.",
+"ps": "ˌɪts fˈɔɹ:twˈɛnti ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"4:20",
+"CD",
+" "
+],
+[
+"AM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 2:50 AM.",
+"ps": "ˌɪts tˈu:fˈɪfti ˌAˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"2:50",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 2:50 in the morning.",
+"ps": "ˌɪts tˈu:fˈɪfti ɪn ðə mˈɔɹnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"2:50",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 10:15 in the morning.",
+"ps": "ˌɪts tˈɛn:fˈɪftin ɪn ðə mˈɔɹnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"10:15",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"morning",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 8:50 PM.",
+"ps": "ˌɪts ˈAt:fˈɪfti pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"8:50",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 12:20 PM.",
+"ps": "ˌɪts twˈɛlv:twˈɛnti pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"12:20",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 8:10 in the evening.",
+"ps": "ˌɪts ˈAt:tˈɛn ɪn ði ˈivnɪŋ.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"8:10",
+"CD",
+" "
+],
+[
+"in",
+"IN",
+" "
+],
+[
+"the",
+"DT",
+" "
+],
+[
+"evening",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "It's 6:05 PM.",
+"ps": "ˌɪts sˈɪks:zˈiəɹO fˈIv pˌiˈɛm.",
+"spacy": [
+[
+"It",
+"PRP",
+""
+],
+[
+"'s",
+"VBZ",
+" "
+],
+[
+"6:05",
+"CD",
+" "
+],
+[
+"PM",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 16.3 degrees and 49 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz sˌɪkstˈin pYnt θɹˈi dəɡɹˈiz ænd fˈɔɹTi nˈIn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"16.3",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"49",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 27.2 degrees and 53 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti sˈɛvən pYnt tˈu dəɡɹˈiz ænd fˈɪfti θɹˈi pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"27.2",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"53",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 19.2 degrees and 59 percent humidity.",
+"ps": "ðə lˈæb ɪz nˌIntˈin pYnt tˈu dəɡɹˈiz ænd fˈɪfti nˈIn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.2",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"59",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 26.1 degrees and 55 percent humidity.",
+"ps": "ðə lˈæb ɪz twˈɛnti sˈɪks pYnt wˈʌn dəɡɹˈiz ænd fˈɪfti fˈIv pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"26.1",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"55",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 17.3 degrees and 40 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz sˌɛvəntˈin pYnt θɹˈi dəɡɹˈiz ænd fˈɔɹTi pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"17.3",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"40",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 23.6 degrees and 51 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz twˈɛnti θɹˈi pYnt sˈɪks dəɡɹˈiz ænd fˈɪfti wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"23.6",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"51",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 18.5 degrees and 50 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz ˌAtˈin pYnt fˈIv dəɡɹˈiz ænd fˈɪfti pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"18.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"50",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 26.5 degrees and 31 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti sˈɪks pYnt fˈIv dəɡɹˈiz ænd θˈɜɹTi wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"26.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"31",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room is 23.7 degrees and 58 percent humidity.",
+"ps": "ðə lˈɪvɪŋ ɹˈum ɪz twˈɛnti θɹˈi pYnt sˈɛvən dəɡɹˈiz ænd fˈɪfti ˈAt pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"23.7",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"58",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 21.5 degrees and 63 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti wˈʌn pYnt fˈIv dəɡɹˈiz ænd sˈɪksti θɹˈi pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"21.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"63",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room is 23.1 degrees and 37 percent humidity.",
+"ps": "ðə lˈɪvɪŋ ɹˈum ɪz twˈɛnti θɹˈi pYnt wˈʌn dəɡɹˈiz ænd θˈɜɹTi sˈɛvən pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"23.1",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"37",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 16.1 degrees and 46 percent humidity.",
+"ps": "ðə lˈæb ɪz sˌɪkstˈin pYnt wˈʌn dəɡɹˈiz ænd fˈɔɹTi sˈɪks pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"16.1",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"46",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room is 15.2 degrees and 47 percent humidity.",
+"ps": "ðə lˈɪvɪŋ ɹˈum ɪz fˌɪftˈin pYnt tˈu dəɡɹˈiz ænd fˈɔɹTi sˈɛvən pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"15.2",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"47",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 28.6 degrees and 46 percent humidity.",
+"ps": "ðə lˈæb ɪz twˈɛnti ˈAt pYnt sˈɪks dəɡɹˈiz ænd fˈɔɹTi sˈɪks pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"28.6",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"46",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 17.8 degrees and 62 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz sˌɛvəntˈin pYnt ˈAt dəɡɹˈiz ænd sˈɪksti tˈu pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"17.8",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"62",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 26.5 degrees and 35 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz twˈɛnti sˈɪks pYnt fˈIv dəɡɹˈiz ænd θˈɜɹTi fˈIv pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"26.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"35",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room is 15.2 degrees and 57 percent humidity.",
+"ps": "ðə lˈɪvɪŋ ɹˈum ɪz fˌɪftˈin pYnt tˈu dəɡɹˈiz ænd fˈɪfti sˈɛvən pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"15.2",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"57",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 19.0 degrees and 70 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz nˌIntˈin dəɡɹˈiz ænd sˈɛvənti pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.0",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"70",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 27.4 degrees and 35 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti sˈɛvən pYnt fˈɔɹ dəɡɹˈiz ænd θˈɜɹTi fˈIv pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"27.4",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"35",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 16.4 degrees and 37 percent humidity.",
+"ps": "ðə lˈæb ɪz sˌɪkstˈin pYnt fˈɔɹ dəɡɹˈiz ænd θˈɜɹTi sˈɛvən pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"16.4",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"37",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 15.5 degrees and 65 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz fˌɪftˈin pYnt fˈIv dəɡɹˈiz ænd sˈɪksti fˈIv pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"15.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"65",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 19.9 degrees and 38 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz nˌIntˈin pYnt nˈIn dəɡɹˈiz ænd θˈɜɹTi ˈAt pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.9",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"38",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom is 23.3 degrees and 37 percent humidity.",
+"ps": "ðə bˈɛdɹˌum ɪz twˈɛnti θɹˈi pYnt θɹˈi dəɡɹˈiz ænd θˈɜɹTi sˈɛvən pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"23.3",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"37",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 19.0 degrees and 41 percent humidity.",
+"ps": "ðə lˈæb ɪz nˌIntˈin dəɡɹˈiz ænd fˈɔɹTi wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.0",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"41",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 19.4 degrees and 63 percent humidity.",
+"ps": "ðə lˈæb ɪz nˌIntˈin pYnt fˈɔɹ dəɡɹˈiz ænd sˈɪksti θɹˈi pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.4",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"63",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 19.7 degrees and 62 percent humidity.",
+"ps": "ðə lˈæb ɪz nˌIntˈin pYnt sˈɛvən dəɡɹˈiz ænd sˈɪksti tˈu pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.7",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"62",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 19.5 degrees and 31 percent humidity.",
+"ps": "ðə lˈæb ɪz nˌIntˈin pYnt fˈIv dəɡɹˈiz ænd θˈɜɹTi wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"19.5",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"31",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room is 15.0 degrees and 31 percent humidity.",
+"ps": "ðə lˈɪvɪŋ ɹˈum ɪz fˌɪftˈin dəɡɹˈiz ænd θˈɜɹTi wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"15.0",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"31",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab is 23.7 degrees and 45 percent humidity.",
+"ps": "ðə lˈæb ɪz twˈɛnti θɹˈi pYnt sˈɛvən dəɡɹˈiz ænd fˈɔɹTi fˈIv pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"23.7",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"45",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The kitchen is 16.6 degrees and 61 percent humidity.",
+"ps": "ðə kˈɪʧᵊn ɪz sˌɪkstˈin pYnt sˈɪks dəɡɹˈiz ænd sˈɪksti wˈʌn pəɹsˈɛnt hjumˈɪdəTi.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"kitchen",
+"NN",
+" "
+],
+[
+"is",
+"VBZ",
+" "
+],
+[
+"16.6",
+"CD",
+" "
+],
+[
+"degrees",
+"NNS",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"61",
+"CD",
+" "
+],
+[
+"percent",
+"NN",
+" "
+],
+[
+"humidity",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The hallway lamp doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə hˈɔlwˌA lˈæmp dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"hallway",
+"NN",
+" "
+],
+[
+"lamp",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The air conditioner doesn't answer: check its power and Wi-Fi.",
+"ps": "ði ˈɛɹ kəndˈɪʃᵊnəɹ dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"air",
+"NN",
+" "
+],
+[
+"conditioner",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab light doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə lˈæb lˈIt dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom light doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə bˈɛdɹˌum lˈIt dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The tv doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə tˌivˈi dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"tv",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The living room light doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə lˈɪvɪŋ ɹˈum lˈIt dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"living",
+"NN",
+" "
+],
+[
+"room",
+"NN",
+" "
+],
+[
+"light",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The lab ventilation doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə lˈæb vˌɛntəlˈAʃən dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"lab",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The bedroom ventilation doesn't answer: check its power and Wi-Fi.",
+"ps": "ðə bˈɛdɹˌum vˌɛntəlˈAʃən dˈʌzᵊnt ˈænsəɹ: ʧˈɛk ɪts pˈWəɹ ænd wˈIfˌI.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"bedroom",
+"NN",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"does",
+"VBZ",
+""
+],
+[
+"n't",
+"RB",
+" "
+],
+[
+"answer",
+"VB",
+""
+],
+[
+":",
+":",
+" "
+],
+[
+"check",
+"VB",
+" "
+],
+[
+"its",
+"PRP$",
+" "
+],
+[
+"power",
+"NN",
+" "
+],
+[
+"and",
+"CC",
+" "
+],
+[
+"Wi",
+"NNP",
+""
+],
+[
+"-",
+"HYPH",
+""
+],
+[
+"Fi",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 75% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt sˈɛvənti fˈIv pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"75",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 40% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt fˈɔɹTi pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"40",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 20% for 15 minutes.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt twˈɛnti pəɹsˈɛnt fɔɹ fˌɪftˈin mˈɪnəts.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"20",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"15",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 33% for an hour.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt θˈɜɹTi θɹˈi pəɹsˈɛnt fɔɹ ɐn ˈWəɹ.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"33",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"an",
+"DT",
+" "
+],
+[
+"hour",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 50% for 15 minutes.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt fˈɪfti pəɹsˈɛnt fɔɹ fˌɪftˈin mˈɪnəts.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"50",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"15",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 20% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt twˈɛnti pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"20",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 66% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt sˈɪksti sˈɪks pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"66",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 66% for an hour.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt sˈɪksti sˈɪks pəɹsˈɛnt fɔɹ ɐn ˈWəɹ.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"66",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"an",
+"DT",
+" "
+],
+[
+"hour",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 33% now.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt θˈɜɹTi θɹˈi pəɹsˈɛnt nˈW.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"33",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"now",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 66% for 15 minutes.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt sˈɪksti sˈɪks pəɹsˈɛnt fɔɹ fˌɪftˈin mˈɪnəts.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"66",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"15",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 25% for 15 minutes.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt twˈɛnti fˈIv pəɹsˈɛnt fɔɹ fˌɪftˈin mˈɪnəts.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"25",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"15",
+"CD",
+" "
+],
+[
+"minutes",
+"NNS",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 50% for an hour.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt fˈɪfti pəɹsˈɛnt fɔɹ ɐn ˈWəɹ.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"50",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"an",
+"DT",
+" "
+],
+[
+"hour",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 40% now.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt fˈɔɹTi pəɹsˈɛnt nˈW.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"40",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"now",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 25% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt twˈɛnti fˈIv pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"25",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 25% for an hour.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt twˈɛnti fˈIv pəɹsˈɛnt fɔɹ ɐn ˈWəɹ.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"25",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"for",
+"IN",
+" "
+],
+[
+"an",
+"DT",
+" "
+],
+[
+"hour",
+"NN",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 75% now.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt sˈɛvənti fˈIv pəɹsˈɛnt nˈW.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"75",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"now",
+"RB",
+""
+],
+[
+".",
+".",
+""
+]
+]
+},
+{
+"text": "The ventilation runs at 50% until 7 AM.",
+"ps": "ðə vˌɛntəlˈAʃən ɹˈʌnz æt fˈɪfti pəɹsˈɛnt ˌʌntˈɪl sˈɛvən ˌAˈɛm.",
+"spacy": [
+[
+"The",
+"DT",
+" "
+],
+[
+"ventilation",
+"NN",
+" "
+],
+[
+"runs",
+"VBZ",
+" "
+],
+[
+"at",
+"IN",
+" "
+],
+[
+"50",
+"CD",
+""
+],
+[
+"%",
+"NN",
+" "
+],
+[
+"until",
+"IN",
+" "
+],
+[
+"7",
+"CD",
+" "
+],
+[
+"AM",
+"NNP",
+""
+],
+[
+".",
+".",
+""
+]
+]
+}
+]

@@ -93,13 +93,20 @@ type config struct {
 	// live in the array's RAM, so a replug resets them: restart the engine after one)
 	Respeaker map[string]float64 `yaml:"respeaker"`
 	TTS       struct {
-		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess | go2
+		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess | go2 | piper | paradee
 		Voice  string  `yaml:"voice"`
 		Rate   float64 `yaml:"rate"`
 		Volume float64 `yaml:"volume"`
 		Player string  `yaml:"player"`
 		Piper  string  `yaml:"piper"` // engine piper: the Piper HTTP server (http://127.0.0.1:5150)
-		Sink   string  `yaml:"sink"`  // engine piper: the PipeWire sink ("" the default)
+		Sink   string  `yaml:"sink"`  // engine piper / paradee: the PipeWire sink ("" the default)
+		// engine paradee: the model and lexicons (models/paradee), its voice (af_heart), speed
+		// (1.0; the narration script uses 1.3) and onnxruntime threads
+		Paradee struct {
+			Dir     string  `yaml:"dir"`
+			Speed   float64 `yaml:"speed"`
+			Threads int     `yaml:"threads"`
+		} `yaml:"paradee"`
 	} `yaml:"tts"`
 	Go2 struct { // tts.engine: go2 — stream TTS to the robot speaker (WebRTC)
 		IP     string `yaml:"ip"`
@@ -152,6 +159,9 @@ func main() {
 	var cfg config
 	if err := yaml.Unmarshal(raw, &cfg); err != nil {
 		log.Fatal(err)
+	}
+	if e := os.Getenv("FSTTM_TTS_ENGINE"); e != "" { // the unit's choice over the file's (deploy/nuc: the swap)
+		cfg.TTS.Engine = e
 	}
 	if *wavIn != "" {
 		transcribeFile(cfg, *wavIn)
@@ -233,6 +243,16 @@ func main() {
 	var t tts.Speaker
 	if cfg.TTS.Engine == "piper" {
 		t = tts.NewPiper(cfg.TTS.Piper, cfg.TTS.Sink)
+	} else if cfg.TTS.Engine == "paradee" {
+		pc := cfg.TTS.Paradee
+		if pc.Dir == "" {
+			pc.Dir = "models/paradee"
+		}
+		pd, err := tts.NewParadee(pc.Dir, cfg.TTS.Voice, pc.Speed, pc.Threads, cfg.TTS.Sink)
+		if err != nil {
+			log.Fatalf("[tts] paradee: %v", err)
+		}
+		t = pd
 	} else if cfg.TTS.Engine == "go2" {
 		// Stream TTS to the Go2 speaker over WebRTC (no local audio device).
 		gs, err := go2audio.NewGo2Speaker(ctx,
