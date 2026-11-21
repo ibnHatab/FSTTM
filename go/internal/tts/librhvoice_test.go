@@ -1,3 +1,5 @@
+//go:build !norhvoice
+
 package tts
 
 // Output-behavior e2e (N09-1071 invariant 1): a cut must stop audible output

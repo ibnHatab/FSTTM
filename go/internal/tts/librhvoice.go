@@ -1,3 +1,5 @@
+//go:build !norhvoice
+
 // librhvoice — in-process RHVoice synthesis with FINE-GRAINED progress
 // control, replacing the RHVoice-client subprocess for the speaking path.
 //
