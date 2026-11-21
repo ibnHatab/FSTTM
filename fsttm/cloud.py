@@ -89,8 +89,10 @@ home_media, home_scenes, home_comfort): when the person wants something done in 
 asks about a room's air, call the tool with the intent and the device or room in the person's
 words. The tool's answer is the rule engine's outcome — done, or refused with the reason —
 and is final: say it in your own short words, a refusal with its reason and what the person
-can do. Never claim an outcome the tool did not give. Do not call a tool for small talk or
-for what ENVIRONMENT already answers (a device's state)."""
+can do. Never claim an outcome the tool did not give. Do not call a tool for small talk.
+A question about whether something is on, off or running, or about its speed, mode or
+temperature, is answered from ENVIRONMENT in your own words, with no tool call; call a
+tool for a state question only when ENVIRONMENT has no line for that device."""
 
 
 def render_streams(env, reasoning, now=None):
