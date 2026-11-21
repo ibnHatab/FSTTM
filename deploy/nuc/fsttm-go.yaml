@@ -44,8 +44,9 @@ barge_in: "off"                 # half-duplex until the speakers and the array's
 stt:
     model: "models/ggml-base.en-q5_1.bin"
     language: "en"
-    audio_ctx: 0                # whisper.cpp 1.9.6 here: 512 is slower with fallback (3.7 s vs 1.9 s for 2.2 s of
-                                # speech) and degenerates without it ("1, 2, 3, 4, 4, 4, 4, ..."); 0 is right
+    audio_ctx: 768              # whisper-cli on the NUC, the user's voice, -nf: 2.5 s clip 2.34 s -> 1.21 s,
+                                # 10 s clip 2.89 s -> 1.51 s, the same words (no punctuation); 512 was SLOWER
+                                # (2.48 s), which is why an earlier try at 512 found no gain; 768 = ~15 s of audio
     threads: 4
     no_fallback: true           # no re-decoding hotter: bounds a short utterance's time
     parasites: ["thank you", "thanks", "thanks for watching", "you"]

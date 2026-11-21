@@ -79,11 +79,21 @@ function engineFloor(dst, src, event) {
 function engineEvent(f) {
   const { ev, kind, t, ...rest } = f;
   if (kind === 'fsttm') { engineFloor(rest.dst, rest.src, rest.event); return; }
+  if (kind === 'attention') return;            // shown by the state frame beside it
   panel.core.event(`nuc.${kind}`, rest);
+}
+// the engine's attention (the wake word and the idle timeout are the engine's): the page's attention
+// machine, shown in the FLOOR card, is set to it
+function engineAttention(st) {
+  const a = panel.core.dialog?.attention;
+  if (!a || st === 'OFF') return;
+  a.enabled = true;
+  if (a.force(st === 'AWAKE')) panel.core.event('attention', { state: st, by: 'engine' });
+  panel.core.changed();
 }
 function state(s) {
   if (s.floor) { $('#floor').textContent = s.floor; engineFloor(s.floor); }
-  if (s.attention) $('#attn').textContent = s.attention;
+  if (s.attention) { $('#attn').textContent = s.attention; engineAttention(s.attention); }
   if (s.dialog) $('#dlg').textContent = s.dialog;
 }
 // the conversation the NUC heard: rows in the panel (a typed turn's reply resolves its own turn)

@@ -306,6 +306,29 @@ func main() {
 		}
 	}
 	if pan != nil {
+		// the attention as the page shows it: polled (the engine's idle expiry is lazy, so a quiet
+		// spell back to ASLEEP has no event of its own); a change is a state frame and an event
+		go func() {
+			last := ""
+			tick := time.NewTicker(500 * time.Millisecond)
+			defer tick.Stop()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-tick.C:
+				}
+				st := map[bool]string{true: "AWAKE", false: "ASLEEP"}[eng.Attn.Peek()]
+				if !eng.Attn.Enabled {
+					st = "OFF"
+				}
+				if st != last {
+					last = st
+					pan.State(map[string]any{"attention": st})
+					pan.Event("attention", map[string]any{"state": st})
+				}
+			}
+		}()
 		eng.Typed = make(chan string, 4)
 		var typedIDs []string
 		var mu sync.Mutex

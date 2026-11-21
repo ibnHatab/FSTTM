@@ -37,13 +37,13 @@ func norm(text string) string {
 }
 
 type Attention struct {
-	Enabled      bool
-	State        State
+	Enabled bool
+	State   State
 	// AwakeFor: back to Asleep after this long with nothing said or replied (Touch);
 	// 0 keeps the old behaviour, awake for good once woken.
-	AwakeFor time.Duration
-	Now      func() time.Time
-	last     time.Time
+	AwakeFor     time.Duration
+	Now          func() time.Time
+	last         time.Time
 	wakeWords    []string // normalized, longest first
 	sleepPhrases []string // normalized
 }
@@ -88,6 +88,18 @@ func (a *Attention) clock() time.Time {
 
 // Touch is activity (an utterance, a reply): the idle time starts again.
 func (a *Attention) Touch() { a.last = a.clock() }
+
+// Peek is Awake without its side effect (the lazy expiry): for a display that polls from another
+// goroutine; the engine's own Awake() still decides.
+func (a *Attention) Peek() bool {
+	if !a.Enabled {
+		return true
+	}
+	if a.State != Awake {
+		return false
+	}
+	return !(a.AwakeFor > 0 && !a.last.IsZero() && a.clock().Sub(a.last) > a.AwakeFor)
+}
 
 func (a *Attention) expire() {
 	if a.Enabled && a.State == Awake && a.AwakeFor > 0 && !a.last.IsZero() &&
