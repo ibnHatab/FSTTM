@@ -11,10 +11,12 @@ gpt:
     trim_on_barge_in: false          # keep the model's whole reply in its history after a barge-in
                                      # (true: rewrite it to what was heard, as the local KV rollback does)
     timeout: 30
-    # merged into every request: turn thinking off where the model thinks by default.
-    #   OpenAI-style / Gemini:  {reasoning_effort: none}   (Gemini 3: the lowest level it accepts)
+    # merged into every request: thinking off. gemini-3.1-flash-lite thinks by default:
+    # measured 2026-11-21 from the NUC, a one-sentence reply took 2.5-3.5 s by default and
+    # 1.6-1.8 s with reasoning_effort none; "low" still thinks, and its thinking counts
+    # against max_tokens (a 100-token cap cut the reply to one word).
     #   llama-server (Gemma 4): {chat_template_kwargs: {enable_thinking: false}}
-    request_extra: {}
+    request_extra: {reasoning_effort: none}
     # OpenRouter instead (role-play models and the rest):
     #   base_url: "https://openrouter.ai/api/v1"
     #   api_key_env: OPENROUTER_API_KEY
