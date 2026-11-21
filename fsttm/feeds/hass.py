@@ -75,17 +75,23 @@ def words(state: dict, cfg: dict) -> str:
 
 
 class Door:
-    """A connection to fsttm's stream door, reopened when the server restarts."""
+    """A connection to fsttm's stream door, reopened when the server restarts. A new
+    connection first carries the whole current state (`known`: entity -> words), so a
+    voice process that started after this one, or restarted, is current at once."""
 
-    def __init__(self, port: int):
-        self.port, self.sock = port, None
+    def __init__(self, port: int, known: dict):
+        self.port, self.sock, self.known = port, None, known
 
     def send(self, events):
-        data = "".join(json.dumps(e) + "\n" for e in events).encode()
         for _ in range(2):
             try:
-                if self.sock is None:
+                fresh = self.sock is None
+                if fresh:
                     self.sock = socket.create_connection(("127.0.0.1", self.port), timeout=5)
+                    events = [{"stream": "env", "key": k, "text": t} for k, t in self.known.items()
+                              if t is not None]
+                    log.info("door connected: %d entities", len(events))
+                data = "".join(json.dumps(e) + "\n" for e in events).encode()
                 self.sock.sendall(data)
                 return True
             except OSError:
@@ -134,8 +140,19 @@ async def follow(cfg: dict, door: Door, last: dict):
                 log.info("%s -> %s", eid, text)
 
 
+async def keep_door(door: Door, every: float = 5.0):
+    """While the door is closed (the voice process not up yet, or restarting), knock every
+    few seconds; the first connection carries the whole state."""
+    while True:
+        await asyncio.sleep(every)
+        if door.sock is None and door.known:
+            door.send([])
+
+
 async def run(cfg: dict, port: int):
-    door, last, wait = Door(port), {}, 1.0
+    last, wait = {}, 1.0
+    door = Door(port, last)
+    asyncio.get_running_loop().create_task(keep_door(door))
     while True:
         try:
             await follow(cfg, door, last)
