@@ -2,9 +2,9 @@
 
 Source: Raux & Eskenazi, *A Finite-State Turn-Taking Model for Spoken Dialog
 Systems*, NAACL 2009 (§2.1, §3, Table 1). Audited implementations:
-`fsttm/fsttm.py` (Python) and `go/internal/fsm/fsm.go` (Go, a faithful port).
+`go/internal/fsm/fsm.go` (the retired Python engine's `fsttm/fsttm.py` was verified the same way; see git history).
 Machine-checked by `go/internal/fsm/paper_test.go` and
-`tests/fsttm_paper_test.py`.
+`go/internal/fsm` tests.
 
 ## States (§3.1) — CONFORMANT
 
@@ -172,4 +172,4 @@ across interleaved turns, model-gated), `go/internal/tts/librhvoice_test.go`
 (mid-synthesis cut + fraction-heard, lib-gated),
 `go/internal/pipeline/e2e_test.go` (full-turn FSM traces, barge-in cut,
 echo-drop, output behavior with fake drivers), and
-`tests/fsttm_paper_test.py` (Python FSM against the same canonical table).
+(the retired Python FSM was held to the same canonical table).

@@ -1,4 +1,5 @@
-// Code generated from fsttm/cloud.py (VOICE_STYLE, STREAMS_PROMPT, TOOLS_PROMPT); keep the two equal.
+// The prompts of the API backend: the voice style, the three streams, the home's tools. The source (the
+// Python driver they were first generated from is retired).
 
 package cloud
 

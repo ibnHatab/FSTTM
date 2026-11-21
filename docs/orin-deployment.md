@@ -1,5 +1,7 @@
 # FSTTM on the Unitree Go2 (Jetson Orin NX 16G)
 
+> Written for the retired Python engine; the Go engine's Orin build is in `go/README.md`.
+
 Deploying the dialog engine next to the perception stack (DINOv3 + detector +
 LiDAR + nav2) on `unitree-jetson-payload` (JetPack 6.2 / L4T r36.4.7, Ubuntu
 22.04, Python 3.10, CUDA 12.6, TensorRT 10.3, 8× A78AE, 15.3 GiB shared RAM).
