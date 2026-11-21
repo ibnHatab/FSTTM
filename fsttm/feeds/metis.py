@@ -76,6 +76,35 @@ def reasoning_line(r: dict) -> str | None:
     return None
 
 
+def describe(schema: dict, spec: dict):
+    """The package's vocabulary into its tool schema: each intent's meaning, and for each
+    slot the names the rules know (the intent spec's handles), so the model passes "lab
+    ventilation", not "lab". A name outside them still goes through: the rules refuse it."""
+    props = schema.get("properties") or {}
+    verbs = []
+    for v in spec.get("verbs") or ():
+        names = v.get("verb") if isinstance(v.get("verb"), list) else [v.get("verb")]
+        verbs += ["%s: %s" % (n, v.get("meaning", "")) for n in names if n]
+    if "intent" in props and verbs:
+        props["intent"]["description"] = "; ".join(verbs)
+    names = {}
+    for kind, handles in (spec.get("handles") or {}).items():
+        said = []
+        for h in (handles or {}).values():
+            if isinstance(h, dict) and h.get("description"):
+                said.append(h["description"][0])
+        names[kind] = said
+    for slot, p in props.items():
+        if slot == "intent" or p.get("type") != "string":
+            continue
+        known = (names.get("room", []) if slot == "room" else
+                 [n for kind, ns in names.items() if kind != "room" for n in ns])
+        if known:
+            p["description"] = ("the %s as the rules name it: one of %s (use the full name, e.g. %r, not "
+                                "just the room); another name is passed as said and refused if unknown"
+                                % (slot, ", ".join(repr(n) for n in known), known[0]))
+
+
 class Door:
     """The stream door (fsttm.streams), reopened when the voice process restarts."""
 
@@ -125,11 +154,17 @@ class Sidecar:
                 continue
             schema = json.loads(out.stdout)
             line = ""
+            pdir = os.path.join(ex(self.cfg["catalog"]), "domains", d)
             try:
-                man = yaml.safe_load(open(os.path.join(ex(self.cfg["catalog"]), "domains", d, "domain.yaml")))
+                man = yaml.safe_load(open(os.path.join(pdir, "domain.yaml")))
                 line = man.get("line") or man.get("display") or ""
             except (OSError, ValueError):
                 pass
+            try:
+                spec = yaml.safe_load(open(os.path.join(pdir, "intent.yaml")))
+                describe(schema, spec)
+            except (OSError, ValueError) as e:
+                log.warning("%s: no vocabulary for the tool (%s)", d, e)
             tools.append({"type": "function", "function": {
                 "name": "home_" + d,
                 "description": ("Ask the home's rule engine (package %s) to act or answer: %s. "

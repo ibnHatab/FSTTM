@@ -329,3 +329,15 @@ async def test_busy_provider_is_retried(endpoint):
     fake.busy = 2
     _, evs = await run([init(base), Generate(text="hi", context=1)], lambda e: bool(dones(e)), timeout=8)
     assert dones(evs)[0].full_text == "Hello there." and not [e for e in evs if type(e) is LlamaError]
+
+
+def test_tool_schema_gets_the_rules_vocabulary():
+    from fsttm.feeds.metis import describe
+    schema = {"type": "object", "properties": {"intent": {"enum": ["ON", "OFF"]}, "device": {"type": "string"}}}
+    spec = {"verbs": [{"verb": "ON", "meaning": "turn one light on"}, {"verb": "OFF", "meaning": "turn one light off"}],
+            "handles": {"light": {"l1": {"description": ["living room light", "light"]}, "l3": {"description": ["lab light"]}},
+                        "room": {"r2": {"description": ["lab", "workshop"]}}}}
+    describe(schema, spec)
+    d = schema["properties"]["device"]["description"]
+    assert "'living room light'" in d and "'lab light'" in d and "'lab'," not in d
+    assert schema["properties"]["intent"]["description"].startswith("ON: turn one light on")
