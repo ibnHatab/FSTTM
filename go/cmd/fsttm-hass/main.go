@@ -216,7 +216,9 @@ func main() {
 	}
 	if !fc.Hass.Dumps() {
 		log.Printf("hass.dump is false: metis-home's semantic world serves ENVIRONMENT; idle (set dump: true for the raw entity dump)")
-		select {}
+		for { // idle (no goroutine to wait on: select{} would be a deadlock)
+			time.Sleep(time.Hour)
+		}
 	}
 	tok, err := os.ReadFile(expand(fc.Hass.TokenFile))
 	if err != nil {
