@@ -17,7 +17,13 @@ type Config struct {
 	Domains    []string `yaml:"domains"`
 	Exclude    []string `yaml:"exclude"`    // shell patterns on entity_id
 	Attributes []string `yaml:"attributes"` // the attributes worth saying, in this order
+	// Dump false: the raw entity dump is off, metis-home's semantic world serves ENVIRONMENT (one source,
+	// no key twice in the LLM's context); fsttm-hass then idles, kept as the fallback (true, the default)
+	Dump *bool `yaml:"dump"`
 }
+
+// Dumps: the raw entity dump is on (dump unset or true).
+func (c *Config) Dumps() bool { return c.Dump == nil || *c.Dump }
 
 func Defaults() Config {
 	return Config{

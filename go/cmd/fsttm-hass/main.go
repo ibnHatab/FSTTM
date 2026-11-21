@@ -214,6 +214,10 @@ func main() {
 		}
 		addr = fmt.Sprintf("127.0.0.1:%d", port)
 	}
+	if !fc.Hass.Dumps() {
+		log.Printf("hass.dump is false: metis-home's semantic world serves ENVIRONMENT; idle (set dump: true for the raw entity dump)")
+		select {}
+	}
 	tok, err := os.ReadFile(expand(fc.Hass.TokenFile))
 	if err != nil {
 		log.Fatalf("the Home Assistant token: %v", err)
