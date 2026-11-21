@@ -1,0 +1,14 @@
+[Unit]
+Description=Nina: the voice, Go engine (FSTTM go/bin/fsttm-go: ReSpeaker, Whisper, Gemini, Piper, the panel)
+After=pipewire-pulse.service piper-tts.service
+Wants=pipewire-pulse.service piper-tts.service
+Conflicts=fsttm.service
+
+[Service]
+WorkingDirectory=%h/repo/FSTTM
+ExecStart=%h/repo/FSTTM/go/bin/fsttm-go -config deploy/nuc/fsttm-go.yaml
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

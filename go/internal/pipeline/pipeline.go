@@ -21,6 +21,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/ibnHatab/fsttm/go/internal/attention"
@@ -40,6 +41,12 @@ type Transcriber interface {
 
 type IntentGen interface {
 	TwoPass(systemPrompt, userText, gbnf string) (*llm.Result, error)
+}
+
+// ChatTurn is a free conversation turn (the cloud agent): sentences as the reply streams
+// in, the full reply at the end. A cancelled ctx ends it (a barge-in).
+type ChatTurn interface {
+	Turn(ctx context.Context, text string, onSentence func(string)) (string, error)
 }
 
 // OwnerVerifier gates utterances on the imprinted owner's voice
@@ -95,8 +102,18 @@ type Engine struct {
 	//   kind "intent":  payload = *llm.Result (after a completed turn)
 	//   kind "dialog":  payload = string state (ASLEEP/AWAKE/LISTENING/SPEAKING)
 	Events func(kind string, payload any)
+	// Chat, when set, answers every turn as free conversation (the cloud agent); the
+	// intent LLM is then unused (may be nil).
+	Chat ChatTurn
+	// Typed carries text turns from a page (the panel's text line): a person's turn,
+	// addressed to her (no wake word needed).
+	Typed chan string
 
-	speakReq  chan string
+	speakReq   chan string
+	streamReq  chan (<-chan string)
+	turnCancel context.CancelFunc
+	uttEnd     time.Time // when the last utterance closed (the end-to-end clock)
+	cut        atomic.Bool // the running streamed reply was cut: speak no more of it
 	ttsDone   chan bool
 	speakingT time.Time
 	speakEndT time.Time
@@ -117,6 +134,7 @@ func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
 		Attn: attention.New(cfg.Attention, cfg.WakeWords,
 			cfg.SleepPhrases, true),
 		speakReq:   make(chan string),
+		streamReq:  make(chan (<-chan string)),
 		ttsDone:    make(chan bool),
 		announceCh: make(chan string, 8),
 	}
@@ -132,6 +150,32 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 			select {
 			case <-ctx.Done():
 				return
+			case sentences := <-e.streamReq:
+				// a streamed reply: each sentence spoken as it arrives; a cut ends the rest
+				done, first := true, true
+				for s := range sentences {
+					if !done || e.cut.Load() {
+						done = false
+						continue // drain after a cut
+					}
+					if first && !e.uttEnd.IsZero() {
+						log.Printf("[timing] first audio %.2fs after the end of speech", time.Since(e.uttEnd).Seconds())
+						first = false
+					}
+					res, err := e.TTS.Speak(ctx, s)
+					if err != nil {
+						log.Printf("[tts] %v", err)
+					}
+					if !res.Completed && err == nil {
+						done = false
+						log.Printf("[tts] cut at %.0f%% of %q", res.Fraction()*100, s)
+					}
+				}
+				select {
+				case e.ttsDone <- done:
+				case <-ctx.Done():
+					return
+				}
 			case text := <-e.speakReq:
 				res, err := e.TTS.Speak(ctx, text)
 				if err != nil {
@@ -173,9 +217,21 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 			}
 			e.onVadEvent(ev)
 
+		case text := <-e.Typed:
+			if e.speaking { // a typed line cuts the running reply
+				e.cutReply()
+			}
+			_ = e.Turn.UserAction('G')
+			_ = e.Turn.UserAction('R')
+			e.event("typed", text)
+			e.uttEnd = time.Now()
+			e.Attn.Touch()
+			e.handleUtterance(text)
+
 		case ok := <-e.ttsDone:
 			e.speaking = false
 			e.speakEndT = time.Now()
+			e.Attn.Touch() // her reply is activity: the idle time starts after it
 			_ = ok
 			// Response finished (or was cut): release the floor.
 			_ = e.Turn.SystemAction('R')
@@ -218,6 +274,7 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 		if e.speaking {
 			if e.cfg.BargeIn == "vad" && time.Since(e.speakingT) > bargeGrace {
 				log.Print("[barge-in] VAD onset — cutting TTS")
+				e.cancelTurnCtx()
 				e.TTS.Cancel()
 				_ = e.Turn.UserAction('G')   // SYSTEM → BOTHs (transition 7)
 				_ = e.Turn.SystemAction('R') // BOTHs → USER  (transition 8)
@@ -255,11 +312,15 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 	if !e.Turn.IsUser() {
 		return // floor gate
 	}
+	t0 := time.Now()
 	res, ok := e.STT.Transcribe(ev.Utterance)
+	log.Printf("[stt] %.2fs for %.1fs of audio", time.Since(t0).Seconds(), uttDur.Seconds())
 	if !ok || res.Parasite {
 		return
 	}
+	e.uttEnd = t0
 	log.Printf("[user] %q  [FSM:%s]", res.Text, e.Turn.State)
+	e.event("heard", res.Text)
 	e.processUtterance(res.Text, ev.Utterance)
 }
 
@@ -285,6 +346,7 @@ func (e *Engine) confirmBargeIn(pcm []byte) {
 		}
 	}
 	log.Printf("[barge-in] CONFIRMED by %q — cutting TTS", res.Text)
+	e.cancelTurnCtx()
 	e.TTS.Cancel()
 	// drain the speaker's completion so floor accounting stays single-owner
 	select {
@@ -307,6 +369,7 @@ func (e *Engine) processUtterance(text string, pcm []byte) {
 		// = replace the profile file).
 		if matched, _ := e.Attn.MatchWake(text); !matched {
 			log.Printf("[asleep] ignored: %q", text)
+			e.event("asleep", text)
 			return
 		}
 		if e.ownerGated("wake") && pcm != nil && e.Owner != nil {
@@ -372,6 +435,10 @@ func (e *Engine) handleUtterance(text string) {
 	if err := e.Turn.SystemAction('G'); err != nil {
 		return
 	}
+	if e.Chat != nil {
+		e.chatTurn(text)
+		return
+	}
 
 	r, err := e.LLM.TwoPass(e.cfg.SystemPrompt, text, e.cfg.GBNF)
 	if err != nil {
@@ -407,6 +474,67 @@ func (e *Engine) handleUtterance(text string) {
 		}
 	}
 	e.say(spoken)
+}
+
+// chatTurn is a free conversation turn: the reply streams in sentence by sentence and each
+// is spoken as it arrives (the speaker goroutine); the floor is released when the last one
+// has played (ttsDone). The orchestrator stays free meanwhile (barge-in, typed lines).
+func (e *Engine) chatTurn(text string) {
+	ctx, cancel := context.WithCancel(context.Background())
+	e.turnCancel = cancel
+	e.cut.Store(false)
+	sentences := make(chan string, 32)
+	start := time.Now()
+	go func() {
+		defer close(sentences)
+		firstAt := time.Duration(0)
+		full, err := e.Chat.Turn(ctx, text, func(s string) {
+			if firstAt == 0 {
+				firstAt = time.Since(start)
+			}
+			select {
+			case sentences <- s:
+			case <-ctx.Done():
+			}
+		})
+		if err != nil && ctx.Err() == nil {
+			log.Printf("[chat] %v", err)
+			if full == "" {
+				full = "Sorry, I can't think right now."
+				sentences <- full
+			}
+		}
+		log.Printf("[timing] llm first sentence %.2fs, whole reply %.2fs: %q",
+			firstAt.Seconds(), time.Since(start).Seconds(), full)
+		e.event("reply", full)
+	}()
+	e.speaking = true
+	e.speakingT = time.Now()
+	e.event("dialog", "SPEAKING")
+	e.streamReq <- sentences
+}
+
+func (e *Engine) cancelTurnCtx() {
+	e.cut.Store(true)
+	if e.turnCancel != nil {
+		e.turnCancel()
+		e.turnCancel = nil
+	}
+}
+
+// cutReply stops the running reply (the rest of the stream, the sentence playing) and
+// waits for the speaker to give the floor back.
+func (e *Engine) cutReply() {
+	e.cancelTurnCtx()
+	e.TTS.Cancel()
+	select {
+	case <-e.ttsDone:
+	case <-time.After(3 * time.Second):
+	}
+	e.speaking = false
+	e.speakEndT = time.Now()
+	_ = e.Turn.UserAction('G')
+	_ = e.Turn.SystemAction('R')
 }
 
 // say hands the narration to the speaker goroutine; the FSM floor is

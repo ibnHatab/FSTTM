@@ -1,0 +1,64 @@
+/* panel.css — the dialog panel (panel.js): the intent chat over the one input. It takes
+   the page's colours: text and lines in currentColor, the accents from --fw-accent
+   (default the link blue) and --fw-side (a second accent: the previous floor state, a cut; default amber). */
+.fw-panel { display: flex; flex-direction: column; min-height: 0; height: 100%; font: inherit; color: inherit;
+  --fw-accent-c: var(--fw-accent, #2563eb); --fw-side-c: var(--fw-side, #d97706); }
+.fw-panel .fw-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 4px 0; font-size: 12px; }
+.fw-panel .fw-title { font-weight: 600; }
+.fw-panel .fw-floor { margin-left: auto; opacity: .7; font-variant: all-small-caps; letter-spacing: .03em; }
+.fw-panel .fw-mode { border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; }
+.fw-panel .fw-log { list-style: none; margin: 0; padding: 4px 0; flex: 1 1 auto; min-height: 4em; overflow: auto; overflow-wrap: anywhere; }
+.fw-panel .fw-row { display: grid; grid-template-columns: 4.5em 1fr; gap: 0 8px; padding: 2px 0; }
+.fw-panel .fw-who { font-size: 11px; opacity: .65; text-align: right; padding-top: 2px; }
+.fw-panel .fw-person .fw-text { font-weight: 600; }
+.fw-panel .fw-intent code { font: 12px/1.35 ui-monospace, monospace; opacity: .8; }
+.fw-panel .fw-agent .fw-text { color: var(--fw-accent-c); }
+.fw-panel .fw-note .fw-text { font-style: italic; opacity: .75; }
+.fw-panel .fw-tags { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px; }
+.fw-panel .fw-tags:empty { display: none; }
+.fw-panel .fw-tag { font-size: 11px; border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .7; }
+.fw-panel .fw-input { display: flex; gap: 6px; align-items: center; padding-top: 4px; }
+.fw-panel .fw-input .fw-text { flex: 1 1 auto; min-width: 0; font: inherit; }
+.fw-panel .fw-mic[aria-pressed="true"] { color: #fff; background: var(--fw-accent-c); }
+.fw-panel .fw-voice { font-size: 12px; white-space: nowrap; }
+.fw-panel .fw-meta { grid-column: 2; font-size: 11px; opacity: .6; }
+/* the strip: the dialog's controls in the bar */
+.fw-panel .fw-controls { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.fw-panel .fw-ctl { font: inherit; font-size: 12px; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 4px; padding: 1px 4px; }
+.fw-panel .fw-ctl option { color: initial; }
+.fw-panel .fw-attn[aria-pressed="true"] { color: #fff; background: var(--fw-accent-c); border-color: var(--fw-accent-c); }
+.fw-panel .fw-main { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+/* the sections: floor, state, turns, events — closed until opened */
+/* in a dock of fixed height the log gives way (it scrolls), not the sections: their summaries keep their
+   height, open sections scroll inside half the panel (opus, dialog-panel step 3) */
+.fw-panel .fw-sections { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; flex: 0 0 auto; max-height: 50%; min-height: 0; overflow: auto; }
+.fw-panel .fw-sec { border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent); padding-top: 2px; }
+.fw-panel .fw-sec > summary { cursor: pointer; font-size: 12px; font-weight: 600; padding: 2px 0; }
+.fw-panel .fw-body { font: 11px/1.35 ui-monospace, monospace; padding: 4px 0; }
+.fw-panel .fw-fsm svg { width: 100%; max-height: 14rem; }
+.fw-panel .fsm-line { stroke: currentColor; stroke-opacity: .4; stroke-width: 1.5; }
+.fw-panel .fsm-node { font: 14px ui-monospace, monospace; fill: currentColor; fill-opacity: .55; }
+.fw-panel .fsm-note { font: 11px ui-monospace, monospace; fill: currentColor; fill-opacity: .45; }
+.fw-panel .fsm-node.prev { fill: var(--fw-side-c); fill-opacity: 1; font-weight: 700; }
+.fw-panel .fsm-node.cur { fill: var(--fw-accent-c); fill-opacity: 1; font-weight: 700; }
+.fw-panel .fw-dwell, .fw-panel .fw-trail, .fw-panel .fw-costs { margin: 0; text-align: center; opacity: .7; }
+.fw-panel .fw-trail .fw-cur { color: var(--fw-accent-c); font-weight: 700; }
+.fw-panel .fw-trail .fw-prev { color: var(--fw-side-c); }
+.fw-panel .fw-stats { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 0; }
+.fw-panel .fw-stats dt { opacity: .6; text-align: right; }
+.fw-panel .fw-stats dd { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fw-panel .fw-scroll { max-height: 16rem; overflow: auto; }
+.fw-panel .fw-turns { width: 100%; border-collapse: collapse; }
+.fw-panel .fw-turns th { text-align: left; opacity: .6; font-weight: 400; }
+.fw-panel .fw-turns td, .fw-panel .fw-turns th { padding: 1px 4px; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+.fw-panel .fw-turns td:nth-child(3) { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fw-panel .fw-turns td:nth-child(n+4):nth-child(-n+6) { text-align: right; }
+.fw-panel .fw-turns .fw-cut td:last-child { color: var(--fw-side-c); }
+.fw-panel .fw-tools { display: flex; gap: 10px; }
+.fw-panel .fw-link { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; opacity: .7; cursor: pointer; }
+.fw-panel .fw-events { max-height: 18rem; overflow: auto; font-size: 10px; line-height: 1.25; overflow-wrap: anywhere; opacity: .8; }
+/* the dialog's part in the page's drawer (dialogIn): its bar, then the sections as cards, which scroll inside it */
+.fw-panel.fw-part { height: 100%; }
+.fw-panel.fw-part > .fw-bar { flex: none; }
+.fw-panel.fw-part > .fw-bar .fw-floor { margin-left: 0; margin-right: auto; }
+.fw-panel.fw-part .fw-sections { flex: 1 1 auto; max-height: none; }

@@ -1,6 +1,9 @@
 package attention
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestWakeVariantsAndRemainder(t *testing.T) {
 	a := New(true, []string{"nina", "hey nina", "hello nina"}, nil, true)
@@ -50,5 +53,29 @@ func TestDisabledIsAlwaysCommand(t *testing.T) {
 	a := New(false, nil, nil, true)
 	if d := a.OnUtterance("anything at all"); d.Action != "command" {
 		t.Fatalf("disabled layer must pass commands, got %+v", d)
+	}
+}
+
+func TestAwakeForFallsBackAsleep(t *testing.T) {
+	now := time.Unix(0, 0)
+	a := New(true, []string{"hey nina"}, nil, true)
+	a.AwakeFor = 30 * time.Second
+	a.Now = func() time.Time { return now }
+	if d := a.OnUtterance("hey nina turn on the light"); d.Action != "wake" {
+		t.Fatalf("%+v", d)
+	}
+	now = now.Add(20 * time.Second)
+	if d := a.OnUtterance("and the tv"); d.Action != "command" {
+		t.Fatalf("%+v", d)
+	}
+	now = now.Add(25 * time.Second)
+	a.Touch() // a reply ended
+	now = now.Add(25 * time.Second)
+	if !a.Awake() {
+		t.Fatal("asleep 25 s after the reply")
+	}
+	now = now.Add(6 * time.Second)
+	if a.Awake() || a.OnUtterance("what about the tv").Action != "ignore" {
+		t.Fatal("still awake after 31 s quiet")
 	}
 }

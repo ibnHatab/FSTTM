@@ -1,0 +1,13 @@
+[Unit]
+Description=Nina: Home Assistant's state into the environment stream (fsttm-hass)
+After=fsttm.service fsttm-go.service
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+WorkingDirectory=%h/repo/FSTTM
+ExecStart=%h/repo/FSTTM/.venv/bin/fsttm-hass --config config.nuc.yaml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

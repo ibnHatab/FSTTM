@@ -21,6 +21,10 @@ import (
 var annotationRe = regexp.MustCompile(`[\[(][^\])]*[\])]|\*[^*]*\*`)
 
 type STT struct {
+	// AudioCtx shortens the encoder's window for short utterances (0: whisper's 1500;
+	// 512 on the NUC: base.en 2.15 s -> 1.37 s for 2 s of speech, the same text).
+	AudioCtx uint
+	Threads  uint
 	mu    sync.Mutex // whisper contexts are not goroutine-safe
 	model whisper.Model
 	lang  string
@@ -78,7 +82,14 @@ func (s *STT) transcribe(samples []float32) (string, error) {
 		return "", err
 	}
 	_ = ctx.SetLanguage(s.lang)
-	ctx.SetThreads(6)
+	th := s.Threads
+	if th == 0 {
+		th = 6
+	}
+	ctx.SetThreads(th)
+	if s.AudioCtx > 0 {
+		ctx.SetAudioCtx(s.AudioCtx)
+	}
 	if err := ctx.Process(samples, nil, nil, nil); err != nil {
 		return "", err
 	}

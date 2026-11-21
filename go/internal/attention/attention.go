@@ -19,6 +19,7 @@ package attention
 import (
 	"regexp"
 	"strings"
+	"time"
 )
 
 type State string
@@ -38,6 +39,11 @@ func norm(text string) string {
 type Attention struct {
 	Enabled      bool
 	State        State
+	// AwakeFor: back to Asleep after this long with nothing said or replied (Touch);
+	// 0 keeps the old behaviour, awake for good once woken.
+	AwakeFor time.Duration
+	Now      func() time.Time
+	last     time.Time
 	wakeWords    []string // normalized, longest first
 	sleepPhrases []string // normalized
 }
@@ -71,7 +77,24 @@ func New(enabled bool, wakeWords, sleepPhrases []string, startAsleep bool) *Atte
 	return a
 }
 
-func (a *Attention) Awake() bool { return !a.Enabled || a.State == Awake }
+func (a *Attention) Awake() bool { a.expire(); return !a.Enabled || a.State == Awake }
+
+func (a *Attention) clock() time.Time {
+	if a.Now != nil {
+		return a.Now()
+	}
+	return time.Now()
+}
+
+// Touch is activity (an utterance, a reply): the idle time starts again.
+func (a *Attention) Touch() { a.last = a.clock() }
+
+func (a *Attention) expire() {
+	if a.Enabled && a.State == Awake && a.AwakeFor > 0 && !a.last.IsZero() &&
+		a.clock().Sub(a.last) > a.AwakeFor {
+		a.State = Asleep
+	}
+}
 
 // MatchWake returns (matched, remainder): remainder is the utterance minus
 // the wake word ("nina go to the kitchen" → "go to the kitchen"); empty when
@@ -110,11 +133,13 @@ func (a *Attention) OnUtterance(text string) Decision {
 	if !a.Enabled {
 		return Decision{Action: "command", Text: text}
 	}
+	a.expire()
 	matched, remainder := a.MatchWake(text)
 
 	if a.State == Asleep {
 		if matched {
 			a.State = Awake
+			a.Touch()
 			// a trailing command after the wake word is the first command
 			return Decision{Action: "wake", Text: remainder, WakePrefixed: true}
 		}
@@ -123,6 +148,7 @@ func (a *Attention) OnUtterance(text string) Decision {
 
 	// AWAKE. Sleep ONLY when wake-prefixed ("nina, go to sleep") — the
 	// original safety rule.
+	a.Touch()
 	if matched && a.matchSleep(text) {
 		a.State = Asleep
 		return Decision{Action: "sleep", WakePrefixed: true}

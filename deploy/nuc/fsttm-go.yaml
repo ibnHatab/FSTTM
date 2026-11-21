@@ -1,0 +1,49 @@
+# The Go engine on the NUC (go/bin/fsttm-go, built by deploy/nuc/build.sh): the voice local (the ReSpeaker
+# straight from ALSA, Whisper on the CPU, Piper), the LLM Gemini over its OpenAI-compatible API, the home's
+# state and the rule engine's conclusions beside the conversation, the panel on :8767. Paths are relative to
+# ~/repo/FSTTM (the unit's WorkingDirectory).
+
+cloud:
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    model: gemini-3.1-flash-lite
+    api_key_file: ~/.config/fsttm/gemini.key
+    persona: "You are Nina, the voice of a flat's smart home. Users may address you as Nina."
+    temperature: 0.7
+    max_tokens: 200
+    timeout_s: 30
+    request_extra: {reasoning_effort: none}     # gemini-3.1-flash-lite thinks by default: 1.7 s vs ~3 s a reply
+
+streams:
+    addr: "127.0.0.1:8766"      # ENVIRONMENT (fsttm-hass) and REASONING (fsttm-metis) come in here
+tools:
+    addr: "127.0.0.1:8768"      # the home's tools: the rule engine (fsttm-metis)
+panel:
+    addr: "0.0.0.0:8767"        # the page: the dialog, the environment, the reasoning (LAN and tailnet)
+
+audio:
+    device: "ReSpeaker"         # straight from ALSA (hw:1,0): PipeWire's capture of this array is broken
+    alsa: true                  # (deploy/nuc/audio/README.md); its PipeWire profile is output only
+    channels: 6                 # the firmware's six: ch0 processed speech, ch1-4 raw mics, ch5 playback
+    channel: 0
+vad:
+    aggressiveness: 2           # 3 missed quiet far-field speech from the array
+    padding_ms: 600
+barge_in: "off"                 # half-duplex until the speakers and the array's echo canceller are checked
+
+stt:
+    model: "models/ggml-base.en-q5_1.bin"
+    language: "en"
+    audio_ctx: 512              # base.en 2.15 s -> 1.37 s for 2 s of speech on the NUC, the same text
+    threads: 4
+    parasites: ["thank you", "thanks", "thanks for watching", "you"]
+
+tts:
+    engine: piper               # the Piper HTTP server (piper-tts.service), played with paplay
+    piper: "http://127.0.0.1:5150"
+    sink: ""                    # the default sink: the ReSpeaker's jack (its echo canceller hears it)
+
+attention:
+    enabled: true
+    awake_s: 30                 # asleep again after 30 s with nothing said or replied
+    wake_words: ["hey nina", "hi nina", "ok nina", "nina", "hey neena", "hey nena", "hey nino",
+                 "hey nine", "a nina", "hey, nina"]

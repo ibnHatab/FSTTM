@@ -1,3 +1,5 @@
+//go:build !nollama
+
 package llm
 
 // Context-rollback e2e (N09-1071 invariant 2): every turn rewinds the KV to

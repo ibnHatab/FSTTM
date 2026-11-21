@@ -13,18 +13,25 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
+	"github.com/ibnHatab/fsttm/go/internal/cloud"
+	"github.com/ibnHatab/fsttm/go/internal/panel"
+	"github.com/ibnHatab/fsttm/go/pkg/hometools"
+	"github.com/ibnHatab/fsttm/go/pkg/streams"
 	"github.com/ibnHatab/fsttm/go/internal/go2audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/nina"
@@ -47,13 +54,45 @@ type config struct {
 		Model     string   `yaml:"model"`
 		Language  string   `yaml:"language"`
 		Parasites []string `yaml:"parasites"`
+		AudioCtx  uint     `yaml:"audio_ctx"` // 512: short utterances ~1.6x faster (0: whisper's 1500)
+		Threads   uint     `yaml:"threads"`
 	} `yaml:"stt"`
+	// Cloud: the LLM over an OpenAI-compatible API (Gemini, OpenRouter, a llama-server):
+	// free conversation, the streams in the prompt, the home's tools. Set → llm: unused.
+	Cloud struct {
+		BaseURL      string         `yaml:"base_url"`
+		Model        string         `yaml:"model"`
+		APIKeyFile   string         `yaml:"api_key_file"`
+		APIKeyEnv    string         `yaml:"api_key_env"`
+		Persona      string         `yaml:"persona"`
+		Temperature  float64        `yaml:"temperature"`
+		MaxTokens    int            `yaml:"max_tokens"`
+		TimeoutS     float64        `yaml:"timeout_s"`
+		RequestExtra map[string]any `yaml:"request_extra"`
+	} `yaml:"cloud"`
+	Streams struct {
+		Addr string `yaml:"addr"` // the door the env / reasoning streams come in by (127.0.0.1:8766)
+	} `yaml:"streams"`
+	Tools struct {
+		Addr string `yaml:"addr"` // the rule engine's tool port (127.0.0.1:8768)
+	} `yaml:"tools"`
+	Panel struct {
+		Addr string `yaml:"addr"` // the page: 0.0.0.0:8767
+	} `yaml:"panel"`
+	Audio struct {
+		Device   string `yaml:"device"`   // a capture device by name ("ReSpeaker"); "" the default
+		Channels int    `yaml:"channels"` // open it with this many (the ReSpeaker: 6)
+		Channel  int    `yaml:"channel"`  // and keep this one (the ReSpeaker: 0, its processed speech)
+		ALSA     bool   `yaml:"alsa"`     // straight from ALSA (PipeWire's capture of the array is broken)
+	} `yaml:"audio"`
 	TTS struct {
 		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess | go2
 		Voice  string  `yaml:"voice"`
 		Rate   float64 `yaml:"rate"`
 		Volume float64 `yaml:"volume"`
 		Player string  `yaml:"player"`
+		Piper  string  `yaml:"piper"` // engine piper: the Piper HTTP server (http://127.0.0.1:5150)
+		Sink   string  `yaml:"sink"`  // engine piper: the PipeWire sink ("" the default)
 	} `yaml:"tts"`
 	Go2 struct { // tts.engine: go2 — stream TTS to the robot speaker (WebRTC)
 		IP     string `yaml:"ip"`
@@ -79,6 +118,7 @@ type config struct {
 		Enabled      bool     `yaml:"enabled"`
 		WakeWords    []string `yaml:"wake_words"`
 		SleepPhrases []string `yaml:"sleep_phrases"`
+		AwakeS       float64  `yaml:"awake_s"` // back to sleep after this many quiet seconds (0: never)
 	} `yaml:"attention"`
 	Nina struct {
 		Enabled     bool   `yaml:"enabled"`
@@ -94,6 +134,7 @@ type config struct {
 func main() {
 	cfgPath := flag.String("config", "config.dog.yaml", "YAML config")
 	headless := flag.Bool("headless", false, "stdin text instead of the mic")
+	wavIn := flag.String("transcribe", "", "transcribe a 16 kHz S16 WAV (its channel audio.channel) with the stt: settings, print the time and the text, exit")
 	flag.Parse()
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
 
@@ -105,13 +146,19 @@ func main() {
 	if err := yaml.Unmarshal(raw, &cfg); err != nil {
 		log.Fatal(err)
 	}
-	prompt, err := os.ReadFile(cfg.Prompt)
-	if err != nil {
-		log.Fatal(err)
+	if *wavIn != "" {
+		transcribeFile(cfg.STT.Model, cfg.STT.Language, cfg.STT.Parasites, cfg.STT.AudioCtx, cfg.STT.Threads, cfg.Audio.Channel, *wavIn)
+		return
 	}
-	gbnf, err := os.ReadFile(cfg.Grammar)
-	if err != nil {
-		log.Fatal(err)
+	useCloud := cfg.Cloud.Model != ""
+	var prompt, gbnf []byte
+	if !useCloud { // the local intent LLM: its prompt and grammar
+		if prompt, err = os.ReadFile(cfg.Prompt); err != nil {
+			log.Fatal(err)
+		}
+		if gbnf, err = os.ReadFile(cfg.Grammar); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(),
@@ -148,17 +195,21 @@ func main() {
 	}
 
 	// ── drivers ──────────────────────────────────────────────────────────
-	l, err := llm.Load(llm.Config{ModelPath: cfg.LLM.Model, NCtx: cfg.LLM.NCtx,
-		NBatch: cfg.LLM.NBatch, NThreads: cfg.LLM.NThreads,
-		NGpuLayers: cfg.LLM.NGpuLayers})
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer l.Close()
-	if n, err := l.PrimePrefix(string(prompt)); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Printf("[llm] intent prefix pre-warmed: %d tok", n)
+	var intentLLM pipeline.IntentGen
+	if !useCloud {
+		l, err := llm.Load(llm.Config{ModelPath: cfg.LLM.Model, NCtx: cfg.LLM.NCtx,
+			NBatch: cfg.LLM.NBatch, NThreads: cfg.LLM.NThreads,
+			NGpuLayers: cfg.LLM.NGpuLayers})
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer l.Close()
+		if n, err := l.PrimePrefix(string(prompt)); err != nil {
+			log.Fatal(err)
+		} else {
+			log.Printf("[llm] intent prefix pre-warmed: %d tok", n)
+		}
+		intentLLM = l
 	}
 
 	s, err := stt.New(cfg.STT.Model, cfg.STT.Language, cfg.STT.Parasites)
@@ -166,12 +217,15 @@ func main() {
 		log.Fatal(err)
 	}
 	defer s.Close()
-	log.Print("[stt] whisper ready (warmed)")
+	s.AudioCtx, s.Threads = cfg.STT.AudioCtx, cfg.STT.Threads
+	log.Printf("[stt] whisper ready (warmed; audio_ctx=%d)", s.AudioCtx)
 
 	tcfg := tts.Config{Engine: cfg.TTS.Engine, Voice: cfg.TTS.Voice,
 		Rate: cfg.TTS.Rate, Volume: cfg.TTS.Volume, Player: cfg.TTS.Player}
 	var t tts.Speaker
-	if cfg.TTS.Engine == "go2" {
+	if cfg.TTS.Engine == "piper" {
+		t = tts.NewPiper(cfg.TTS.Piper, cfg.TTS.Sink)
+	} else if cfg.TTS.Engine == "go2" {
 		// Stream TTS to the Go2 speaker over WebRTC (no local audio device).
 		gs, err := go2audio.NewGo2Speaker(ctx,
 			go2audio.Config{IP: cfg.Go2.IP, AES128: cfg.Go2.AES128}, tcfg)
@@ -194,8 +248,93 @@ func main() {
 		SleepPhrases: cfg.Attention.SleepPhrases,
 		BargeIn:      cfg.BargeIn,
 		OwnerGate:    cfg.VoiceID.Gate,
-	}, l, s, t)
+	}, intentLLM, s, t)
 	eng.Owner = owner
+	eng.Attn.AwakeFor = time.Duration(cfg.Attention.AwakeS * float64(time.Second))
+
+	// ── the cloud agent, the streams beside the conversation, the home's tools, the panel ──
+	var pan *panel.Server
+	if cfg.Panel.Addr != "" {
+		pan = panel.New()
+		if err := pan.Serve(cfg.Panel.Addr); err != nil {
+			log.Fatalf("[panel] %v", err)
+		}
+	}
+	if useCloud {
+		ag := &cloud.Agent{
+			Client: cloud.NewClient(orDefault(cfg.Cloud.BaseURL, "https://generativelanguage.googleapis.com/v1beta/openai/"),
+				cfg.Cloud.Model, cloud.KeyFrom(cfg.Cloud.APIKeyFile, cfg.Cloud.APIKeyEnv), cfg.Cloud.RequestExtra,
+				time.Duration(cfg.Cloud.TimeoutS*float64(time.Second))),
+			Streams: cloud.NewStreams(), Persona: cfg.Cloud.Persona, Temp: cfg.Cloud.Temperature,
+			MaxTokens: cfg.Cloud.MaxTokens,
+		}
+		if ag.MaxTokens == 0 {
+			ag.MaxTokens = 200
+		}
+		if cfg.Tools.Addr != "" {
+			ag.Tools = &hometools.Client{Addr: cfg.Tools.Addr}
+		}
+		if pan != nil {
+			ag.OnTool = pan.Tool
+		}
+		eng.Chat = ag
+		log.Printf("[cloud] %s at %s (tools %s)", ag.Client.Model, ag.Client.URL, orDefault(cfg.Tools.Addr, "none"))
+		if cfg.Streams.Addr != "" {
+			if _, err := streams.Open(cfg.Streams.Addr, func(ev streams.Event) {
+				if ev.Stream == "env" {
+					ag.Streams.Env(ev.Key, ev.Text, ev.TS)
+					if pan != nil {
+						pan.Env(ev.Key, ev.Text, ev.TS)
+					}
+				} else {
+					ag.Streams.Reason(*ev.Text, ev.TS)
+					if pan != nil {
+						pan.Reasoning(*ev.Text, ev.TS)
+					}
+				}
+			}); err != nil {
+				log.Fatalf("[streams] %v", err)
+			}
+		}
+	}
+	if pan != nil {
+		eng.Typed = make(chan string, 4)
+		var typedIDs []string
+		var mu sync.Mutex
+		pan.OnSay = func(id, text string) {
+			mu.Lock()
+			typedIDs = append(typedIDs, id)
+			mu.Unlock()
+			eng.Typed <- text
+		}
+		cur := ""
+		prev := eng.Events
+		eng.Events = func(kind string, payload any) {
+			if prev != nil {
+				prev(kind, payload)
+			}
+			txt, _ := payload.(string)
+			switch kind {
+			case "typed":
+				mu.Lock()
+				if len(typedIDs) > 0 {
+					cur, typedIDs = typedIDs[0], typedIDs[1:]
+				}
+				mu.Unlock()
+			case "heard":
+				cur = ""
+				pan.Said("heard", "", txt)
+			case "asleep":
+				pan.Said("asleep", "", txt)
+			case "reply":
+				pan.Said("reply", cur, txt)
+				cur = ""
+			case "dialog":
+				pan.State(map[string]any{"dialog": txt, "floor": string(eng.Turn.State),
+					"attention": map[bool]string{true: "AWAKE", false: "ASLEEP"}[eng.Attn.Awake()]})
+			}
+		}
+	}
 
 	// ── Nina robot link (nina_speak override) ────────────────────────────
 	// jsonl events on stdout → nina_relay → the contracted ROS topics; say
@@ -287,7 +426,8 @@ func main() {
 			log.Fatal(err)
 		}
 		go func() {
-			if err := audio.Capture(ctx, frames); err != nil {
+			if err := audio.CaptureFrom(ctx, audio.Device{Name: cfg.Audio.Device,
+				Channels: cfg.Audio.Channels, Channel: cfg.Audio.Channel, ALSA: cfg.Audio.ALSA}, frames); err != nil {
 				log.Printf("[audio] %v", err)
 				stop()
 			}
@@ -299,4 +439,41 @@ func main() {
 
 	eng.Run(ctx, vadEvents, textIn)
 	fmt.Println("\nbye.")
+}
+
+func orDefault(s, d string) string {
+	if s == "" {
+		return d
+	}
+	return s
+}
+
+// transcribeFile is the -transcribe check: the STT as the engine runs it, on a recording.
+func transcribeFile(model, lang string, parasites []string, actx, threads uint, channel int, path string) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(b) < 44 || string(b[0:4]) != "RIFF" {
+		log.Fatal("not a WAV")
+	}
+	ch := int(binary.LittleEndian.Uint16(b[22:24]))
+	off := 12
+	for off+8 <= len(b) && string(b[off:off+4]) != "data" {
+		off += 8 + int(binary.LittleEndian.Uint32(b[off+4:off+8]))
+	}
+	pcm := b[off+8:]
+	if ch > 1 {
+		pcm = audio.PickChannel(pcm, ch, channel)
+	}
+	s, err := stt.New(model, lang, parasites)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer s.Close()
+	s.AudioCtx, s.Threads = actx, threads
+	t0 := time.Now()
+	r, ok := s.Transcribe(pcm)
+	fmt.Printf("%.2fs for %.1fs of audio (audio_ctx %d): ok=%v %q\n", time.Since(t0).Seconds(),
+		float64(len(pcm)/2)/16000, actx, ok, r.Text)
 }

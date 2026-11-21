@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nina</title>
+<!-- the metis consoles' shell (vendor/shell.*: the band, the docks and their strip, the splitter) and
+     fsttm-web's panel (vendor/panel.*: the dialog and its floor); copies, see vendor/README.md -->
+<link rel="stylesheet" href="vendor/shell.css">
+<link rel="stylesheet" href="vendor/panel.css">
+<script src="vendor/shell.js"></script>
+<style>
+  :root { --fw-accent: var(--fg); --fw-side: var(--yellow); }
+  #root { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  #left { padding: 0; }
+  #dialog { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #dialog .fw-main { flex: 1 1 auto; min-height: 0; }
+  #conn, .st b { color: var(--dim); } .st .v { color: var(--fg); }
+  #env .row, #rsn .row { display: flex; gap: 8px; padding: 2px 0; border-bottom: 1px solid #161c25; font-size: 12px; }
+  .t { color: var(--dim); flex: none; } .v2 { overflow-wrap: anywhere; }
+  .fresh { animation: fresh 2.5s ease-out; } @keyframes fresh { from { background: #1d2b3a; } to { background: transparent; } }
+  #rsn .refused .v2 { color: var(--yellow); } #rsn .tool .v2 { color: var(--cyan); }
+  .empty { color: var(--dim); }
+  .dock .dbody { overflow: auto; padding: 4px 10px; }
+  #dock-floor .dbody { display: flex; flex-direction: column; }
+  .fw-panel .fw-note .fw-text { color: var(--dim); }
+</style>
+</head>
+<body>
+<div id="root">
+  <header id="band"><div class="l">
+    <span class="brand">NINA</span>
+    <span class="st"><b>floor</b><span class="v" id="floor">…</span></span>
+    <span class="st"><b>attention</b><span class="v" id="attn">…</span></span>
+    <span class="st"><b>dialog</b><span class="v" id="dlg">…</span></span>
+    <span id="conn">connecting…</span>
+  </div></header>
+  <main>
+    <section id="left"><div id="dialog" aria-label="the dialog"></div></section>
+    <div id="split"></div>
+    <aside id="right">
+      <section class="dock" id="dock-env" data-dock="env" tabindex="-1">
+        <header><span class="tw">▾</span><span class="tt">ENVIRONMENT · the home as Home Assistant reports it</span><button class="x" type="button" aria-label="hide">✕</button></header>
+        <div class="dbody" id="env"><p class="empty">no state yet</p></div>
+      </section>
+      <section class="dock" id="dock-rsn" data-dock="rsn" tabindex="-1">
+        <header><span class="tw">▾</span><span class="tt">REASONING · the rule engine's conclusions</span><button class="x" type="button" aria-label="hide">✕</button></header>
+        <div class="dbody" id="rsn"><p class="empty">nothing concluded yet</p></div>
+      </section>
+      <section class="dock" id="dock-floor" data-dock="floor" tabindex="-1">
+        <header><span class="tw">▾</span><span class="tt">FLOOR · the page's dialog machine</span><button class="x" type="button" aria-label="hide">✕</button></header>
+        <div class="dbody"><div id="floorpart"></div></div>
+      </section>
+    </aside>
+    <nav id="strip"><button type="button" data-strip="env">Environment</button><button type="button" data-strip="rsn">Reasoning</button><button type="button" data-strip="floor">Floor</button></nav>
+  </main>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

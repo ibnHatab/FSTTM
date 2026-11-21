@@ -1,0 +1,15 @@
+[Unit]
+Description=Nina: the voice, Python engine (FSTTM: ReSpeaker, Whisper, Gemini, Piper) and the streams panel
+After=pipewire-pulse.service
+Conflicts=fsttm-go.service
+Wants=pipewire-pulse.service
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+WorkingDirectory=%h/repo/FSTTM
+ExecStart=%h/repo/FSTTM/.venv/bin/fsttm --config config.nuc.yaml
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

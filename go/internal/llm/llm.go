@@ -1,3 +1,5 @@
+//go:build !nollama
+
 // Package llm is a thin cgo shim over the CURRENT llama.cpp C API,
 // implementing exactly what fsttm/two_pass.py does: KV-prefix reuse + two-pass
 // grammar-constrained intent generation.
