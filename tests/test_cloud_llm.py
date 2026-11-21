@@ -232,3 +232,30 @@ def test_stream_door_delivers_lines():
     finally:
         door.close()
     assert [(e.stream, e.key, e.text) for e in got] == [("env", "light.x", "on"), ("reasoning", None, "done on(light)")]
+
+
+def test_stream_panel_snapshot_and_live_events():
+    import json as _j
+    import urllib.request
+    from fsttm.llama import StreamEvent
+    from fsttm.streams import StreamPanel
+    p = StreamPanel(0).start()
+    try:
+        p.publish_event(StreamEvent(stream="env", key="fan.lab", text="lab fan: off", ts=1.0))
+        p.publish_event(StreamEvent(stream="env", key="fan.lab", text="lab fan: on", ts=2.0))
+        p.publish({"stream": "reasoning", "text": "done on(fan_lab)"})
+        p.publish({"stream": "conversation", "who": "user", "text": "turn on the lab fan"})
+        page = urllib.request.urlopen("http://127.0.0.1:%d/" % p.port, timeout=3).read().decode()
+        assert "NINA · STREAMS" in page and "EventSource('events')" in page
+        r = urllib.request.urlopen("http://127.0.0.1:%d/events" % p.port, timeout=3)
+        assert r.readline() == b"event: snapshot\n"
+        snap = _j.loads(r.readline().decode()[len("data: "):])
+        assert [e["text"] for e in snap["env"]] == ["lab fan: on"]
+        assert snap["reasoning"][0]["text"] == "done on(fan_lab)"
+        assert snap["conversation"][0]["who"] == "user"
+        r.readline()
+        p.publish({"stream": "reasoning", "text": "refused on(heating)"})
+        assert _j.loads(r.readline().decode()[len("data: "):])["text"] == "refused on(heating)"
+        r.close()
+    finally:
+        p.close()

@@ -461,17 +461,36 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
     # rule engine's conclusions, pushed by other processes to a local port, reach the
     # LLM as context (StreamEvent), never as turns. Opened once, after the LLM's init.
     _door = [None]
+    _panel = [None]     # the streams panel (fsttm.streams.StreamPanel): env, reasoning, conversation
+
+    def _panel_say(who, text):
+        if _panel[0] is not None and text:
+            _panel[0].publish({"stream": "conversation", "who": who, "text": text})
+    stt_src.pipe(ops.filter(lambda i: type(i) is whisper.TextResult and bool(i.text))
+                 ).subscribe(on_next=lambda i: _panel_say("user", i.text))
+    llm_src.pipe(ops.filter(lambda i: type(i) is llama.ResponseDone and bool(i.full_text))
+                 ).subscribe(on_next=lambda i: _panel_say("assistant", i.full_text))
 
     def _open_stream_door(cfg):
         sc = getattr(cfg, 'streams', None) or {}
         port = sc.get('port') if isinstance(sc, dict) else getattr(sc, 'port', None)
         if _door[0] is not None or not port:
             return
-        from fsttm.streams import StreamDoor
+        from fsttm.streams import StreamDoor, StreamPanel
+        ppt = sc.get('panel_port', int(port) + 1) if isinstance(sc, dict) else int(port) + 1
+        if ppt:
+            try:
+                _panel[0] = StreamPanel(int(ppt)).start()
+                _emit(f"[streams] panel on http://127.0.0.1:{_panel[0].port}/", "info")
+            except OSError as e:
+                _emit(f"[streams] cannot open the panel's port {ppt}: {e}", "warn")
+
+        def deliver(ev):
+            if _panel[0] is not None:
+                _panel[0].publish_event(ev)
+            aio_scheduler.schedule(lambda *_: _llm_subject.on_next(ev))
         try:
-            _door[0] = StreamDoor(
-                lambda ev: aio_scheduler.schedule(lambda *_: _llm_subject.on_next(ev)),
-                port=int(port)).start()
+            _door[0] = StreamDoor(deliver, port=int(port)).start()
             _emit(f"[streams] env + reasoning in on 127.0.0.1:{_door[0].port}", "info")
         except OSError as e:
             _emit(f"[streams] cannot open port {port}: {e}", "warn")
