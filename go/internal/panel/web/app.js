@@ -70,13 +70,12 @@ function state(s) {
   if (s.dialog) $('#dlg').textContent = s.dialog;
 }
 // the conversation the NUC heard: rows in the panel (a typed turn's reply resolves its own turn)
-let n = 0;
 function said(f) {
   if (f.ev === 'nuc/heard') panel.core.row({ who: 'person', text: f.text, via: 'voice', meta: 'heard on the NUC' });
   else if (f.ev === 'nuc/asleep') panel.core.row({ who: 'note', text: `asleep, ignored: “${f.text}” (say “hey Nina” first)` });
   else if (f.ev === 'nuc/reply') {
     if (f.id && pending.has(f.id)) { pending.get(f.id)(f.text); return; }
-    panel.core.frame({ ev: 'narration', id: `r${++n}`, kind: 'reply', form: 'N', sentence: f.text, line: f.text });
+    panel.core.row({ who: 'agent', text: f.text, meta: 'her reply, spoken on the NUC' });
   }
 }
 function frame(f) {
