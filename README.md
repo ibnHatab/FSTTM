@@ -94,7 +94,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # engine + extras + both domains (dev box)
-pip install -e ".[piper,tui,voicefilter,test]" -e contrib/hvac -e contrib/dog
+pip install -e ".[local,piper,tui,voicefilter,test]" -e contrib/hvac -e contrib/dog   # [local]: llama.cpp; leave it out with gpt.backend: openai
 
 # Build llama-cpp-python from source with CUDA (required for recent models)
 PATH=/usr/local/cuda/bin:$PATH \
