@@ -26,6 +26,30 @@ Measured idle (30 s, mic live, silent room, this dev box): **1.2 % CPU,
 0 % GPU util, 2 threads** (Python engine: 1.6 % CPU, 7–11 threads,
 +1.1 GB GPU memory). On the Orin's slower cores the gap is larger.
 
+## The LLM over an API, the streams, the home's tools (branch go-nuc)
+
+With a `cloud:` block the engine answers every turn as free conversation through an
+OpenAI-compatible chat API (Gemini `gemini-3.1-flash-lite` on the NUC; OpenRouter, a llama-server)
+instead of the local two-pass intent LLM (`internal/cloud`, the port of `fsttm/cloud.py`): the
+reply streams in and is spoken sentence by sentence; the home's ENVIRONMENT and REASONING streams
+are in the system prompt (`STREAMS_PROMPT`, generated verbatim from the Python driver); the home's
+tools come from the rule engine's port and their calls are run and fed back (up to 3 rounds);
+429/5xx are retried; a thinking-only reply says how to turn thinking off. Built with
+`-tags nollama,norhvoice` no llama.cpp and no librhvoice are linked (the NUC: Piper speaks,
+`tts.engine: piper`). The page (`internal/panel`, `panel.addr`): fsttm-web's panel (the dialog,
+its floor) in the metis consoles' shell, the ENVIRONMENT and REASONING docks beside it; typed
+lines are person turns. The NUC's build, config, units and audio setup: `deploy/nuc/`.
+
+### Packages for other services (import them; do not re-implement the protocols)
+
+| import | what |
+|---|---|
+| `github.com/ibnHatab/fsttm/go/pkg/streams` | the ENVIRONMENT / REASONING JSON-lines protocol on `127.0.0.1:8766`: `Event`, `Parse`, the engine's `Open(addr, deliver)` door, a producer's `Client{Addr, OnConnect}` (reconnects; a new connection first sends the producer's whole state), `EnvLine`, `ReasoningLine` |
+| `github.com/ibnHatab/fsttm/go/pkg/hometools` | the rule engine's tool port on `127.0.0.1:8768`: `{"op":"tools"}` → OpenAI function tools, `{"op":"call","domain","args"}` → `{status, text}`; the engine's `Client` (cached list, retried while absent) and the rule engine's `Serve(addr, Handler)` (`Handler`: `Tools() []Tool`, `Call(domain, args) Outcome`) |
+
+The Python side speaks the same: `fsttm/streams.py` (the door) and `fsttm/feeds/metis.py` (the
+tool port), so producers and consumers mix freely.
+
 ## Build
 
 Requires Go ≥1.23 and sibling checkouts of llama.cpp + whisper.cpp, each
