@@ -1,0 +1,10 @@
+models/paradee/ — not in git, fetched by deploy/nuc/install.sh
+
+paradee_int8.onnx, config.json
+  Paradee-8M v1.2, https://huggingface.co/sahilmahendrakar/Paradee-8M-v1.2
+  Copyright Sahil Mahendrakar. Apache License 2.0. A Kokoro-style model; its vocabulary is Kokoro's.
+us_gold.json, us_silver.json
+  misaki's US English lexicons, https://github.com/hexgrad/misaki (misaki/data)
+  Copyright hexgrad. Apache License 2.0.
+go/internal/g2p is a Go port of misaki's English G2P (misaki/en.py, espeak.py), Apache License 2.0;
+its espeak fallback links libespeak-ng (GPL-3.0, the system's package, dynamically).

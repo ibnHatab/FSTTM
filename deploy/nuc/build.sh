@@ -3,7 +3,8 @@
 # -tags nollama,norhvoice (the LLM is the cloud one: no llama.cpp linked, so whisper's ggml is the only ggml).
 #   deploy/nuc/build.sh            whisper.cpp if not built, then fsttm-go
 #   deploy/nuc/build.sh test       the Go tests of the packages the NUC build uses
-# Needs: build-essential cmake golang-go pkg-config libopus-dev libopusfile-dev libasound2-dev (install.sh).
+# Needs: build-essential cmake golang-go pkg-config libopus-dev libopusfile-dev libasound2-dev
+# libonnxruntime-dev libespeak-ng-dev (Paradee: onnxruntime and the G2P's espeak fallback; install.sh).
 set -euo pipefail
 FSTTM="$(cd "$(dirname "$0")/../.." && pwd)"
 WHISPER_DIR="${WHISPER_DIR:-$HOME/metis/whisper.cpp}"
@@ -23,10 +24,10 @@ export CGO_LDFLAGS="-L$WLIB -Wl,-rpath,$WLIB"
 export LIBRARY_PATH="$WLIB" C_INCLUDE_PATH="$WHISPER_DIR/include:$WHISPER_DIR/ggml/include"
 cd "$FSTTM/go"
 if [ "${1:-}" = test ]; then
-  export LD_LIBRARY_PATH="$WLIB"
+  export LD_LIBRARY_PATH="$WLIB" G2P_LEXICON="$FSTTM/models/paradee"
   exec go test -tags nollama,norhvoice ./pkg/... ./internal/cloud/... ./internal/attention/... ./internal/audio/... \
-    ./internal/tts/... ./internal/fsm/... ./internal/panel/... ./internal/pipeline/...
+    ./internal/tts/... ./internal/g2p/... ./internal/paradee/... ./cmd/fsttm-hass/... ./internal/fsm/... ./internal/panel/... ./internal/pipeline/...
 fi
-go build -tags nollama,norhvoice -o bin/ ./cmd/fsttm-go
-CGO_ENABLED=0 go build -o bin/ ./cmd/respeaker
+go build -tags nollama,norhvoice -o bin/ ./cmd/fsttm-go ./cmd/paradee-say
+CGO_ENABLED=0 go build -o bin/ ./cmd/respeaker ./cmd/fsttm-hass
 echo "built $FSTTM/go/bin/fsttm-go (rpath: $WLIB)"

@@ -1,11 +1,14 @@
 [Unit]
-Description=Nina: the voice, Go engine (FSTTM go/bin/fsttm-go: ReSpeaker, Whisper, Gemini, Piper, the panel)
-After=pipewire-pulse.service piper-tts.service
-Wants=pipewire-pulse.service piper-tts.service
+Description=Nina: the voice, Go engine (FSTTM go/bin/fsttm-go: ReSpeaker, Whisper, Gemini, Paradee, the panel)
+After=pipewire-pulse.service
+Wants=pipewire-pulse.service
 Conflicts=fsttm.service
 
 [Service]
 WorkingDirectory=%h/repo/FSTTM
+# the TTS engine over the config's tts.engine: Paradee in-process (af_heart); install.sh swap-piper
+# puts a drop-in back to Piper (the rollback while piper-tts.service is still there)
+Environment=FSTTM_TTS_ENGINE=paradee
 ExecStart=%h/repo/FSTTM/go/bin/fsttm-go -config deploy/nuc/fsttm-go.yaml
 Restart=always
 RestartSec=3
