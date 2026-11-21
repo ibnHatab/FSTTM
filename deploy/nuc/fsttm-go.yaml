@@ -37,7 +37,6 @@ stt:
                                 # pywhispercpp's older whisper.cpp got 2.15 -> 1.37 s from it)
     threads: 4
     no_fallback: true           # no re-decoding hotter: bounds a short utterance's time
-    single_segment: true
     parasites: ["thank you", "thanks", "thanks for watching", "you"]
 
 tts:

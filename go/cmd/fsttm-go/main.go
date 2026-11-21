@@ -56,8 +56,7 @@ type config struct {
 		Parasites []string `yaml:"parasites"`
 		AudioCtx  uint     `yaml:"audio_ctx"` // 512: short utterances ~1.6x faster (0: whisper's 1500)
 		Threads   uint     `yaml:"threads"`
-		NoFallback    bool `yaml:"no_fallback"`
-		SingleSegment bool `yaml:"single_segment"`
+		NoFallback bool `yaml:"no_fallback"`
 	} `yaml:"stt"`
 	// Cloud: the LLM over an OpenAI-compatible API (Gemini, OpenRouter, a llama-server):
 	// free conversation, the streams in the prompt, the home's tools. Set → llm: unused.
@@ -220,7 +219,7 @@ func main() {
 	}
 	defer s.Close()
 	s.AudioCtx, s.Threads = cfg.STT.AudioCtx, cfg.STT.Threads
-	s.NoFallback, s.SingleSegment = cfg.STT.NoFallback, cfg.STT.SingleSegment
+	s.NoFallback = cfg.STT.NoFallback
 	log.Printf("[stt] whisper ready (warmed; audio_ctx=%d)", s.AudioCtx)
 
 	tcfg := tts.Config{Engine: cfg.TTS.Engine, Voice: cfg.TTS.Voice,
@@ -477,7 +476,7 @@ func transcribeFile(cfg config, path string) {
 	}
 	defer s.Close()
 	s.AudioCtx, s.Threads = actx, threads
-	s.NoFallback, s.SingleSegment = cfg.STT.NoFallback, cfg.STT.SingleSegment
+	s.NoFallback = cfg.STT.NoFallback
 	t0 := time.Now()
 	r, ok := s.Transcribe(pcm)
 	fmt.Printf("%.2fs for %.1fs of audio (audio_ctx %d): ok=%v %q\n", time.Since(t0).Seconds(),
