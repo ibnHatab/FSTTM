@@ -26,18 +26,28 @@ _log = _pylog.getLogger("fsttm.llama")   # → fsttm.log (propagates to fsttm ro
 # symbol namespace first, libllama resolves against it and aborts
 # (undefined symbol: ggml_backend_cuda_log_set_callback). Importing here
 # makes llama deterministically win, regardless of model warm order.
-import llama_cpp  # noqa: F401  (import for side-effect: dlopen libllama first)
+try:
+    import llama_cpp  # noqa: F401  (import for side-effect: dlopen libllama first)
+except ImportError:   # a cloud-only install (gpt.backend: openai) has no llama.cpp
+    llama_cpp = None
 
 Sink = namedtuple('Sink', ['request'])
 Source = namedtuple('Source', ['system'])
 
 Initialize      = namedtuple('Initialize',
                              ['model_path', 'n_ctx', 'n_batch',
-                              'n_threads', 'n_gpu_layers'])
+                              'n_threads', 'n_gpu_layers',
+                              # gpt.backend: llama (local, this module) | openai
+                              # (an OpenAI-compatible chat API: Gemini, OpenRouter,
+                              # llama-server; fsttm.cloud) and that backend's settings
+                              'backend', 'base_url', 'api_key_env', 'api_key_file',
+                              'temperature', 'max_tokens', 'trim_on_barge_in',
+                              'request_extra', 'timeout'])
 # n_ctx/n_batch from config — the intent base prompt (system + domain prompt +
 # few-shot) easily exceeds the old hardcoded 2048; too-small n_ctx made the very
 # first model.eval() fail with `llama_decode returned 1`.
-Initialize.__new__.__defaults__ = (None, 2048, 512, 6, 99)
+Initialize.__new__.__defaults__ = (None, 2048, 512, 6, 99,
+                                  'llama', None, None, None, None, None, False, None, None)
 Generate        = namedtuple('Generate',        ['text', 'context'])
 Generate.__new__.__defaults__ = (None, None)
 IntentGenerate  = namedtuple('IntentGenerate',  ['text', 'context', 'domains'])
@@ -198,7 +208,48 @@ class ConversationHistory:
         self._turns.clear()
 
 
+CLOUD_BACKENDS = ("openai", "gemini", "openrouter")
+
+
 def make_driver(loop=None):
+    """The LLM driver: the backend is chosen by the first Initialize
+    (gpt.backend). Requests before it wait; then everything goes to the chosen
+    driver, local llama.cpp (make_local_driver) or an OpenAI-compatible API
+    (fsttm.cloud)."""
+    from reactivex.subject import Subject
+
+    def driver(sink):
+        out = Subject()
+        inner = Subject()
+        chosen = [None]
+        pending = []
+
+        def on_request(item):
+            if chosen[0] is None:
+                if type(item) is not Initialize:
+                    pending.append(item)
+                    return
+                if (item.backend or 'llama') in CLOUD_BACKENDS:
+                    from fsttm import cloud
+                    comp = cloud.make_driver(loop)
+                else:
+                    comp = make_local_driver(loop)
+                chosen[0] = comp
+                comp.call(Sink(request=inner)).system.subscribe(out)
+                inner.on_next(item)
+                for p in pending:
+                    inner.on_next(p)
+                pending.clear()
+                return
+            inner.on_next(item)
+
+        sink.request.subscribe(on_next=on_request, on_error=out.on_error)
+        return Source(system=out)
+
+    return Component(call=driver, input=Sink)
+
+
+def make_local_driver(loop=None):
     # grammar and two_pass imported lazily so the module loads without GPU
     def driver(sink):
         model       = None

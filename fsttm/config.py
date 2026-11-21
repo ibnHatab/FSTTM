@@ -1,6 +1,6 @@
 import logging
 import yaml
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, ConfigDict
 import reactivex.operators as ops
 import cyclotron_std.argparse as argparse
@@ -91,6 +91,17 @@ class GptParams(BaseModel):
     n_threads: int = 6
     n_predict: int = 512
     safeword: str = ""
+    # backend: llama (local llama.cpp, `model` is a GGUF path) | openai (an
+    # OpenAI-compatible chat API, `model` is the provider's model name: Gemini,
+    # OpenRouter, a llama-server). The rest is the API backend's (fsttm.cloud).
+    backend: str = "llama"
+    base_url: Optional[str] = None      # default: Gemini's OpenAI endpoint
+    api_key_env: Optional[str] = None   # the variable holding the key (default GEMINI_API_KEY)
+    api_key_file: Optional[str] = None  # or a file holding it
+    max_tokens: Optional[int] = None    # reply length cap (default 200)
+    trim_on_barge_in: bool = False      # rewrite the cut reply to the heard text (the local KV rollback)
+    request_extra: Dict[str, Any] = {}  # merged into every request body (e.g. reasoning_effort)
+    timeout: Optional[float] = None     # seconds per request (default 30)
 
 
 class System(BaseModel):
@@ -223,3 +234,17 @@ def parse_arguments(argv):
         ops.skip(1),
         argparse.parse(parser),
     )
+
+
+_CLOUD_KEYS = ("backend", "base_url", "api_key_env", "api_key_file", "max_tokens",
+               "trim_on_barge_in", "request_extra", "timeout")
+
+
+def llama_cloud_fields(g) -> dict:
+    """The gpt block's backend keys as llama.Initialize fields (a GptParams or a
+    raw dict); temp becomes temperature."""
+    get = (lambda k, d=None: g.get(k, d)) if isinstance(g, dict) else (lambda k, d=None: getattr(g, k, d))
+    out = {k: get(k) for k in _CLOUD_KEYS if get(k) is not None}
+    if get("temp") is not None:
+        out["temperature"] = get("temp")
+    return out

@@ -139,11 +139,13 @@ async def run_headless(model_path: str, system_prompt_override: str = None,
     # domain prompt + few-shot) exceeds the 2048 default, and the last eval
     # chunk then fails with "llama_decode returned 1". Mirrors server.py.
     g = gpt_cfg or {}
+    from fsttm.config import llama_cloud_fields
     llm_subject.on_next(Initialize(model_path=model_path,
                                    n_ctx=g.get('n_ctx', 2048),
                                    n_batch=g.get('n_batch', 512),
                                    n_threads=g.get('n_threads', 6),
-                                   n_gpu_layers=g.get('n_gpu_layers', 99)))
+                                   n_gpu_layers=g.get('n_gpu_layers', 99),
+                                   **llama_cloud_fields(g)))
     llm_subject.on_next(AddSystem(prompt=SYSTEM_PROMPT))
     print("Model ready. Type your message (or STOP to cancel generation).\n")
 

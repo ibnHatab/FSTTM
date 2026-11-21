@@ -57,6 +57,23 @@ FSM Gate (N09-1071 6-state turn-taking)
 TTS backend (piper ONNX | RHVoice) → PyAudio → speaker
 ```
 
+### The LLM over an API (branch `cloud-llm`)
+
+`gpt.backend: openai` replaces local llama.cpp with any OpenAI-compatible chat API — Gemini
+(`gemini-3.1-flash-lite`), OpenRouter, or a `llama-server` on another box — through
+`fsttm/cloud.py`, the same message protocol as `fsttm/llama.py` (`llama.make_driver` picks the
+backend at `Initialize`, so `server.py` and `headless.py` are unchanged in shape). What changes:
+no KV cache to prime or roll back; after a barge-in the model's reply stays whole in its history
+(`trim_on_barge_in: false`, the default here); intents go out as the provider's JSON schema in
+`response_format` with a `spoken` field beside them (one round trip); `StopGenerate` closes the
+stream. llama-cpp-python is optional with this backend. See `config.cloud.sample.yaml`;
+`tests/test_cloud_llm.py` runs it against a fake endpoint.
+
+```bash
+export GEMINI_API_KEY=…            # from aistudio.google.com
+fsttm-headless --config config.cloud.sample.yaml --no-aec
+```
+
 ---
 
 ## Quick Start

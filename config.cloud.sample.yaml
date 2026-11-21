@@ -1,0 +1,26 @@
+# fsttm with the LLM over an API (fsttm.cloud): copy config.sample.yaml's vad / stt / tts /
+# aec / server / log blocks beside this gpt block, or merge this block into your config.
+# The key never goes in this file: export it (GEMINI_API_KEY) or name a file holding it.
+gpt:
+    backend: openai                  # an OpenAI-compatible chat API (llama: local llama.cpp)
+    model: gemini-3.1-flash-lite     # the provider's model name, not a path
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    api_key_env: GEMINI_API_KEY      # or api_key_file: ~/.config/fsttm/gemini.key
+    temp: 0.7
+    max_tokens: 200                  # the reply's cap (thinking counts against it where the model thinks)
+    trim_on_barge_in: false          # keep the model's whole reply in its history after a barge-in
+                                     # (true: rewrite it to what was heard, as the local KV rollback does)
+    timeout: 30
+    # merged into every request: turn thinking off where the model thinks by default.
+    #   OpenAI-style / Gemini:  {reasoning_effort: none}   (Gemini 3: the lowest level it accepts)
+    #   llama-server (Gemma 4): {chat_template_kwargs: {enable_thinking: false}}
+    request_extra: {}
+    # OpenRouter instead (role-play models and the rest):
+    #   base_url: "https://openrouter.ai/api/v1"
+    #   api_key_env: OPENROUTER_API_KEY
+    #   model: <vendor/model from openrouter.ai/models>
+    # A llama-server on another box:
+    #   base_url: "http://host:8080/v1"      (no key)
+system:
+    name: Nina
+    intent_mode: false               # free conversation; intent mode sends the provider's JSON schema

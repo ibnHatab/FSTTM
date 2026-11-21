@@ -390,6 +390,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             tui_state.attention_state = state
 
     # ── LLM ──────────────────────────────────────────────────────────────────
+    from fsttm.config import llama_cloud_fields
     def _make_llm_init(cfg):
         g = cfg.gpt
         events = [llama.Initialize(
@@ -398,6 +399,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             n_batch=getattr(g, 'n_batch', 512),
             n_threads=getattr(g, 'n_threads', 6),
             n_gpu_layers=getattr(g, 'n_gpu_layers', 99),
+            **llama_cloud_fields(g),
         )]
         sysc = getattr(cfg, 'system', None)
         if _intent_mode[0]:
