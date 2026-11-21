@@ -17,9 +17,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/ibnHatab/fsttm/go/pkg/respeaker"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -29,17 +31,18 @@ import (
 	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
 	"github.com/ibnHatab/fsttm/go/internal/cloud"
-	"github.com/ibnHatab/fsttm/go/internal/panel"
-	"github.com/ibnHatab/fsttm/go/pkg/hometools"
-	"github.com/ibnHatab/fsttm/go/pkg/streams"
 	"github.com/ibnHatab/fsttm/go/internal/go2audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/nina"
+	"github.com/ibnHatab/fsttm/go/internal/panel"
 	"github.com/ibnHatab/fsttm/go/internal/pipeline"
 	"github.com/ibnHatab/fsttm/go/internal/stt"
 	"github.com/ibnHatab/fsttm/go/internal/tts"
 	"github.com/ibnHatab/fsttm/go/internal/vad"
 	"github.com/ibnHatab/fsttm/go/internal/voiceid"
+	"github.com/ibnHatab/fsttm/go/pkg/hometools"
+	"github.com/ibnHatab/fsttm/go/pkg/respeaker"
+	"github.com/ibnHatab/fsttm/go/pkg/streams"
 )
 
 type config struct {
@@ -51,12 +54,12 @@ type config struct {
 		NGpuLayers int    `yaml:"n_gpu_layers"`
 	} `yaml:"llm"`
 	STT struct {
-		Model     string   `yaml:"model"`
-		Language  string   `yaml:"language"`
-		Parasites []string `yaml:"parasites"`
-		AudioCtx  uint     `yaml:"audio_ctx"` // 512: short utterances ~1.6x faster (0: whisper's 1500)
-		Threads   uint     `yaml:"threads"`
-		NoFallback bool `yaml:"no_fallback"`
+		Model      string   `yaml:"model"`
+		Language   string   `yaml:"language"`
+		Parasites  []string `yaml:"parasites"`
+		AudioCtx   uint     `yaml:"audio_ctx"` // 512: short utterances ~1.6x faster (0: whisper's 1500)
+		Threads    uint     `yaml:"threads"`
+		NoFallback bool     `yaml:"no_fallback"`
 	} `yaml:"stt"`
 	// Cloud: the LLM over an OpenAI-compatible API (Gemini, OpenRouter, a llama-server):
 	// free conversation, the streams in the prompt, the home's tools. Set → llm: unused.
@@ -86,7 +89,10 @@ type config struct {
 		Channel  int    `yaml:"channel"`  // and keep this one (the ReSpeaker: 0, its processed speech)
 		ALSA     bool   `yaml:"alsa"`     // straight from ALSA (PipeWire's capture of the array is broken)
 	} `yaml:"audio"`
-	TTS struct {
+	// Respeaker: the ReSpeaker 4 Mic Array's XVF-3000 parameters set at start (go/pkg/respeaker; they
+	// live in the array's RAM, so a replug resets them: restart the engine after one)
+	Respeaker map[string]float64 `yaml:"respeaker"`
+	TTS       struct {
 		Engine string  `yaml:"engine"` // librhvoice (default) | subprocess | go2
 		Voice  string  `yaml:"voice"`
 		Rate   float64 `yaml:"rate"`
@@ -428,6 +434,15 @@ func main() {
 			log.Fatal(err)
 		}
 		go func() {
+			if len(cfg.Respeaker) > 0 {
+				if d, err := respeaker.Open(); err != nil {
+					log.Printf("[respeaker] not tuned: %v", err)
+				} else {
+					lines, err := d.Apply(cfg.Respeaker)
+					d.Close()
+					log.Printf("[respeaker] %s%s", strings.Join(lines, " "), map[bool]string{true: "", false: fmt.Sprintf(" (%v)", err)}[err == nil])
+				}
+			}
 			if err := audio.CaptureFrom(ctx, audio.Device{Name: cfg.Audio.Device,
 				Channels: cfg.Audio.Channels, Channel: cfg.Audio.Channel, ALSA: cfg.Audio.ALSA}, frames); err != nil {
 				log.Printf("[audio] %v", err)

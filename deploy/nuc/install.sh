@@ -43,6 +43,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq build-essential cmake
 mkdir -p "$HOME/.config/wireplumber/wireplumber.conf.d" "$HOME/bin"
 install -m 644 "$HERE/audio/51-respeaker.conf" "$HOME/.config/wireplumber/wireplumber.conf.d/51-respeaker.conf"
 install -m 755 "$HERE/audio/respeaker-rec.sh" "$HOME/bin/respeaker-rec.sh"
+# the array's USB node for the plugdev group (fsttm-go sets its XVF-3000 parameters at start)
+if ! cmp -s "$HERE/audio/99-respeaker.rules" /etc/udev/rules.d/99-respeaker.rules; then
+  sudo install -m 644 "$HERE/audio/99-respeaker.rules" /etc/udev/rules.d/99-respeaker.rules
+  sudo udevadm control --reload && sudo udevadm trigger --attr-match=idVendor=2886
+fi
 pactl set-card-profile "$CARD" output:analog-stereo 2>/dev/null || echo "(the ReSpeaker is not plugged in: set its profile later)"
 
 # the units: written, daemon reloaded; enabling/starting is swap-go / swap-py's

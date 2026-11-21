@@ -28,4 +28,5 @@ if [ "${1:-}" = test ]; then
     ./internal/tts/... ./internal/fsm/... ./internal/panel/... ./internal/pipeline/...
 fi
 go build -tags nollama,norhvoice -o bin/ ./cmd/fsttm-go
+CGO_ENABLED=0 go build -o bin/ ./cmd/respeaker
 echo "built $FSTTM/go/bin/fsttm-go (rpath: $WLIB)"

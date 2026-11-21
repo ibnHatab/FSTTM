@@ -25,6 +25,17 @@ audio:
     alsa: true                  # (deploy/nuc/audio/README.md); its PipeWire profile is output only
     channels: 6                 # the firmware's six: ch0 processed speech, ch1-4 raw mics, ch5 playback
     channel: 0
+# The array's XVF-3000, set at start (go/pkg/respeaker; RAM only: a replug resets it). Measured with the
+# array on Pascal, 2026-11-22: the firmware's AGC target 0.005 left its speech channel at about -49 dBFS;
+# with these the room's floor fell ~9 dB and the same phrase came ~20 dB louder, transcribed the same,
+# also over fan noise. HPF 125 Hz against the ventilation's rumble; stronger stationary suppression on
+# the ASR channel. `respeaker` (go/cmd/respeaker) reads them all.
+respeaker:
+    AGCDESIREDLEVEL: 0.02
+    HPFONOFF: 2
+    GAMMA_NS_SR: 1.8
+    MIN_NS_SR: 0.1
+
 vad:
     aggressiveness: 2           # 3 missed quiet far-field speech from the array
     padding_ms: 600

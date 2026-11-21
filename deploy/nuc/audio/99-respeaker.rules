@@ -1,0 +1,3 @@
+# The ReSpeaker 4 Mic Array (2886:0018): its USB device node readable/writable by the plugdev group,
+# so fsttm-go (go/pkg/respeaker) can set the XVF-3000's parameters without root.
+SUBSYSTEM=="usb", ATTR{idVendor}=="2886", ATTR{idProduct}=="0018", MODE="0664", GROUP="plugdev"
