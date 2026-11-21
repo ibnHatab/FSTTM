@@ -30,6 +30,7 @@ file named by gpt.api_key_file); it is never logged.
 """
 from __future__ import annotations
 
+import collections
 import json
 import logging as _pylog
 import os
@@ -43,7 +44,7 @@ import reactivex as rx
 from cyclotron import Component
 
 from fsttm.llama import (Sink, Source, Initialize, AddSystem, Generate, IntentGenerate,
-                         ClassifySystem, ManualGenerate, StopGenerate, TrimHistory,
+                         ClassifySystem, ManualGenerate, StopGenerate, TrimHistory, StreamEvent,
                          Response, ResponseDone, IntentResult, SystemIntent, LlamaError,
                          ConversationHistory)
 
@@ -53,6 +54,43 @@ DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 DEFAULT_KEY_ENV = "GEMINI_API_KEY"
 VOICE_STYLE = ("Your words are spoken aloud by a speech synthesizer: answer in one to three short "
                "sentences of plain text, no markdown, no lists, no emoji.")
+
+
+# The model works with three streams, and is told so. Only the conversation is addressed to
+# it; the other two run in parallel with it and with each other, and reach it as context.
+STREAMS_PROMPT = """\
+You work with three separate streams. Keep them apart.
+
+1. CONVERSATION: the person's words (speech recognition, so it can mishear) and your own
+   replies. This is the only stream addressed to you, and the only one you answer.
+2. ENVIRONMENT: the state of the home as Home Assistant reports it (devices, sensors),
+   updated continuously and independently of the conversation. It is the truth about the
+   devices, more reliable than what you assumed or what the person remembers.
+3. REASONING: conclusions of the home's rule engine, a reasoning process that runs in
+   parallel with you and with the conversation: whether a request was done or refused and
+   why, what it inferred, what it noticed. It is not the person speaking and not your own
+   thought. About what the home did and can do, it is authoritative: when it contradicts
+   what you expected or said, follow it and correct yourself.
+
+ENVIRONMENT and REASONING are given below with their times; a newer entry supersedes an
+older one. They are not messages to you: never answer them as if the person had said them,
+never read them out unasked. Use them when they bear on what the person says, and mention a
+REASONING entry on your own only when the person should know it (a refusal, a problem).
+A request about the home may be decided by the rule engine after you reply: if its outcome
+is not in REASONING yet, do not claim it is done."""
+
+
+def render_streams(env, reasoning, now=None):
+    """The ENVIRONMENT and REASONING sections of the system prompt, or "" when both are empty."""
+    hm = lambda ts: time.strftime("%H:%M:%S", time.localtime(ts)) if ts else "--:--:--"
+    out = []
+    if env:
+        out.append("ENVIRONMENT (as of %s):" % hm(now or time.time()))
+        out += ["- %s: %s  (%s)" % (k, text, hm(ts)) for k, (text, ts) in sorted(env.items())]
+    if reasoning:
+        out.append("REASONING (newest last):")
+        out += ["- %s %s" % (hm(ts), text) for text, ts in reasoning]
+    return "\n".join(out)
 
 
 class CloudError(RuntimeError):
@@ -182,6 +220,8 @@ def make_driver(loop=None):
         cfg = {"temp": 0.7, "max_tokens": 200, "trim": False}
         sys_prompt = [""]
         history = ConversationHistory(n_ctx=32768)
+        env = {}                                             # key -> (text, ts): the ENVIRONMENT stream
+        reasoning = collections.deque(maxlen=12)              # (text, ts): the REASONING stream
         stop_event = threading.Event()
         req_queue: queue.Queue = queue.Queue(maxsize=1)
         observer = [None]
@@ -189,9 +229,18 @@ def make_driver(loop=None):
         def emit(ev):
             loop.call_soon_threadsafe(observer[0].on_next, ev)
 
+        def with_streams(base):
+            """The base prompt with the streams' explanation and their current entries."""
+            parts = [base] if base else []
+            parts.append(STREAMS_PROMPT)
+            st = render_streams(env, list(reasoning))
+            if st:
+                parts.append(st)
+            return "\n\n".join(parts)
+
         def chat_system():
             s = sys_prompt[0]
-            return (s + "\n\n" + VOICE_STYLE) if s else VOICE_STYLE
+            return with_streams((s + "\n\n" + VOICE_STYLE) if s else VOICE_STYLE)
 
         # ── plain chat, streamed ──────────────────────────────────────────
         def handle_generate(item):
@@ -219,7 +268,7 @@ def make_driver(loop=None):
             try:
                 schema = _intent_schema(item.domains)
                 txt = chat[0].complete(
-                    _messages(sys_prompt[0], history, item.text), temperature=0.0,
+                    _messages(with_streams(sys_prompt[0]), history, item.text), temperature=0.0,
                     max_tokens=cfg["max_tokens"],
                     response_format={"type": "json_schema",
                                      "json_schema": {"name": "intent", "schema": schema}})
@@ -310,6 +359,17 @@ def make_driver(loop=None):
                     if cfg["trim"] and history._turns and item.heard_text is not None:
                         user, _ = history._turns[-1]
                         history._turns[-1] = (user, item.heard_text.strip() or "...")
+                elif t is StreamEvent:
+                    ts = item.ts or time.time()
+                    if item.stream == "env" and item.key:
+                        if item.text is None:
+                            env.pop(item.key, None)           # the entity is gone
+                        else:
+                            env[item.key] = (str(item.text), ts)
+                    elif item.stream == "reasoning" and item.text:
+                        reasoning.append((str(item.text), ts))
+                    else:
+                        _log.warning("stream event ignored: %r", item)
                 elif t is StopGenerate:
                     stop_event.set()
                     try:

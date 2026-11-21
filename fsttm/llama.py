@@ -71,6 +71,13 @@ AddSystem.__new__.__defaults__ = (None,)
 TrimHistory     = namedtuple('TrimHistory',  ['heard_text'])
 TrimHistory.__new__.__defaults__ = (None,)
 
+# StreamEvent: an entry of one of the two streams that run beside the conversation
+# (fsttm.streams): "env", the home's state as Home Assistant reports it (key = the
+# entity; a newer entry replaces it), and "reasoning", what the rule engine (Metis)
+# concluded (appended, newest last). Not a turn: no reply is generated for it.
+StreamEvent     = namedtuple('StreamEvent',  ['stream', 'key', 'text', 'ts'])
+StreamEvent.__new__.__defaults__ = (None, None, None, None)
+
 Response        = namedtuple('Response',     ['text',        'context'])
 Response.__new__.__defaults__ = (None, None)
 ResponseDone    = namedtuple('ResponseDone', ['full_text',   'context'])
@@ -501,6 +508,8 @@ def make_local_driver(loop=None):
                     if history._turns and item.heard_text is not None:
                         user, _ = history._turns[-1]
                         history._turns[-1] = (user, item.heard_text.strip() or "...")
+                elif type(item) is StreamEvent:
+                    pass    # the local model's prompt is its KV prefix: the streams are the API backend's
                 elif type(item) is StopGenerate:
                     _stop_event.set()
                     # drain any pending unstarted request

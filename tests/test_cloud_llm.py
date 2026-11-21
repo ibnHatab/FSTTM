@@ -195,3 +195,40 @@ def test_config_fields():
                             "model": "x"})
     assert f == {"backend": "openai", "temperature": 0.3, "request_extra": {"reasoning_effort": "none"}}
     assert Initialize(model_path="m").backend == "llama"
+
+
+@pytest.mark.asyncio
+async def test_streams_reach_the_system_prompt_not_the_conversation(endpoint):
+    from fsttm.llama import StreamEvent
+    fake, base = endpoint
+    _, evs = await run([init(base),
+                        StreamEvent(stream="env", key="light.living_room", text="off", ts=1),
+                        StreamEvent(stream="env", key="light.living_room", text="on", ts=2),
+                        StreamEvent(stream="env", key="media_player.tv", text="off", ts=2),
+                        StreamEvent(stream="reasoning", text="refused on(heating): not a device I know", ts=3),
+                        Generate(text="is the light on?", context=1)],
+                       lambda e: bool(dones(e)))
+    msgs = fake.bodies[0]["messages"]
+    system = msgs[0]["content"]
+    assert "three separate streams" in system
+    assert "- light.living_room: on" in system and "light.living_room: off" not in system
+    assert "refused on(heating)" in system.split("REASONING (newest last):")[1]
+    assert [m["role"] for m in msgs] == ["system", "user"]          # the streams are not turns
+
+
+def test_stream_door_delivers_lines():
+    import time as _t
+    from fsttm.streams import StreamDoor, send
+    got = []
+    door = StreamDoor(got.append, port=0).start()
+    try:
+        send([{"stream": "env", "key": "light.x", "text": "on"},
+              {"stream": "reasoning", "text": "done on(light)"},
+              {"stream": "nope", "text": "x"}], port=door.port)
+        for _ in range(50):
+            if len(got) == 2:
+                break
+            _t.sleep(0.02)
+    finally:
+        door.close()
+    assert [(e.stream, e.key, e.text) for e in got] == [("env", "light.x", "on"), ("reasoning", None, "done on(light)")]

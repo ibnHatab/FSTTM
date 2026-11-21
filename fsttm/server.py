@@ -457,6 +457,27 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
     # — they no longer fire on the bare VAD sentinel (which is only tentative).
     llm_subjects = rx.merge(llm_init, _llm_subject)
 
+    # The streams beside the conversation (fsttm.streams): the home's state and the
+    # rule engine's conclusions, pushed by other processes to a local port, reach the
+    # LLM as context (StreamEvent), never as turns. Opened once, after the LLM's init.
+    _door = [None]
+
+    def _open_stream_door(cfg):
+        sc = getattr(cfg, 'streams', None) or {}
+        port = sc.get('port') if isinstance(sc, dict) else getattr(sc, 'port', None)
+        if _door[0] is not None or not port:
+            return
+        from fsttm.streams import StreamDoor
+        try:
+            _door[0] = StreamDoor(
+                lambda ev: aio_scheduler.schedule(lambda *_: _llm_subject.on_next(ev)),
+                port=int(port)).start()
+            _emit(f"[streams] env + reasoning in on 127.0.0.1:{_door[0].port}", "info")
+        except OSError as e:
+            _emit(f"[streams] cannot open port {port}: {e}", "warn")
+
+    config.subscribe(on_next=_open_stream_door)
+
     # Remember the last dispatched utterance so a manual/RAG intent that omits the
     # `topic` field can still retrieve against the raw question.
     _last_user_text = [""]
