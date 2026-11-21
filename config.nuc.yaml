@@ -1,0 +1,56 @@
+# The NUC (i3-10110U, no GPU): the voice is local (ReSpeaker 4 Mic Array, Whisper on the CPU,
+# Piper), the LLM is Gemini over its OpenAI-compatible API (fsttm.cloud). Measured here on
+# 2026-11-21: Piper 3.8 s of speech in 0.26 s; Whisper base.en 2.2 s / tiny.en 1.0 s for that
+# 3.8 s; Gemini 3.1 Flash-Lite ~1.7 s a short reply with thinking off.
+#   fsttm --config config.nuc.yaml [--tui]
+system:
+    name: "Nina"
+    intent_mode: false          # free conversation
+    domain: null
+    attention: false            # always listening (true: wait for "Nina" first)
+    sleep_intent: false
+    wake_words: ["nina", "hey nina", "hi nina"]
+domains: {}
+aec:
+    enabled: false              # the ReSpeaker's XVF-3000 cancels echo itself, against what
+                                # plays through its own jack (tts.sink below)
+    rnnoise: false
+server:
+  http:
+    host: "127.0.0.1"
+    port: 8080
+    request_max_size: 1048576
+log:
+  level:
+    - logger: fsttm
+      level: INFO
+vad:
+    vad_aggressiveness: 3
+    device: null
+    device_name: "pulse"        # the default source: respeaker_asr, the array's processed channel
+                                # (~/.config/pipewire/pipewire-pulse.conf.d/respeaker-asr.conf)
+    rate: 16000
+    padding_ms: 600
+    soft_duck: true
+stt:
+    model: "models/ggml-base.en-q5_1.bin"     # tiny: models/ggml-tiny.en-q5_1.bin (faster, less sure)
+    language: "en"
+    parasites: ["thank you", "thanks", "thanks for watching", "you"]
+tts:
+    backend: "piper"
+    piper:
+        model: "models/en_US-lessac-medium.onnx"
+        sample_rate: 22050
+        cuda: false
+    device: "pulse"
+    sink: "ReSpeaker"           # out through the array's jack: its echo canceller hears it
+gpt:
+    backend: openai
+    model: gemini-3.1-flash-lite
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    api_key_file: ~/.config/fsttm/gemini.key
+    temp: 0.7
+    max_tokens: 200
+    trim_on_barge_in: false
+    request_extra: {reasoning_effort: none}
+    n_threads: 4

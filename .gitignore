@@ -165,3 +165,4 @@ docs/*.pdf
 # fsttm-go build artifacts
 go/bin/
 go/ros-cgo-flags.env
+/.run/
