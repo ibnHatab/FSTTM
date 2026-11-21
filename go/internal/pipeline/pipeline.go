@@ -112,12 +112,12 @@ type Engine struct {
 	speakReq   chan string
 	streamReq  chan (<-chan string)
 	turnCancel context.CancelFunc
-	uttEnd     time.Time // when the last utterance closed (the end-to-end clock)
+	uttEnd     time.Time   // when the last utterance closed (the end-to-end clock)
 	cut        atomic.Bool // the running streamed reply was cut: speak no more of it
-	ttsDone   chan bool
-	speakingT time.Time
-	speakEndT time.Time
-	speaking  bool
+	ttsDone    chan bool
+	speakingT  time.Time
+	speakEndT  time.Time
+	speaking   bool
 
 	announceCh chan string // system-initiated narration (warnings, status)
 	pending    []string    // announcements deferred while the floor is busy
@@ -160,6 +160,7 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 					}
 					if first && !e.uttEnd.IsZero() {
 						log.Printf("[timing] first audio %.2fs after the end of speech", time.Since(e.uttEnd).Seconds())
+						e.event("speak", map[string]any{"first_audio_s": time.Since(e.uttEnd).Seconds(), "text": s})
 						first = false
 					}
 					res, err := e.TTS.Speak(ctx, s)
@@ -169,6 +170,7 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 					if !res.Completed && err == nil {
 						done = false
 						log.Printf("[tts] cut at %.0f%% of %q", res.Fraction()*100, s)
+						e.event("cut", map[string]any{"fraction": res.Fraction(), "text": s})
 					}
 				}
 				select {
@@ -306,6 +308,7 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 		time.Since(e.speakEndT)-uttDur < 200*time.Millisecond {
 		log.Printf("[echo] dropped %.1fs utterance overlapping own speech",
 			uttDur.Seconds())
+		e.event("echo", map[string]any{"audio_s": uttDur.Seconds()})
 		return
 	}
 	_ = e.Turn.UserAction('R')
@@ -315,6 +318,7 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 	t0 := time.Now()
 	res, ok := e.STT.Transcribe(ev.Utterance)
 	log.Printf("[stt] %.2fs for %.1fs of audio", time.Since(t0).Seconds(), uttDur.Seconds())
+	e.event("stt", map[string]any{"stt_s": time.Since(t0).Seconds(), "audio_s": uttDur.Seconds(), "text": res.Text, "kept": ok && !res.Parasite})
 	if !ok || res.Parasite {
 		return
 	}
@@ -506,6 +510,7 @@ func (e *Engine) chatTurn(text string) {
 		}
 		log.Printf("[timing] llm first sentence %.2fs, whole reply %.2fs: %q",
 			firstAt.Seconds(), time.Since(start).Seconds(), full)
+		e.event("llm", map[string]any{"first_sentence_s": firstAt.Seconds(), "whole_s": time.Since(start).Seconds()})
 		e.event("reply", full)
 	}()
 	e.speaking = true

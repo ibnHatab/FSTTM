@@ -14,6 +14,9 @@
 //	               nuc/asleep{text, ts}          heard while asleep (no wake word): ignored
 //	               nuc/reply{id?, text, ts}      her whole reply (id: a typed turn's)
 //	               nuc/state{floor, attention, dialog}
+//	               nuc/event{kind, t, ...}       a dialog event: kind fsttm {event, src, dst} is a floor
+//	                                             transition; the rest (stt, llm, speak, cut, echo, heard,
+//	                                             asleep, reply, dialog, typed) the engine's own
 //	page → engine  nuc/say{id, text}             a typed person turn
 package panel
 
@@ -92,6 +95,20 @@ func (s *Server) Said(who, id, text string) {
 	s.mu.Lock()
 	s.conv = keep(append(s.conv, f), 200)
 	s.mu.Unlock()
+	s.send(f)
+}
+
+// Event is one dialog event of the engine, for the page's floor machine and its events list.
+func (s *Server) Event(kind string, fields map[string]any) {
+	f := map[string]any{"ev": "nuc/event", "kind": kind, "t": float64(time.Now().UnixMilli())}
+	for k, v := range fields {
+		f[k] = v
+	}
+	if kind == "fsttm" {
+		s.mu.Lock()
+		s.state["floor"] = fields["dst"]
+		s.mu.Unlock()
+	}
 	s.send(f)
 }
 

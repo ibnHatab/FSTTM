@@ -30,6 +30,7 @@ import (
 	"github.com/ibnHatab/fsttm/go/internal/aec"
 	"github.com/ibnHatab/fsttm/go/internal/audio"
 	"github.com/ibnHatab/fsttm/go/internal/cloud"
+	"github.com/ibnHatab/fsttm/go/internal/fsm"
 	"github.com/ibnHatab/fsttm/go/internal/go2audio"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/nina"
@@ -315,10 +316,23 @@ func main() {
 			eng.Typed <- text
 		}
 		cur := ""
+		prevChange := eng.Turn.OnChange
+		eng.Turn.OnChange = func(event string, src, dst fsm.State) {
+			if prevChange != nil {
+				prevChange(event, src, dst)
+			}
+			pan.Event("fsttm", map[string]any{"event": event, "src": string(src), "dst": string(dst)})
+		}
 		prev := eng.Events
 		eng.Events = func(kind string, payload any) {
 			if prev != nil {
 				prev(kind, payload)
+			}
+			switch p := payload.(type) {
+			case map[string]any:
+				pan.Event(kind, p)
+			case string:
+				pan.Event(kind, map[string]any{"text": p})
 			}
 			txt, _ := payload.(string)
 			switch kind {

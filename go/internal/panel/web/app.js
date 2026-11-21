@@ -64,8 +64,25 @@ function reason(f, live) {
   b.prepend(d);
   while (b.children.length > 200) b.lastChild.remove();
 }
+// the engine's floor: its machine is the one that holds the turn (the NUC's mic and voice); the page's
+// own floor machine (fsttm-web's, drawn in the FLOOR dock) is moved to the engine's state on every
+// transition, so the diagram, the dwell, the trail and the costs are the engine's
+function engineFloor(dst, src, event) {
+  const f = panel.core.dialog?.fsttm;
+  if (!f || !dst || f.state === dst) return;
+  f.prev = src ?? f.state;
+  f.state = dst;
+  f.since = f.now();
+  panel.core.event('fsttm', { event, src: f.prev, dst, by: 'engine' });
+}
+// every engine event in the FLOOR dock's events list (fsttm-web's bench keeps and times them)
+function engineEvent(f) {
+  const { ev, kind, t, ...rest } = f;
+  if (kind === 'fsttm') { engineFloor(rest.dst, rest.src, rest.event); return; }
+  panel.core.event(`nuc.${kind}`, rest);
+}
 function state(s) {
-  if (s.floor) $('#floor').textContent = s.floor;
+  if (s.floor) { $('#floor').textContent = s.floor; engineFloor(s.floor); }
   if (s.attention) $('#attn').textContent = s.attention;
   if (s.dialog) $('#dlg').textContent = s.dialog;
 }
@@ -91,6 +108,7 @@ function frame(f) {
     case 'nuc/reasoning': case 'nuc/tool': reason(f, true); return;
     case 'nuc/heard': case 'nuc/asleep': case 'nuc/reply': said(f); return;
     case 'nuc/state': state(f); return;
+    case 'nuc/event': engineEvent(f); return;
   }
 }
 connect();
