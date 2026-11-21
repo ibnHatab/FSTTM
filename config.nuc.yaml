@@ -30,8 +30,11 @@ log:
 vad:
     vad_aggressiveness: 2         # 3 missed quiet far-field speech from the array
     device: null
-    device_name: "pulse"        # the default source: respeaker_asr, the array's processed channel
-                                # (~/.config/pipewire/pipewire.conf.d/respeaker-asr.conf: a loopback of ch0 alone, 16 kHz)
+    device_name: "ReSpeaker"    # the array straight from ALSA (hw:ArrayUAC10): PipeWire's capture of it
+                                # garbled ch0; the card's profile is output only (output:analog-stereo),
+                                # so PipeWire still plays to its jack (the echo canceller's reference)
+    channels: 6                 # the firmware's six: ch0 processed speech, ch1-4 raw mics, ch5 playback
+    channel: 0
     rate: 16000
     padding_ms: 600
     soft_duck: true
