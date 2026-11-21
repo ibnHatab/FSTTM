@@ -7,9 +7,12 @@ system:
     name: "Nina"
     intent_mode: false          # free conversation
     domain: null
-    attention: false            # always listening (true: wait for "Nina" first)
+    attention: true             # wait for the wake word ("hey Nina" and how Whisper spells it), then awake
+
     sleep_intent: false
-    wake_words: ["nina", "hey nina", "hi nina"]
+    awake_s: 30                 # asleep again after 30 s with nothing said or replied
+    wake_words: ["hey nina", "hi nina", "ok nina", "nina", "hey neena", "hey nena", "hey nino",
+                 "hey nine", "a nina", "hey, nina"]
 domains: {}
 aec:
     enabled: false              # the ReSpeaker's XVF-3000 cancels echo itself, against what
@@ -25,7 +28,7 @@ log:
     - logger: fsttm
       level: INFO
 vad:
-    vad_aggressiveness: 3
+    vad_aggressiveness: 2         # 3 missed quiet far-field speech from the array
     device: null
     device_name: "pulse"        # the default source: respeaker_asr, the array's processed channel
                                 # (~/.config/pipewire/pipewire-pulse.conf.d/respeaker-asr.conf)

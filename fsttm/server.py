@@ -374,6 +374,7 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
             enabled=enabled,
             name=getattr(sysc, 'name', 'Nina') if sysc else 'Nina',
             wake_words=getattr(sysc, 'wake_words', None) if sysc else None,
+            awake_s=getattr(sysc, 'awake_s', None) if sysc else None,
         )
         if tui_state is not None:
             tui_state.attention_enabled = enabled
@@ -460,6 +461,9 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
     # The streams beside the conversation (fsttm.streams): the home's state and the
     # rule engine's conclusions, pushed by other processes to a local port, reach the
     # LLM as context (StreamEvent), never as turns. Opened once, after the LLM's init.
+    # a reply is activity too: the idle time of the wake-word layer starts after it
+    llm_src.pipe(ops.filter(lambda i: type(i) is llama.ResponseDone)
+                 ).subscribe(on_next=lambda i: _attn[0].touch())
     _door = [None]
     _panel = [None]     # the streams panel (fsttm.streams.StreamPanel): env, reasoning, conversation
 

@@ -27,6 +27,7 @@ layer (off → always-AWAKE, today's behaviour); ``sleep_intent`` enables
 LLM-classified sleep. Transitions are silent (no TTS); the TUI shows the state.
 """
 import re
+import time
 
 ASLEEP = "ASLEEP"
 AWAKE = "AWAKE"
@@ -39,17 +40,32 @@ def _norm(text):
 
 class Attention:
     def __init__(self, enabled=True, wake_words=None, name="nina",
-                 start_asleep=True):
+                 start_asleep=True, awake_s=None, clock=time.monotonic):
         # When disabled, the layer is a no-op: always AWAKE, wake/sleep ignored.
         self.enabled = enabled
         self.name = (name or "nina").lower()
         self.wake_words = [w.lower() for w in (wake_words or
                                                ["nina", "hey nina", "hi nina"])]
         self.state = (ASLEEP if (enabled and start_asleep) else AWAKE)
+        # awake_s: back to ASLEEP after this many quiet seconds (no utterance, no reply);
+        # None: once woken, awake for good (the old behaviour)
+        self.awake_s = awake_s
+        self.clock = clock
+        self.last = clock()
+
+    def touch(self):
+        """Activity (an utterance, a reply): the idle time starts again."""
+        self.last = self.clock()
+
+    def _expire(self):
+        if (self.enabled and self.state == AWAKE and self.awake_s
+                and self.clock() - self.last > self.awake_s):
+            self.state = ASLEEP
 
     # ── predicates ────────────────────────────────────────────────────────────
     @property
     def awake(self):
+        self._expire()
         return (not self.enabled) or self.state == AWAKE
 
     @property
@@ -73,6 +89,7 @@ class Attention:
 
     def wake(self):
         self.state = AWAKE
+        self.touch()
 
     def sleep(self):
         self.state = ASLEEP
@@ -97,6 +114,7 @@ class Attention:
         if not self.enabled:
             return {"action": "command", "text": text, "wake_prefixed": False}
 
+        self._expire()
         if self.state == ASLEEP:
             matched, remainder = self.match_wake(text)
             if matched:
@@ -110,5 +128,6 @@ class Attention:
 
         # AWAKE → always a command. Surface whether the user addressed the
         # assistant by name so the server only considers sleep/mute then.
+        self.touch()
         matched, _ = self.match_wake(text)
         return {"action": "command", "text": text, "wake_prefixed": matched}

@@ -134,6 +134,8 @@ class System(BaseModel):
                                         # to go back to sleep — needs attention.
                                         # Off → never re-sleeps (always awake).
     wake_words: List[str] = ["nina", "hey nina", "hi nina"]
+    awake_s: Optional[float] = None     # with attention: back to sleep after this many quiet
+                                        # seconds (no utterance, no reply); null: awake for good
 
 
 class Config(BaseModel):

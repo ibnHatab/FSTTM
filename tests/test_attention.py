@@ -150,3 +150,28 @@ def test_asleep_and_disabled_report_wake_prefixed():
     assert a.on_utterance("random talk")["wake_prefixed"] is False
     off = Attention(enabled=False)
     assert off.on_utterance("anything")["wake_prefixed"] is False
+
+
+def test_awake_s_falls_back_asleep_after_quiet():
+    from fsttm.attention import Attention
+    now = [0.0]
+    a = Attention(enabled=True, wake_words=["hey nina"], awake_s=30, clock=lambda: now[0])
+    assert a.on_utterance("hey nina turn on the light")["action"] == "wake"
+    now[0] = 20
+    assert a.on_utterance("and the tv")["action"] == "command"        # within 30 s of the last
+    now[0] = 45
+    a.touch()                                                          # a reply ended at 45
+    now[0] = 70
+    assert a.on_utterance("louder")["action"] == "command"            # 25 s after the reply
+    now[0] = 101
+    assert a.on_utterance("what about the tv")["action"] == "ignore"  # 31 s quiet: asleep again
+    assert a.on_utterance("hey nina")["action"] == "wake"
+
+
+def test_awake_s_none_stays_awake():
+    from fsttm.attention import Attention
+    now = [0.0]
+    a = Attention(enabled=True, wake_words=["hey nina"], clock=lambda: now[0])
+    a.on_utterance("hey nina")
+    now[0] = 10_000
+    assert a.on_utterance("anything")["action"] == "command"
