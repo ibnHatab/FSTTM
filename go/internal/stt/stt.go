@@ -25,6 +25,10 @@ type STT struct {
 	// 512 on the NUC: base.en 2.15 s -> 1.37 s for 2 s of speech, the same text).
 	AudioCtx uint
 	Threads  uint
+	// NoFallback: no temperature fallback (a decode that fails its thresholds is kept, not
+	// re-run hotter): bounds the time of a short utterance; SingleSegment likewise.
+	NoFallback    bool
+	SingleSegment bool
 	mu    sync.Mutex // whisper contexts are not goroutine-safe
 	model whisper.Model
 	lang  string
@@ -89,6 +93,12 @@ func (s *STT) transcribe(samples []float32) (string, error) {
 	ctx.SetThreads(th)
 	if s.AudioCtx > 0 {
 		ctx.SetAudioCtx(s.AudioCtx)
+	}
+	if s.NoFallback {
+		ctx.SetTemperatureFallback(-1)
+	}
+	if s.SingleSegment {
+		ctx.SetSingleSegment(true)
 	}
 	if err := ctx.Process(samples, nil, nil, nil); err != nil {
 		return "", err
