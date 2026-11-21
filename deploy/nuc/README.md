@@ -27,6 +27,7 @@ The page: http://nuc:8767/ (LAN and tailnet): the dialog on the left (what the a
 a text line for typed turns), the ENVIRONMENT, REASONING (the rules' conclusions and the LLM's tool calls)
 and FLOOR docks on the right. The Python engine's panel was `127.0.0.1:8767` (local only).
 
-Measured on the NUC (2026-11-21, the Python engine running beside, load ~9): Whisper base.en 1.9 s for
-2.2 s of speech (`audio_ctx: 512` made whisper.cpp 1.9.6 slower, 3.7 s); Piper 2.1 s of speech in 0.3 s;
+Measured on the NUC (2026-11-21, the Python engine running beside, load 6-9): Whisper base.en 1.9 s for
+2.2 s of speech, the right text (`audio_ctx: 512` on whisper.cpp 1.9.6: 3.7 s, or 1.7 s with a degenerate
+"4, 4, 4, ..." without fallback; the Python engine's pywhispercpp gained from it); Piper 2.1 s of speech in 0.3 s;
 Gemini 1.8–3.9 s for a reply with one tool call (8.7 s once).

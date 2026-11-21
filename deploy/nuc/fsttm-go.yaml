@@ -33,8 +33,8 @@ barge_in: "off"                 # half-duplex until the speakers and the array's
 stt:
     model: "models/ggml-base.en-q5_1.bin"
     language: "en"
-    audio_ctx: 0                # whisper.cpp 1.9.6 here: 512 made it SLOWER (3.7 s vs 1.9 s for 2.2 s of speech;
-                                # pywhispercpp's older whisper.cpp got 2.15 -> 1.37 s from it)
+    audio_ctx: 0                # whisper.cpp 1.9.6 here: 512 is slower with fallback (3.7 s vs 1.9 s for 2.2 s of
+                                # speech) and degenerates without it ("1, 2, 3, 4, 4, 4, 4, ..."); 0 is right
     threads: 4
     no_fallback: true           # no re-decoding hotter: bounds a short utterance's time
     parasites: ["thank you", "thanks", "thanks for watching", "you"]
