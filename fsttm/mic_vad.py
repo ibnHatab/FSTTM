@@ -25,7 +25,10 @@ class Audio:
     CHANNELS = 1
     BLOCKS_PER_SECOND = 50
 
-    def __init__(self, loop, device=None, input_rate=RATE_PROCESS):
+    def __init__(self, loop, device=None, input_rate=RATE_PROCESS, channels=1, channel=0):
+        # channels: how many the device is opened with; channel: the one kept (a mic array
+        # read straight from ALSA: the ReSpeaker's six, ch0 its processed speech)
+        self.channels, self.channel = int(channels or 1), int(channel or 0)
         self.buffer_queue = asyncio.Queue()
         self.device = device
         self.input_rate = input_rate
@@ -36,6 +39,8 @@ class Audio:
             self.pa = pyaudio.PyAudio()
 
         def proxy_callback(in_data, frame_count, time_info, status):
+            if self.channels > 1:
+                in_data = np.frombuffer(in_data, dtype=np.int16).reshape(-1, self.channels)[:, self.channel].tobytes()
             loop.call_soon_threadsafe(
                 self.buffer_queue.put_nowait, (bytearray(in_data), status)
             )
@@ -43,7 +48,7 @@ class Audio:
 
         kwargs = {
             'format': self.FORMAT,
-            'channels': self.CHANNELS,
+            'channels': self.channels,
             'rate': self.input_rate,
             'input': True,
             'frames_per_buffer': self.block_size_input,
@@ -84,8 +89,8 @@ class Audio:
 
 class VADAudio(Audio):
     def __init__(self, loop, aggressiveness=3, device=None, input_rate=None,
-                 padding_ms=700):
-        super().__init__(loop, device=device, input_rate=input_rate)
+                 padding_ms=700, channels=1, channel=0):
+        super().__init__(loop, device=device, input_rate=input_rate, channels=channels, channel=channel)
         self.vad = webrtcvad.Vad(aggressiveness)
         self.padding_ms = padding_ms   # end-of-utterance silence before closing turn
         # ducking: clear → muted (TTS playing), set → active (normal)

@@ -116,7 +116,9 @@ def fsttm_server(aio_scheduler, sources, tui_state=None):
                                   i.vad.device,
                                   i.vad.rate,
                                   i.vad.device_name,
-                                  i.vad.padding_ms),
+                                  i.vad.padding_ms,
+                                  getattr(i.vad, 'channels', 1),
+                                  getattr(i.vad, 'channel', 0)),
             perception.Start(),
         ])),
     )

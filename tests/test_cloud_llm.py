@@ -341,3 +341,10 @@ def test_tool_schema_gets_the_rules_vocabulary():
     d = schema["properties"]["device"]["description"]
     assert "'living room light'" in d and "'lab light'" in d and "'lab'," not in d
     assert schema["properties"]["intent"]["description"].startswith("ON: turn one light on")
+
+
+def test_mic_keeps_one_channel_of_six():
+    import numpy as np
+    frames = np.arange(12, dtype=np.int16).reshape(-1, 6)          # two frames, six channels
+    kept = np.frombuffer(frames.tobytes(), dtype=np.int16).reshape(-1, 6)[:, 0].tobytes()
+    assert np.frombuffer(kept, dtype=np.int16).tolist() == [0, 6]

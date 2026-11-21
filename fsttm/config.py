@@ -15,6 +15,8 @@ class VAD(BaseModel):
     device_name: Optional[str] = None   # PipeWire source name (overrides device index)
     rate: int = 16000
     padding_ms: int = 700   # silence duration before closing utterance (300=fast, 700=natural)
+    channels: int = 1        # open the device with this many channels (the ReSpeaker from ALSA: 6)
+    channel: int = 0         # ... and keep this one (the ReSpeaker: 0, its processed speech)
     soft_duck: bool = True   # route playback-period speech to a barge-in sentinel
                              # instead of STT; set false to rely on AEC alone and
                              # detect barge-in from a plain VAD onset

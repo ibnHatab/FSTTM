@@ -13,8 +13,11 @@ Source = namedtuple('Source', ['voice'])
 # Sink events
 # device: int index OR None (system default)
 # device_name: string to search for (e.g. "fsttm_ec_source"); overrides device
-Initialize = namedtuple('Initialize', ['vad_aggressiveness', 'device', 'rate', 'device_name', 'padding_ms'])
-Initialize.__new__.__defaults__ = (3, None, 16000, None, 700)
+# channels / channel: open the device with that many channels and keep the one named (a mic
+# array read straight from ALSA: the ReSpeaker's 6, channel 0 its processed speech)
+Initialize = namedtuple('Initialize', ['vad_aggressiveness', 'device', 'rate', 'device_name', 'padding_ms',
+                                       'channels', 'channel'])
+Initialize.__new__.__defaults__ = (3, None, 16000, None, 700, 1, 0)
 
 Start  = namedtuple('Start', [])
 Stop   = namedtuple('Stop', [])
@@ -28,7 +31,7 @@ def make_driver(loop=None):
     def driver(sink):
         vad_audio = None
 
-        def setup_vad(aggressiveness, device, rate, device_name, padding_ms):
+        def setup_vad(aggressiveness, device, rate, device_name, padding_ms, channels=1, channel=0):
             if device_name:
                 from fsttm.utils import ignoreStderr
                 with ignoreStderr():
@@ -48,7 +51,8 @@ def make_driver(loop=None):
                             aggressiveness=aggressiveness,
                             device=device,
                             input_rate=rate,
-                            padding_ms=padding_ms)
+                            padding_ms=padding_ms,
+                            channels=channels, channel=channel)
 
         def on_subscribe(observer, scheduler):
             nonlocal vad_audio
@@ -69,7 +73,8 @@ def make_driver(loop=None):
                 if type(item) is Initialize:
                     vad_audio = setup_vad(item.vad_aggressiveness,
                                           item.device, item.rate,
-                                          item.device_name, item.padding_ms)
+                                          item.device_name, item.padding_ms,
+                                          item.channels, item.channel)
                     asyncio.ensure_future(read_frames())
                 elif type(item) is Start:
                     if vad_audio:
