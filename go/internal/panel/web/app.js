@@ -2,6 +2,7 @@
 // page's floor machine in the shell's docks. The engine owns the mic, the recognition, the LLM and the voice: the
 // panel here shows the conversation (what the NUC heard, her replies) and takes typed turns (nuc/say), voice off.
 import { Panel } from './vendor/panel.js';
+import { toggleSwitch, keyMatch } from './vendor/switch.js';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -36,6 +37,34 @@ const panel = new Panel($('#dialog'), {
   storeKey: 'nina',
 });
 window.panel = panel;
+
+// ── the voice card: [● mic ⟦switch⟧ ● voice ⟦switch⟧ stop], fsttm-web's look, the ENGINE's switches ──
+// mic off: the NUC hears nothing (F9); voice off: her replies text only, what she is saying stops (Shift+8);
+// stop: hush what she is saying now (F8). The state is the engine's (nuc/state mic, voice), on every page.
+const ctl = op => ws?.readyState === 1 && ws.send(JSON.stringify({ ev: 'nuc/ctl', op }));
+const sw = {
+  mic: toggleSwitch({ label: 'mic', title: 'the NUC\'s microphone: Nina listens while on (F9)', onChange: on => ctl(on ? 'mic on' : 'mic off') }),
+  voice: toggleSwitch({ label: 'voice', title: 'her voice: replies spoken while on; off stops what she is saying (Shift+8)', onChange: on => ctl(on ? 'voice on' : 'voice off') }),
+};
+const stopBtn = document.createElement('button');
+Object.assign(stopBtn, { type: 'button', className: 'fw-stop', textContent: 'stop', title: 'hush: stop what she is saying now (F8)' });
+stopBtn.onclick = () => ctl('stop');
+const bar = document.createElement('span');
+bar.className = 'fw-voicebar'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'the voice');
+bar.append(sw.mic.el, sw.voice.el, stopBtn);
+$('#voicebar').append(bar);
+const typing = t => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName ?? ''));
+document.addEventListener('keydown', e => {
+  if (e.repeat || typing(e.target)) return;
+  const k = keyMatch('F9', e) ? () => ctl(sw.mic.on ? 'mic off' : 'mic on') : keyMatch('Shift+8', e) ? () => ctl(sw.voice.on ? 'voice off' : 'voice on')
+    : keyMatch('F8', e) ? () => ctl('stop') : null;
+  if (k) { e.preventDefault(); k(); }
+});
+function switches(s) {
+  if ('mic' in s) sw.mic.set(s.mic ? 'on' : 'off');
+  if ('voice' in s) sw.voice.set(s.voice ? 'on' : 'off');
+  if (s.dialog) stopBtn.dataset.live = s.dialog === 'SPEAKING' ? '1' : '0';
+}
 
 // ── the docks ──
 const docks = MetisShell.docks({ names: ['env', 'rsn', 'floor'], key: 'nina.docks.v1', fold: false,
@@ -80,6 +109,7 @@ function engineEvent(f) {
   const { ev, kind, t, ...rest } = f;
   if (kind === 'fsttm') { engineFloor(rest.dst, rest.src, rest.event); return; }
   if (kind === 'attention') return;            // shown by the state frame beside it
+  if (kind === 'heard' && sw.mic.on) sw.mic.ping();
   panel.core.event(`nuc.${kind}`, rest);
 }
 // the engine's attention (the wake word and the idle timeout are the engine's): the page's attention
@@ -92,6 +122,7 @@ function engineAttention(st) {
   panel.core.changed();
 }
 function state(s) {
+  switches(s);
   if (s.floor) { $('#floor').textContent = s.floor; engineFloor(s.floor); }
   if (s.attention) { $('#attn').textContent = s.attention; engineAttention(s.attention); }
   if (s.dialog) $('#dlg').textContent = s.dialog;
@@ -100,6 +131,7 @@ function state(s) {
 function said(f) {
   if (f.ev === 'nuc/heard') panel.core.row({ who: 'person', text: f.text, via: 'voice', meta: 'heard on the NUC' });
   else if (f.ev === 'nuc/asleep') panel.core.row({ who: 'note', text: `asleep, ignored: “${f.text}” (say “hey Nina” first)` });
+  else if (f.ev === 'nuc/doubtful') panel.core.row({ who: 'note', text: `not a turn — the transcript looped: “${f.text}”` });
   else if (f.ev === 'nuc/reply') {
     if (f.id && pending.has(f.id)) { pending.get(f.id)(f.text); return; }
     panel.core.row({ who: 'agent', text: f.text, meta: 'her reply, spoken on the NUC' });
@@ -116,7 +148,7 @@ function frame(f) {
       return;
     case 'nuc/env': if (f.text == null) env.delete(f.key); else env.set(f.key, f); drawEnv(f.key); return;
     case 'nuc/reasoning': case 'nuc/tool': reason(f, true); return;
-    case 'nuc/heard': case 'nuc/asleep': case 'nuc/reply': said(f); return;
+    case 'nuc/heard': case 'nuc/asleep': case 'nuc/doubtful': case 'nuc/reply': said(f); return;
     case 'nuc/state': state(f); return;
     case 'nuc/event': engineEvent(f); return;
   }

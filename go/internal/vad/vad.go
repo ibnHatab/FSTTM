@@ -27,9 +27,17 @@ type Event struct {
 	// Utterance holds the full utterance PCM when the segmenter closes it
 	// (padding_ms of trailing silence observed). Nil otherwise.
 	Utterance []byte
+	// Forced: the utterance was cut at MaxMs, the sound still going (media playing in the room, a
+	// long dictation); a SpeechStart follows at once and the rest is the next utterance.
+	Forced bool
 }
 
 type Segmenter struct {
+	// MaxMs bounds an utterance (0: no bound): past it the segmenter cuts, as if the speaker
+	// paused, and goes on with the next one. Whisper reads 30 s at a time and a decode of minutes
+	// blocks the dialog; a room with a video playing never pauses long enough for the padding.
+	MaxMs int
+
 	vad        *webrtcvad.VAD
 	paddingMs  int
 	ratio      float64
@@ -121,6 +129,19 @@ func (s *Segmenter) Run(ctx context.Context, frames <-chan []byte, events chan<-
 		} else {
 			utt = append(utt, frame...)
 			push(ringFrame{frame, voiced})
+			if s.MaxMs > 0 && len(utt) >= s.MaxMs/FrameMs*FrameBytes {
+				out := make([]byte, len(utt))
+				copy(out, utt)
+				utt = utt[:0]
+				for _, ev := range []Event{{Utterance: out, Forced: true}, {SpeechStart: true}} {
+					select {
+					case events <- ev:
+					case <-ctx.Done():
+						return
+					}
+				}
+				continue
+			}
 			if float64(count(false)) > s.ratio*float64(s.ringSize) {
 				triggered = false
 				out := make([]byte, len(utt))

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"os/signal"
 	"strings"
 	"sync"
@@ -82,6 +83,9 @@ type config struct {
 	} `yaml:"tools"`
 	Panel struct {
 		Addr string `yaml:"addr"` // the page: 0.0.0.0:8767
+		// the page's mic and voice switches, kept across restarts in this file ("": the
+		// default, $XDG_STATE_HOME/fsttm/switches.json; "-": not kept, both on at start)
+		SwitchesFile string `yaml:"switches_file"`
 	} `yaml:"panel"`
 	Audio struct {
 		Device   string `yaml:"device"`   // a capture device by name ("ReSpeaker"); "" the default
@@ -113,8 +117,9 @@ type config struct {
 		AES128 string `yaml:"aes_128_key"`
 	} `yaml:"go2_speaker"`
 	VAD struct {
-		Aggressiveness int `yaml:"aggressiveness"`
-		PaddingMs      int `yaml:"padding_ms"`
+		Aggressiveness int     `yaml:"aggressiveness"`
+		PaddingMs      int     `yaml:"padding_ms"`
+		MaxUtteranceS  float64 `yaml:"max_utterance_s"` // cut a longer utterance (media in the room never pauses); 0: no bound
 	} `yaml:"vad"`
 	AEC struct {
 		Enabled      bool   `yaml:"enabled"`
@@ -349,6 +354,25 @@ func main() {
 				}
 			}
 		}()
+		// the mic and voice switches: the page's ops to the engine, their state to every page,
+		// kept in a small file across restarts
+		swFile := switchesFile(cfg.Panel.SwitchesFile)
+		if sw, ok := loadSwitches(swFile); ok {
+			if !sw.Mic {
+				eng.Control("mic off")
+			}
+			if !sw.Voice {
+				eng.Control("voice off")
+			}
+			log.Printf("[panel] switches from %s: mic %v, voice %v", swFile, sw.Mic, sw.Voice)
+		}
+		pan.State(map[string]any{"mic": eng.Mic(), "voice": eng.Voice()})
+		pan.OnCtl = func(op string) {
+			eng.Control(op)
+			pan.State(map[string]any{"mic": eng.Mic(), "voice": eng.Voice()})
+			saveSwitches(swFile, switches{Mic: eng.Mic(), Voice: eng.Voice()})
+			log.Printf("[panel] %s (mic %v, voice %v)", op, eng.Mic(), eng.Voice())
+		}
 		eng.Typed = make(chan string, 4)
 		var typedIDs []string
 		var mu sync.Mutex
@@ -390,6 +414,8 @@ func main() {
 				pan.Said("heard", "", txt)
 			case "asleep":
 				pan.Said("asleep", "", txt)
+			case "doubtful":
+				pan.Said("doubtful", "", txt)
 			case "reply":
 				pan.Said("reply", cur, txt)
 				cur = ""
@@ -489,6 +515,24 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		seg.MaxMs = int(cfg.VAD.MaxUtteranceS * 1000)
+		// the mic switch: while off, the capture keeps running and the VAD gets silence (an
+		// utterance open when it was switched off closes, and the engine drops it)
+		gated := make(chan []byte, 8)
+		go func() {
+			defer close(gated)
+			silence := make([]byte, vad.FrameBytes)
+			for f := range frames {
+				if !eng.Mic() && len(f) == vad.FrameBytes {
+					f = silence
+				}
+				select {
+				case gated <- f:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
 		go func() {
 			if len(cfg.Respeaker) > 0 {
 				if d, err := respeaker.Open(); err != nil {
@@ -505,9 +549,9 @@ func main() {
 				stop()
 			}
 		}()
-		go seg.Run(ctx, frames, vadEvents)
-		log.Printf("[vad] streaming (aggr=%d padding=%dms) — say something",
-			cfg.VAD.Aggressiveness, cfg.VAD.PaddingMs)
+		go seg.Run(ctx, gated, vadEvents)
+		log.Printf("[vad] streaming (aggr=%d padding=%dms max=%.0fs) — say something",
+			cfg.VAD.Aggressiveness, cfg.VAD.PaddingMs, cfg.VAD.MaxUtteranceS)
 	}
 
 	eng.Run(ctx, vadEvents, textIn)
@@ -550,6 +594,53 @@ func transcribeFile(cfg config, path string) {
 	s.NoFallback = cfg.STT.NoFallback
 	t0 := time.Now()
 	r, ok := s.Transcribe(pcm)
-	fmt.Printf("%.2fs for %.1fs of audio (audio_ctx %d): ok=%v %q\n", time.Since(t0).Seconds(),
-		float64(len(pcm)/2)/16000, actx, ok, r.Text)
+	fmt.Printf("%.2fs for %.1fs of audio (audio_ctx %d, window %d): ok=%v redecoded=%v doubtful=%v %q\n", time.Since(t0).Seconds(),
+		float64(len(pcm)/2)/16000, actx, stt.CtxFor(actx, len(pcm)/2), ok, r.Redecoded, r.Doubtful, r.Text)
+}
+
+// switches are the page's mic and voice, kept across restarts.
+type switches struct {
+	Mic   bool `json:"mic"`
+	Voice bool `json:"voice"`
+}
+
+func switchesFile(p string) string {
+	if p == "-" {
+		return ""
+	}
+	if p != "" {
+		return p
+	}
+	dir := os.Getenv("XDG_STATE_HOME")
+	if dir == "" {
+		home, _ := os.UserHomeDir()
+		dir = filepath.Join(home, ".local", "state")
+	}
+	return filepath.Join(dir, "fsttm", "switches.json")
+}
+
+func loadSwitches(path string) (switches, bool) {
+	if path == "" {
+		return switches{}, false
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return switches{}, false
+	}
+	sw := switches{Mic: true, Voice: true}
+	if json.Unmarshal(b, &sw) != nil {
+		return switches{}, false
+	}
+	return sw, true
+}
+
+func saveSwitches(path string, sw switches) {
+	if path == "" {
+		return
+	}
+	_ = os.MkdirAll(filepath.Dir(path), 0o755)
+	b, _ := json.Marshal(sw)
+	if err := os.WriteFile(path, b, 0o644); err != nil {
+		log.Printf("[panel] switches not kept: %v", err)
+	}
 }

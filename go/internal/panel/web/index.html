@@ -8,6 +8,7 @@
      fsttm-web's panel (vendor/panel.*: the dialog and its floor); copies, see vendor/README.md -->
 <link rel="stylesheet" href="vendor/shell.css">
 <link rel="stylesheet" href="vendor/panel.css">
+<link rel="stylesheet" href="vendor/switch.css">
 <script src="vendor/shell.js"></script>
 <style>
   :root { --fw-accent: var(--fg); --fw-side: var(--yellow); }
@@ -24,6 +25,10 @@
   .dock .dbody { overflow: auto; padding: 4px 10px; }
   #dock-floor .dbody { display: flex; flex-direction: column; }
   .fw-panel .fw-note .fw-text { color: var(--dim); }
+  #voicebar { margin: 0 10px; }
+  .fw-stop { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; opacity: .8; }
+  .fw-stop:hover { opacity: 1; } .fw-stop[data-live="1"] { color: var(--yellow); opacity: 1; }
+  .fw-stop:focus-visible { outline: 1px solid var(--fw-sw-on, #3fb950); outline-offset: 1px; }
 </style>
 </head>
 <body>
@@ -33,6 +38,7 @@
     <span class="st"><b>floor</b><span class="v" id="floor">…</span></span>
     <span class="st"><b>attention</b><span class="v" id="attn">…</span></span>
     <span class="st"><b>dialog</b><span class="v" id="dlg">…</span></span>
+    <span id="voicebar"></span>
     <span id="conn">connecting…</span>
   </div></header>
   <main>

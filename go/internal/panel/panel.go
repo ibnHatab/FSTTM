@@ -17,7 +17,10 @@
 //	               nuc/event{kind, t, ...}       a dialog event: kind fsttm {event, src, dst} is a floor
 //	                                             transition; the rest (stt, llm, speak, cut, echo, heard,
 //	                                             asleep, reply, dialog, typed) the engine's own
+//	               nuc/doubtful{text, ts}        a transcript that looped (a phrase over and over): not a turn
 //	page → engine  nuc/say{id, text}             a typed person turn
+//	               nuc/ctl{op}                   a switch: "mic on" | "mic off" | "voice on" | "voice off" | "stop"
+//	                                             (hush the narration now); the state comes back as nuc/state{mic, voice}
 package panel
 
 import (
@@ -38,6 +41,7 @@ var webFS embed.FS
 
 type Server struct {
 	OnSay func(id, text string) // a typed person turn
+	OnCtl func(op string)       // a switch from a page (nuc/ctl)
 
 	mu      sync.Mutex
 	clients map[*websocket.Conn]chan []byte
@@ -183,10 +187,16 @@ func (s *Server) ws(c *websocket.Conn) {
 				return
 			}
 			var f struct {
-				Ev, ID, Text string
+				Ev, ID, Text, Op string
 			}
-			if json.Unmarshal([]byte(msg), &f) == nil && f.Ev == "nuc/say" && f.Text != "" && s.OnSay != nil {
+			if json.Unmarshal([]byte(msg), &f) != nil {
+				continue
+			}
+			switch {
+			case f.Ev == "nuc/say" && f.Text != "" && s.OnSay != nil:
 				s.OnSay(f.ID, f.Text)
+			case f.Ev == "nuc/ctl" && f.Op != "" && s.OnCtl != nil:
+				s.OnCtl(f.Op)
 			}
 		}
 	}()

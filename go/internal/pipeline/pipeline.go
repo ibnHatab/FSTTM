@@ -121,6 +121,52 @@ type Engine struct {
 
 	announceCh chan string // system-initiated narration (warnings, status)
 	pending    []string    // announcements deferred while the floor is busy
+
+	// the page's switches (Control): the mic off drops what the VAD brings (nothing is
+	// transcribed); the voice off speaks nothing (the replies are text only)
+	micOff   atomic.Bool
+	voiceOff atomic.Bool
+	ctl      chan string
+}
+
+// Control is a switch from a page, from any goroutine: "mic on" | "mic off" | "voice on" |
+// "voice off" | "stop" (hush the narration now: the reply's text still comes). The voice off
+// also hushes what is being said.
+func (e *Engine) Control(op string) {
+	switch op {
+	case "mic on", "mic off":
+		e.micOff.Store(op == "mic off")
+		e.event("switch", map[string]any{"mic": op == "mic on", "voice": !e.voiceOff.Load()})
+		return
+	case "voice on", "voice off":
+		e.voiceOff.Store(op == "voice off")
+		e.event("switch", map[string]any{"mic": !e.micOff.Load(), "voice": op == "voice on"})
+		if op == "voice on" {
+			return
+		}
+	case "stop":
+	default:
+		return
+	}
+	select {
+	case e.ctl <- "hush":
+	default:
+	}
+}
+
+// Mic and Voice are the switches' states.
+func (e *Engine) Mic() bool   { return !e.micOff.Load() }
+func (e *Engine) Voice() bool { return !e.voiceOff.Load() }
+
+// hush stops the narration at once (the barge-in cut: the sentence playing, the rest of the
+// streamed reply unspoken); the LLM's reply is not cancelled, its text still comes.
+func (e *Engine) hush() {
+	if !e.speaking {
+		return
+	}
+	log.Print("[tts] hushed from the page")
+	e.cut.Store(true)
+	e.TTS.Cancel()
 }
 
 func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
@@ -137,6 +183,7 @@ func New(cfg Config, l IntentGen, s Transcriber, t tts.Speaker) *Engine {
 		streamReq:  make(chan (<-chan string)),
 		ttsDone:    make(chan bool),
 		announceCh: make(chan string, 8),
+		ctl:        make(chan string, 4),
 	}
 }
 
@@ -157,6 +204,9 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 					if !done || e.cut.Load() {
 						done = false
 						continue // drain after a cut
+					}
+					if e.voiceOff.Load() {
+						continue // the voice is off: the reply is text only
 					}
 					if first && !e.uttEnd.IsZero() {
 						log.Printf("[timing] first audio %.2fs after the end of speech", time.Since(e.uttEnd).Seconds())
@@ -179,6 +229,14 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 					return
 				}
 			case text := <-e.speakReq:
+				if e.voiceOff.Load() {
+					select {
+					case e.ttsDone <- true:
+					case <-ctx.Done():
+						return
+					}
+					continue
+				}
 				res, err := e.TTS.Speak(ctx, text)
 				if err != nil {
 					log.Printf("[tts] %v", err)
@@ -204,6 +262,9 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 		select {
 		case <-ctx.Done():
 			return
+
+		case <-e.ctl:
+			e.hush()
 
 		case text := <-e.announceCh:
 			e.pending = append(e.pending, text)
@@ -272,6 +333,9 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 }
 
 func (e *Engine) onVadEvent(ev vad.Event) {
+	if e.micOff.Load() {
+		return // the mic is off: nothing heard (the capture keeps running, its frames are silence)
+	}
 	if ev.SpeechStart {
 		if e.speaking {
 			if e.cfg.BargeIn == "vad" && time.Since(e.speakingT) > bargeGrace {
@@ -317,9 +381,19 @@ func (e *Engine) onVadEvent(ev vad.Event) {
 	}
 	t0 := time.Now()
 	res, ok := e.STT.Transcribe(ev.Utterance)
-	log.Printf("[stt] %.2fs for %.1fs of audio", time.Since(t0).Seconds(), uttDur.Seconds())
-	e.event("stt", map[string]any{"stt_s": time.Since(t0).Seconds(), "audio_s": uttDur.Seconds(), "text": res.Text, "kept": ok && !res.Parasite})
+	log.Printf("[stt] %.2fs for %.1fs of audio%s%s", time.Since(t0).Seconds(), uttDur.Seconds(),
+		map[bool]string{true: " (cut at the maximum length)"}[ev.Forced],
+		map[bool]string{true: " (looped: decoded again)"}[res.Redecoded])
+	e.event("stt", map[string]any{"stt_s": time.Since(t0).Seconds(), "audio_s": uttDur.Seconds(), "text": res.Text,
+		"kept": ok && !res.Parasite && !res.Doubtful, "forced": ev.Forced, "redecoded": res.Redecoded, "doubtful": res.Doubtful})
 	if !ok || res.Parasite {
+		return
+	}
+	if res.Doubtful {
+		// the decoder looped even decoding carefully: not a turn (a person never says a phrase
+		// twenty times); shown, not acted on
+		log.Printf("[stt] doubtful (a loop), not a turn: %q", Short(res.Text))
+		e.event("doubtful", Short(res.Text))
 		return
 	}
 	e.uttEnd = t0
@@ -372,8 +446,8 @@ func (e *Engine) processUtterance(text string, pcm []byte) {
 		// only in the OWNER's voice (the robot imprints; ownership transfer
 		// = replace the profile file).
 		if matched, _ := e.Attn.MatchWake(text); !matched {
-			log.Printf("[asleep] ignored: %q", text)
-			e.event("asleep", text)
+			log.Printf("[asleep] ignored: %q", Short(text))
+			e.event("asleep", Short(text))
 			return
 		}
 		if e.ownerGated("wake") && pcm != nil && e.Owner != nil {
@@ -606,4 +680,21 @@ func (e *Engine) event(kind string, payload any) {
 	if e.Events != nil {
 		e.Events(kind, payload)
 	}
+}
+
+// Short is a transcript for a note: its first 160 characters, at a word, and an ellipsis.
+func Short(text string) string {
+	const n = 160
+	r := []rune(text)
+	if len(r) <= n {
+		return text
+	}
+	cut := n
+	for i := n; i > n-30; i-- {
+		if r[i] == ' ' {
+			cut = i
+			break
+		}
+	}
+	return strings.TrimRight(string(r[:cut]), " ,.;") + " …"
 }

@@ -39,6 +39,8 @@ respeaker:
 vad:
     aggressiveness: 2           # 3 missed quiet far-field speech from the array
     padding_ms: 600
+    max_utterance_s: 25         # a video or music in the room never pauses: cut at 25 s and go on (one
+                                # Whisper window each; 2026-11-22 the room's media made utterances of 50-564 s)
 barge_in: "off"                 # half-duplex until the speakers and the array's echo canceller are checked
 
 stt:
@@ -46,9 +48,12 @@ stt:
     language: "en"
     audio_ctx: 768              # whisper-cli on the NUC, the user's voice, -nf: 2.5 s clip 2.34 s -> 1.21 s,
                                 # 10 s clip 2.89 s -> 1.51 s, the same words (no punctuation); 512 was SLOWER
-                                # (2.48 s), which is why an earlier try at 512 found no gain; 768 = ~15 s of audio
+                                # (2.48 s), which is why an earlier try at 512 found no gain; 768 = ~15 s of audio,
+                                # a FLOOR: a longer utterance gets the window it needs (stt.CtxFor, up to 1500)
     threads: 4
-    no_fallback: true           # no re-decoding hotter: bounds a short utterance's time
+    no_fallback: true           # no re-decoding hotter: bounds a short utterance's time; a transcript that
+                                # loops is decoded once more carefully (full window, fallback, no carried text),
+                                # and if it still loops it is shown as doubtful, not taken as a turn
     parasites: ["thank you", "thanks", "thanks for watching", "you"]
 
 tts:

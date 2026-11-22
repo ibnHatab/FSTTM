@@ -26,7 +26,8 @@ cd "$FSTTM/go"
 if [ "${1:-}" = test ]; then
   export LD_LIBRARY_PATH="$WLIB" G2P_LEXICON="$FSTTM/models/paradee"
   exec go test -tags nollama,norhvoice ./pkg/... ./internal/cloud/... ./internal/attention/... ./internal/audio/... \
-    ./internal/tts/... ./internal/g2p/... ./internal/paradee/... ./cmd/fsttm-hass/... ./internal/fsm/... ./internal/panel/... ./internal/pipeline/...
+    ./internal/tts/... ./internal/g2p/... ./internal/paradee/... ./cmd/fsttm-hass/... ./internal/fsm/... ./internal/panel/... ./internal/pipeline/... \
+    ./internal/stt/... ./internal/vad/...
 fi
 go build -tags nollama,norhvoice -o bin/ ./cmd/fsttm-go ./cmd/paradee-say
 CGO_ENABLED=0 go build -o bin/ ./cmd/respeaker ./cmd/fsttm-hass
