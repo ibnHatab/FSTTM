@@ -334,7 +334,12 @@ func (e *Engine) Run(ctx context.Context, vadEvents <-chan vad.Event, textIn <-c
 
 func (e *Engine) onVadEvent(ev vad.Event) {
 	if e.micOff.Load() {
-		return // the mic is off: nothing heard (the capture keeps running, its frames are silence)
+		// the mic is off: nothing heard (the capture keeps running, its frames are silence); an
+		// utterance open when it went off closes on that silence: the floor it took is released
+		if ev.Utterance != nil && !e.speaking {
+			_ = e.Turn.UserAction('R')
+		}
+		return
 	}
 	if ev.SpeechStart {
 		if e.speaking {

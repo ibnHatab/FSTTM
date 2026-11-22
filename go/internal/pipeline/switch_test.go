@@ -28,6 +28,13 @@ func TestMicOffIgnoresSpeech(t *testing.T) {
 	if len(spk.said()) != 0 || e.Mic() {
 		t.Fatalf("mic off: spoke %v", spk.said())
 	}
+	// switched off in the middle of an utterance: the floor it took comes back
+	e.Control("mic on")
+	events <- vad.Event{SpeechStart: true}
+	waitFor(t, func() bool { return e.Turn.State == fsm.User }, "the floor taken")
+	e.Control("mic off")
+	events <- utter("half a sentence")
+	waitFor(t, func() bool { return e.Turn.State != fsm.User }, "the floor released after the mic went off")
 	e.Control("mic on")
 	events <- vad.Event{SpeechStart: true}
 	events <- utter("sit down")
