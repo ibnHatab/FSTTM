@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ibnHatab/fsttm/go/internal/fsm"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/stt"
 	"github.com/ibnHatab/fsttm/go/internal/tts"
 	"github.com/ibnHatab/fsttm/go/internal/vad"
+	"github.com/ibnHatab/fsttm/go/pkg/fsm"
 )
 
 // ── fakes ─────────────────────────────────────────────────────────────────────
@@ -262,12 +262,12 @@ func TestWakeWord(t *testing.T) {
 	events, cancel, wg := run(t, e)
 	defer func() { cancel(); wg.Wait() }()
 
-	events <- utter("sit down")                  // asleep → ignored
+	events <- utter("sit down") // asleep → ignored
 	time.Sleep(100 * time.Millisecond)
 	if len(spk.said()) != 0 {
 		t.Fatal("asleep engine must not act")
 	}
-	events <- utter("hey rex, sit down")         // wake + trailing command
+	events <- utter("hey rex, sit down") // wake + trailing command
 	waitFor(t, func() bool { return len(spk.said()) == 1 }, "spoken after wake")
 }
 

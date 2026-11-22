@@ -183,7 +183,7 @@ no Go2 was on the LAN at build time.
 
 The FSM is machine-checked against the N09-1071 paper (canonical 12-
 transition table, structural constraints, the six §3.1 phenomena, Table-1
-action availability) in `internal/fsm/paper_test.go` — audit narrative in
+action availability) in `pkg/fsm/paper_test.go` — audit narrative in
 `../docs/fsttm-n09-1071-verification.md`. The concurrency invariants have
 e2e tests:
 

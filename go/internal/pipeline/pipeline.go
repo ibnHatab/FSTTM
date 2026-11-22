@@ -24,13 +24,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ibnHatab/fsttm/go/internal/attention"
-	"github.com/ibnHatab/fsttm/go/internal/fsm"
 	"github.com/ibnHatab/fsttm/go/internal/intent"
 	"github.com/ibnHatab/fsttm/go/internal/llm"
 	"github.com/ibnHatab/fsttm/go/internal/stt"
 	"github.com/ibnHatab/fsttm/go/internal/tts"
 	"github.com/ibnHatab/fsttm/go/internal/vad"
+	"github.com/ibnHatab/fsttm/go/pkg/attention"
+	"github.com/ibnHatab/fsttm/go/pkg/fsm"
 )
 
 // Driver seams — small interfaces so e2e tests can fake every stage while
@@ -63,7 +63,7 @@ type Config struct {
 	SystemPrompt string
 	GBNF         string
 
-	// Attention layer (wake word / sleep) — see internal/attention.
+	// Attention layer (wake word / sleep) — see pkg/attention.
 	Attention    bool     // false → always awake
 	WakeWords    []string // "hello nina", "hey nina", "nina", …
 	SleepPhrases []string // "go to sleep", "voice off", … (wake-prefixed only)

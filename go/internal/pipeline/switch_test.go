@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ibnHatab/fsttm/go/internal/fsm"
 	"github.com/ibnHatab/fsttm/go/internal/vad"
+	"github.com/ibnHatab/fsttm/go/pkg/fsm"
 )
 
 func newSitEngine(spk *fakeSpeaker) *Engine {

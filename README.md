@@ -41,7 +41,7 @@ Six-state model from N09-1071. States represent floor *ownership*
          FREEu (gap after user)
 ```
 
-**Cost model** (N09-1071 §3.2, `go/internal/fsm`): `C_u = 5000`,
+**Cost model** (N09-1071 §3.2, `go/pkg/fsm`): `C_u = 5000`,
 `C_gap(τ) = 1×τ`, `C_o(τ) = exp((τ+100)/1000)`.
 
 **Wire-up** (`go/internal/pipeline`): VAD speech start →

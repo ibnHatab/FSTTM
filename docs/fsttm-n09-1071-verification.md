@@ -2,9 +2,9 @@
 
 Source: Raux & Eskenazi, *A Finite-State Turn-Taking Model for Spoken Dialog
 Systems*, NAACL 2009 (§2.1, §3, Table 1). Audited implementations:
-`go/internal/fsm/fsm.go` (the retired Python engine's `fsttm/fsttm.py` was verified the same way; see git history).
-Machine-checked by `go/internal/fsm/paper_test.go` and
-`go/internal/fsm` tests.
+`go/pkg/fsm/fsm.go` (the retired Python engine's `fsttm/fsttm.py` was verified the same way; see git history).
+Machine-checked by `go/pkg/fsm/paper_test.go` and
+`go/pkg/fsm` tests.
 
 ## States (§3.1) — CONFORMANT
 
@@ -166,7 +166,7 @@ already correct: librhvoice cuts synthesis mid-stream, the exact fraction
 heard is reported, and the FSM walks transitions 7+8
 (SYSTEM→BOTH_S→USER), all covered by e2e tests.
 
-Verified by: `go/internal/fsm/paper_test.go` (table + constraints + the six
+Verified by: `go/pkg/fsm/paper_test.go` (table + constraints + the six
 §3.1 phenomena), `go/internal/llm/rollback_test.go` (byte-identical JSON
 across interleaved turns, model-gated), `go/internal/tts/librhvoice_test.go`
 (mid-synthesis cut + fraction-heard, lib-gated),
